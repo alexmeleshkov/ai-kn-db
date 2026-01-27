@@ -1,46 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ $# -lt 1 ]; then
-  echo 'Usage: ./scripts/new-project "User can ..."'
+PROMPT="${PROJECT_PROMPT:-${1:-}}"
+if [ -z "${PROMPT}" ] && [ ! -t 0 ]; then
+  PROMPT="$(cat)"
+fi
+if [ -z "${PROMPT}" ]; then
+  echo 'Usage: PROJECT_PROMPT="User can ..." ./scripts/new-project'
+  echo '   or: ./scripts/new-project "User can ..."'
   exit 1
 fi
 
-PROMPT="$1"
 TS="$(date +%s)"
-OUT_DIR="generated/project-$TS"
+SLUG="$(echo "$PROMPT" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9 ' | tr ' ' '-' | cut -c1-40)"
+OUT_DIR="generated/${SLUG:-project}-${TS}"
 
-echo "==> New project request:"
-echo "    $PROMPT"
-echo
-echo "==> Creating project at: $OUT_DIR"
+echo "==> prompt: $PROMPT"
+echo "==> out_dir: $OUT_DIR"
 
 mkdir -p "$OUT_DIR"
+python3 scripts/kb/generate_from_kb.py --prompt "$PROMPT" --out-dir "$OUT_DIR" --run-smoke
 
-cat > "$OUT_DIR/README.md" <<EOT
-# Generated Project (stub)
-
-User request:
-$PROMPT
-
-## Run (requires Docker)
-\`\`\`bash
-docker compose up
-\`\`\`
-
-Then open http://localhost:8000
-EOT
-
-cat > "$OUT_DIR/docker-compose.yml" <<'EOT'
-services:
-  app:
-    image: python:3.11-slim
-    command: python -m http.server 8000
-    ports:
-      - "8000:8000"
-EOT
-
-echo "==> Done."
-echo "==> Next:"
-echo "    cd $OUT_DIR"
-echo "    docker compose up"
+echo "==> generated: $OUT_DIR"
