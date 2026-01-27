@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ $# -lt 1 ]; then
+  echo 'Usage: ./scripts/new-project "User can ..."'
+  exit 1
+fi
+
+PROMPT="$1"
+TS="$(date +%s)"
+OUT_DIR="generated/project-$TS"
+
+echo "==> New project request:"
+echo "    $PROMPT"
+echo
+echo "==> Creating project at: $OUT_DIR"
+
+mkdir -p "$OUT_DIR"
+
+cat > "$OUT_DIR/README.md" <<EOT
+# Generated Project (stub)
+
+User request:
+$PROMPT
+
+## Run (requires Docker)
+\`\`\`bash
+docker compose up
+\`\`\`
+
+Then open http://localhost:8000
+EOT
+
+cat > "$OUT_DIR/docker-compose.yml" <<'EOT'
+services:
+  app:
+    image: python:3.11-slim
+    command: python -m http.server 8000
+    ports:
+      - "8000:8000"
+EOT
+
+echo "==> Done."
+echo "==> Next:"
+echo "    cd $OUT_DIR"
+echo "    docker compose up"
