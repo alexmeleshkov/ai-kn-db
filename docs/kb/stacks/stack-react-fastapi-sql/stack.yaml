@@ -1,0 +1,26 @@
+id: stack-react-fastapi-sql
+name: React (Vite) + FastAPI + SQL (Docker-first)
+description: >
+  Deterministic scaffold for a full-stack web app. Frontend: Vite React TS.
+  Backend: FastAPI. Local dev and smoke tests run via Docker Compose.
+runtime:
+  host_requirements:
+    - Docker Desktop / Docker Engine
+  containerized_tools:
+    - node:20
+    - python:3.11
+scaffold:
+  steps:
+    - name: Create frontend (Vite React + TypeScript)
+      cwd: "{project_dir}"
+      command: "npm create vite@latest frontend -- --template react-ts"
+    - name: Copy backend + compose templates
+      cwd: "{project_dir}"
+      copy_from: "docs/kb/stacks/stack-react-fastapi-sql/templates"
+smoke_test:
+  description: "Backend health endpoint returns 200 via Docker Compose."
+  commands:
+    - "docker compose up -d --build"
+    - "docker compose ps"
+    - "docker compose exec -T backend python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health').read(); print('ok')\""
+    - "docker compose down"
