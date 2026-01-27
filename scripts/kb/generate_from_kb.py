@@ -25,6 +25,10 @@ from typing import Any, Iterable
 
 import yaml
 
+# Import preference extraction and style injection modules
+from extract_preferences import extract_preferences, preferences_to_dict
+from inject_styles import inject_styles
+
 RE_WORD = re.compile(r"[a-zA-Z0-9]+")
 
 
@@ -182,6 +186,13 @@ def main() -> int:
 
     stack = load_stack(repo_root, stack_id)
     apply_stack(repo_root, stack, out_dir)
+
+    # Inject style preferences after scaffolding
+    print("==> extracting style preferences from prompt")
+    preferences = extract_preferences(args.prompt)
+    prefs_dict = preferences_to_dict(preferences)
+    print(f"==> preferences: colors={list(prefs_dict['colors'].keys())}, fonts={list(prefs_dict['fonts'].keys())}")
+    inject_styles(out_dir, prefs_dict)
 
     if args.run_smoke:
         run_smoke_test(stack, out_dir)
