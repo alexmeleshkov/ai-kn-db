@@ -20,7 +20,7 @@ scaffold:
 smoke_test:
   description: "Backend health endpoint returns 200 via Docker Compose."
   commands:
-    - "docker compose up -d --build"
-    - "docker compose ps"
-    - "docker compose exec -T backend python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health').read(); print('ok')\""
-    - "docker compose down"
+    - "docker-compose up -d --build"
+    - "docker-compose ps"
+    - "docker-compose exec -T backend python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health').read(); print('ok')\""
+    - "docker-compose down"
