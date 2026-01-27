@@ -1,0 +1,33 @@
+id: template-project
+name: Template Project
+status: draft # draft | stable | deprecated
+
+# High-level classification
+project_type: web-app # web-app | api | cli | mobile | library | service
+domain_tags:
+  - example-domain
+
+# What users can do (capabilities)
+capabilities:
+  - example_capability
+
+# Recommended technology stack reference (from docs/kb/stacks)
+stack_ref: stack-example
+
+# Reusable patterns used by this project (from docs/kb/patterns)
+pattern_refs:
+  - pattern-example
+
+# Non-functional requirements (optional)
+nfr:
+  performance: medium # low | medium | high
+  security: medium
+  scalability: medium
+
+# How to run locally (short pointers, detailed in runbook if needed)
+run:
+  prerequisites:
+    - Node.js 20+
+  commands:
+    - npm install
+    - npm run dev

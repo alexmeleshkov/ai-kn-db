@@ -1,0 +1,13 @@
+# Business goal (user perspective)
+
+Describe the project as a user would: what problem it solves and why it matters.
+
+## Target users
+- ...
+
+## Main user scenarios
+1. ...
+2. ...
+
+## Success criteria
+- ...

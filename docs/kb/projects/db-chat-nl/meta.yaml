@@ -1,0 +1,61 @@
+id: db-chat-nl
+name: ITFC Analysis (DB Chat NL)
+status: stable
+
+# High-level classification
+project_type: web-app
+domain_tags:
+  - sports-analytics
+  - fan-database
+  - natural-language-query
+  - ai-powered
+
+# What users can do (capabilities)
+capabilities:
+  - natural_language_to_sql
+  - database_query_interface
+  - chat_history_persistence
+  - authentication_jwt
+  - query_result_visualization
+  - database_schema_browsing
+  - sql_learning_system
+
+# Recommended technology stack reference
+stack_ref: stack-react-fastapi-sql
+
+# Reusable patterns used by this project
+pattern_refs:
+  - pattern-nl-to-sql
+  - pattern-sse-streaming
+  - pattern-jwt-auth
+  - pattern-learning-system
+  - pattern-adapter-database
+  - pattern-tool-use-llm
+
+# Non-functional requirements
+nfr:
+  performance: high
+  security: high
+  scalability: medium
+
+# How to run locally
+run:
+  prerequisites:
+    - Python 3.11+
+    - Node.js 20+
+    - Anthropic API key
+    - Azure SQL Server access
+    - AWS RDS PostgreSQL access
+  backend:
+    - cd backend
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    - cp .env.example .env
+    - uvicorn app.main:app --reload
+  frontend:
+    - cd frontend
+    - npm install
+    - npm run dev
+  docker:
+    - docker-compose up --build

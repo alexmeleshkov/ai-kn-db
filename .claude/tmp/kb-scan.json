@@ -1,0 +1,111 @@
+{
+  "scan_date": "2026-01-26",
+  "project_id": "db-chat-nl",
+  "repository_path": "/c/work/db-chat-nl-master",
+  "name": "ITFC Analysis (db-chat-nl)",
+  "description": "Natural language interface for querying Ipswich Town fan databases using Claude AI",
+  "production_url": "https://www.itfcanalysis.com",
+  "license": "MIT",
+  "technologies": {
+    "frontend": {
+      "framework": "React 18.2.0",
+      "language": "TypeScript 5.2.2",
+      "build_tool": "Vite 5.0.8",
+      "libraries": ["Chart.js 4.5.1", "react-chartjs-2", "react-markdown 9.0.1"]
+    },
+    "backend": {
+      "framework": "FastAPI >= 0.109.0",
+      "language": "Python 3.11",
+      "web_server": "Uvicorn",
+      "auth": ["PyJWT 2.8.0", "bcrypt 4.1.0"],
+      "ai": "anthropic >= 0.40.0 (Claude Opus 4)"
+    },
+    "databases": [
+      "Azure SQL Server (IpswichTown_cdm)",
+      "AWS RDS PostgreSQL (app data)",
+      "DuckDB (local/dev)"
+    ],
+    "devops": ["Docker", "Heroku (Standard-2X)", "pytest"]
+  },
+  "run_commands": {
+    "backend": [
+      "cd backend",
+      "python -m venv venv",
+      "source venv/bin/activate",
+      "pip install -r requirements.txt",
+      "cp .env.example .env",
+      "uvicorn app.main:app --reload"
+    ],
+    "frontend": [
+      "cd frontend",
+      "npm install",
+      "npm run dev"
+    ],
+    "docker": [
+      "docker-compose up --build"
+    ]
+  },
+  "key_modules": {
+    "backend_services": [
+      "database_azure.py",
+      "database_pg.py",
+      "auth.py",
+      "llm.py",
+      "chat.py",
+      "learning_store.py",
+      "ipswich_examples.py",
+      "query_intelligence.py"
+    ],
+    "frontend_components": [
+      "AuthPage.tsx",
+      "ChatContainer.tsx",
+      "ChatMessage.tsx",
+      "DataViewer.tsx",
+      "QueryChart.tsx",
+      "SidebarTabs.tsx"
+    ],
+    "api_routes": [
+      "/api/v1/auth/*",
+      "/api/v1/chat/stream",
+      "/api/v1/conversations",
+      "/api/v1/database/schema"
+    ]
+  },
+  "required_env_vars": [
+    "ANTHROPIC_API_KEY",
+    "AZURE_SQL_SERVER",
+    "AZURE_SQL_DATABASE",
+    "AZURE_SQL_USER",
+    "AZURE_SQL_PASSWORD",
+    "POSTGRES_HOST",
+    "POSTGRES_DATABASE",
+    "POSTGRES_USER",
+    "POSTGRES_PASSWORD",
+    "JWT_SECRET"
+  ],
+  "external_dependencies": [
+    "Azure SQL Server (requires IP whitelist)",
+    "AWS RDS PostgreSQL (manual schema setup)",
+    "Anthropic Claude API",
+    "QuotaGuard Static (production)"
+  ],
+  "risks": [
+    "Missing environment variables documentation",
+    "No automated database migrations",
+    "Outdated .env.example file",
+    "Heavy dependency on external services",
+    "IP whitelist requirements",
+    "No disaster recovery plan"
+  ],
+  "testing_gaps": [
+    "No frontend tests",
+    "No integration tests",
+    "No load testing"
+  ],
+  "documentation_gaps": [
+    "No API documentation (Swagger/OpenAPI)",
+    "No database schema diagram",
+    "No monitoring/alerting strategy",
+    "No backup/restore procedures"
+  ]
+}
