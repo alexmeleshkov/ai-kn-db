@@ -1,61 +1,154 @@
 id: db-chat-nl
-name: ITFC Analysis (DB Chat NL)
-status: stable
+name: ITFC Analysis (db-chat-nl)
+status: stable # Production deployment at itfcanalysis.com
 
 # High-level classification
 project_type: web-app
 domain_tags:
   - sports-analytics
-  - fan-database
-  - natural-language-query
-  - ai-powered
+  - database-query
+  - natural-language-interface
+  - ai-assistant
+  - fan-engagement
 
 # What users can do (capabilities)
 capabilities:
-  - natural_language_to_sql
-  - database_query_interface
-  - chat_history_persistence
-  - authentication_jwt
-  - query_result_visualization
-  - database_schema_browsing
-  - sql_learning_system
+  authentication_jwt:
+    description: "User registration and login with JWT token-based authentication"
+    complexity: medium
+    frontend_dependencies:
+      - react@18.2.0
+      - react-dom@18.2.0
+    backend_dependencies:
+      - PyJWT>=2.8.0
+      - bcrypt>=4.1.0
+      - fastapi>=0.109.0
+    env_vars:
+      - JWT_SECRET
+      - JWT_ALGORITHM
+  
+  natural_language_query:
+    description: "Convert natural language questions into SQL queries using Claude AI"
+    complexity: high
+    frontend_dependencies:
+      - react@18.2.0
+      - react-markdown@9.0.1
+      - remark-gfm@4.0.0
+    backend_dependencies:
+      - anthropic>=0.40.0
+      - fastapi>=0.109.0
+    env_vars:
+      - ANTHROPIC_API_KEY
+  
+  streaming_chat:
+    description: "Real-time streaming chat interface using Server-Sent Events (SSE)"
+    complexity: high
+    frontend_dependencies:
+      - react@18.2.0
+    backend_dependencies:
+      - fastapi>=0.109.0
+      - uvicorn[standard]>=0.27.0
+    env_vars: []
+  
+  multi_database_query:
+    description: "Query multiple database systems (Azure SQL, PostgreSQL, DuckDB)"
+    complexity: high
+    frontend_dependencies: []
+    backend_dependencies:
+      - python-tds>=1.15.0
+      - psycopg2-binary>=2.9.0
+      - duckdb>=1.0.0
+    env_vars:
+      - AZURE_SQL_SERVER
+      - AZURE_SQL_DATABASE
+      - AZURE_SQL_USER
+      - AZURE_SQL_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_DATABASE
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+  
+  conversation_history:
+    description: "Save and retrieve past conversations with queries and results"
+    complexity: medium
+    frontend_dependencies:
+      - react@18.2.0
+    backend_dependencies:
+      - psycopg2-binary>=2.9.0
+      - fastapi>=0.109.0
+    env_vars:
+      - POSTGRES_HOST
+      - POSTGRES_DATABASE
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+  
+  data_visualization:
+    description: "Generate charts and graphs from query results"
+    complexity: medium
+    frontend_dependencies:
+      - chart.js@4.5.1
+      - react-chartjs-2@5.3.1
+    backend_dependencies: []
+    env_vars: []
+  
+  query_learning:
+    description: "Learn from user queries to improve future SQL generation"
+    complexity: medium
+    frontend_dependencies: []
+    backend_dependencies:
+      - psycopg2-binary>=2.9.0
+    env_vars:
+      - POSTGRES_HOST
+      - POSTGRES_DATABASE
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+  
+  schema_introspection:
+    description: "Automatic database schema discovery and documentation"
+    complexity: medium
+    frontend_dependencies: []
+    backend_dependencies:
+      - python-tds>=1.15.0
+      - psycopg2-binary>=2.9.0
+    env_vars:
+      - AZURE_SQL_SERVER
+      - AZURE_SQL_DATABASE
+      - AZURE_SQL_USER
+      - AZURE_SQL_PASSWORD
 
-# Recommended technology stack reference
-stack_ref: stack-react-fastapi-sql
+# Technology stack
+stack_ref: react-fastapi-postgresql
 
-# Reusable patterns used by this project
+# Reusable patterns
 pattern_refs:
-  - pattern-nl-to-sql
-  - pattern-sse-streaming
-  - pattern-jwt-auth
-  - pattern-learning-system
-  - pattern-adapter-database
-  - pattern-tool-use-llm
+  - jwt-authentication
+  - sse-streaming
+  - multi-database-adapter
+  - ai-sql-generation
 
 # Non-functional requirements
 nfr:
-  performance: high
-  security: high
-  scalability: medium
+  performance: high      # Streaming responses, optimized queries
+  security: high         # JWT auth, IP whitelisting, credential management
+  scalability: medium    # Heroku Standard-2X, single instance
 
 # How to run locally
 run:
   prerequisites:
     - Python 3.11+
-    - Node.js 20+
+    - Node.js 18+
+    - PostgreSQL (or use DuckDB for local dev)
     - Anthropic API key
-    - Azure SQL Server access
-    - AWS RDS PostgreSQL access
-  backend:
-    - cd backend
-    - python -m venv venv
-    - source venv/bin/activate
+  commands:
+    - cd backend && python -m venv venv && source venv/bin/activate
     - pip install -r requirements.txt
-    - cp .env.example .env
+    - cp .env.example .env  # Edit with credentials
     - uvicorn app.main:app --reload
-  frontend:
-    - cd frontend
-    - npm install
-    - npm run dev
-  docker:
-    - docker-compose up --build
+    - cd ../frontend && npm install && npm run dev
+
+# Production deployment
+deployment:
+  platform: Heroku
+  instance: Standard-2X
+  url: https://www.itfcanalysis.com
+  static_ip: QuotaGuard Static (for Azure SQL whitelist)

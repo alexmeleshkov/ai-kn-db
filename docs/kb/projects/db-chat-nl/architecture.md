@@ -1,151 +1,135 @@
-# Architecture: ITFC Analysis
+# Architecture
 
-## System Architecture
+## Folder structure (overview)
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        Frontend                              │
-│                    (React + TypeScript)                      │
-│              Login | Chat | History | Schema View            │
-└────────────────────────────┬────────────────────────────────┘
-                             | HTTPS
-┌────────────────────────────▼────────────────────────────────┐
-│                         Backend                              │
-│                    (FastAPI + Python)                        │
-│                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │
-│  │  Azure SQL   │  │   AWS RDS    │  │   Claude API     │   │
-│  │  (Fan Data)  │  │ (Auth+Chats) │  │ (Opus 4 + Think) │   │
-│  └──────┬───────┘  └──────┬───────┘  └──────────────────┘   │
-└─────────┼─────────────────┼─────────────────────────────────┘
-          |                 |
-    ┌─────▼─────┐    ┌──────▼──────┐
-    │Azure SQL  │    │  AWS RDS    │
-    │Server     │    │ PostgreSQL  │
-    │(Ipswich)  │    │ (App Data)  │
-    └───────────┘    └─────────────┘
+db-chat-nl-master/
+├── backend/                    # FastAPI Python backend
+│   ├── app/
+│   │   ├── api/               # REST API route handlers
+│   │   │   ├── auth_routes.py        # Login, register, token validation
+│   │   │   ├── chat_routes.py        # SSE streaming chat endpoint
+│   │   │   ├── conversation_routes.py # Conversation history CRUD
+│   │   │   └── database_routes.py    # Schema introspection
+│   │   ├── core/              # Core configuration and setup
+│   │   │   ├── config.py             # Environment variable management
+│   │   │   └── dependencies.py       # FastAPI dependency injection
+│   │   ├── models/            # SQLAlchemy database models
+│   │   │   ├── user.py               # User authentication model
+│   │   │   └── conversation.py       # Conversation history model
+│   │   ├── schemas/           # Pydantic request/response schemas
+│   │   │   ├── auth.py               # Auth DTOs
+│   │   │   ├── chat.py               # Chat message schemas
+│   │   │   └── conversation.py       # Conversation DTOs
+│   │   ├── services/          # Business logic (13 services)
+│   │   │   ├── auth.py               # JWT + bcrypt authentication
+│   │   │   ├── database_azure.py     # Azure SQL Server connector
+│   │   │   ├── database_pg.py        # PostgreSQL connector
+│   │   │   ├── database_duckdb.py    # DuckDB local dev connector
+│   │   │   ├── llm.py                # Claude AI integration
+│   │   │   ├── chat.py               # SSE chat orchestration
+│   │   │   ├── learning_store.py     # Query pattern storage
+│   │   │   ├── query_intelligence.py # SQL validation & analysis
+│   │   │   ├── ipswich_examples.py   # Domain-specific examples
+│   │   │   └── conversation_service.py # History management
+│   │   └── main.py            # FastAPI app entry, CORS, route registration
+│   ├── scripts/               # Database maintenance scripts
+│   │   └── init_pg_schema.sql       # PostgreSQL schema setup
+│   ├── static/                # Built frontend files (production)
+│   ├── tests/                 # Pytest unit tests
+│   ├── requirements.txt       # Python dependencies
+│   ├── Dockerfile            # Backend container definition
+│   └── .env.example          # Environment variables template
+├── frontend/                  # React TypeScript frontend
+│   ├── src/
+│   │   ├── components/        # React components (11 components)
+│   │   │   ├── AuthPage.tsx          # Login/register UI
+│   │   │   ├── ChatContainer.tsx     # Main chat interface
+│   │   │   ├── ChatMessage.tsx       # Individual message rendering
+│   │   │   ├── DataViewer.tsx        # Query result tables
+│   │   │   ├── QueryChart.tsx        # Chart.js visualizations
+│   │   │   ├── SidebarTabs.tsx       # Navigation & history
+│   │   │   └── [5 more components]
+│   │   ├── hooks/             # Custom React hooks (4 hooks)
+│   │   │   ├── useAuth.tsx           # Authentication state
+│   │   │   ├── useChat.tsx           # SSE streaming connection
+│   │   │   ├── useConversations.tsx  # History management
+│   │   │   └── useDatabase.tsx       # Schema fetching
+│   │   ├── services/          # API client layer
+│   │   │   └── api.ts                # Axios-based HTTP client
+│   │   ├── types/             # TypeScript type definitions
+│   │   │   └── index.ts              # Shared interfaces
+│   │   ├── styles/            # CSS styling
+│   │   │   └── index.css             # Ipswich Town brand colors
+│   │   ├── App.tsx            # Root component with routing
+│   │   └── main.tsx           # React entry point
+│   ├── public/                # Static assets
+│   ├── index.html             # HTML entry point
+│   ├── package.json           # Node dependencies
+│   ├── tsconfig.json          # TypeScript configuration
+│   ├── vite.config.ts         # Vite build configuration
+│   └── Dockerfile             # Frontend container definition
+├── docker-compose.yml         # Multi-container orchestration
+├── build.sh                   # Production build script
+├── ARCHITECTURE.md            # Original architecture documentation
+└── README.md                  # Project documentation
 ```
 
-## Technology Stack
+## Key decisions
 
-### Frontend
-- **Framework**: React 18.2.0
-- **Language**: TypeScript 5.2.2
-- **Build**: Vite 5.0.8
-- **Visualization**: Chart.js 4.5.1, react-chartjs-2
-- **Markdown**: react-markdown 9.0.1
+### Decision: Multi-database adapter pattern
+- **Rationale**: Support multiple data sources (Azure SQL for fan data, PostgreSQL for app data, DuckDB for local dev) with a unified query interface. Each database requires different drivers and connection strategies.
+- **Trade-offs**: 
+  - Increased complexity in managing three database connections
+  - Performance overhead from database-specific query translation
+  - Benefits: Development flexibility (DuckDB), production scalability (cloud databases), clean separation of concerns
 
-**Sources**: frontend/package.json:L820-L827, frontend/tsconfig.json:L996-L1007
+### Decision: Server-Sent Events (SSE) for streaming
+- **Rationale**: Claude AI generates SQL queries and explanations token-by-token. SSE provides unidirectional streaming from server to client, perfect for AI response streaming without WebSocket overhead.
+- **Trade-offs**:
+  - SSE is unidirectional (server → client only), requiring separate REST endpoints for user input
+  - Limited browser support compared to WebSockets (though widely supported in modern browsers)
+  - Benefits: Simpler than WebSockets, automatic reconnection, native browser EventSource API, HTTP/2 multiplexing
 
-### Backend
-- **Framework**: FastAPI >= 0.109.0
-- **Runtime**: Python 3.11, Uvicorn (ASGI)
-- **AI**: Anthropic Claude Opus 4 with Extended Thinking
-- **Auth**: JWT (PyJWT 2.8.0) + bcrypt 4.1.0
-- **Database Drivers**: psycopg2-binary, python-tds, duckdb
+### Decision: Learning store for query improvement
+- **Rationale**: Track successful natural language → SQL translations to improve future query generation. Store query patterns, execution results, and user feedback.
+- **Trade-offs**:
+  - Additional PostgreSQL storage overhead
+  - Privacy considerations (storing user queries)
+  - Benefits: Continuously improving accuracy, faster query generation for common patterns, reduced API costs
 
-**Sources**: backend/app/main.py:L603-L640, README.md:L349-L360
+### Decision: Embedded domain knowledge (ipswich_examples.py)
+- **Rationale**: Provide Claude with Ipswich Town-specific terminology, common queries, and database schema context to improve SQL generation accuracy.
+- **Trade-offs**:
+  - Manual maintenance of example library
+  - Examples can become outdated as schema changes
+  - Benefits: Higher accuracy for domain-specific queries, better understanding of fan data semantics, reduced ambiguity
 
-### Databases
-- **Primary Data**: Azure SQL Server (IpswichTown_cdm) - 13 tables, 11M+ rows
-- **App Data**: AWS RDS PostgreSQL - users, conversations, messages, learned queries
-- **Dev/Testing**: DuckDB for local development
+### Decision: JWT token-based authentication
+- **Rationale**: Stateless authentication suitable for API-first architecture. Tokens can be validated without database lookups, enabling horizontal scaling.
+- **Trade-offs**:
+  - Cannot invalidate tokens before expiration (no server-side session revocation)
+  - Token size larger than session IDs
+  - Benefits: Stateless, scalable, standard approach for API authentication
 
-**Sources**: ARCHITECTURE.md:L182-L203, README.md:L472-L492
+### Decision: Static IP proxy (QuotaGuard) for production
+- **Rationale**: Azure SQL Server requires IP whitelisting. Heroku dynos have dynamic IPs, so a static IP proxy is needed for production database access.
+- **Trade-offs**:
+  - Additional cost (~$79/month for QuotaGuard Static)
+  - Added latency for database connections
+  - Single point of failure
+  - Benefits: Meets Azure SQL security requirements, stable production connectivity
 
-### Infrastructure
-- **Hosting**: Heroku Standard-2X dyno
-- **Proxy**: QuotaGuard Static (SOCKS5) for Azure SQL access
-- **Domain**: GoDaddy DNS to itfcanalysis.com
-- **Containers**: Docker + docker-compose for local dev
+### Decision: Frontend builds served by FastAPI
+- **Rationale**: Single deployment artifact. Vite builds frontend into `backend/static/`, and FastAPI serves both API and static files.
+- **Trade-offs**:
+  - Backend deployment size includes frontend assets
+  - Cannot deploy frontend independently to CDN
+  - Benefits: Simplified deployment, single Heroku dyno, no CORS complexity, reduced infrastructure costs
 
-**Sources**: README.md:L357-L359, ARCHITECTURE.md:L310-L326, docker-compose.yml:L772-L805
-
-## Key Design Patterns
-
-### 1. Database Adapter Pattern
-Abstract base class `database_base.py` with concrete implementations:
-- `database_azure.py` - Azure SQL Server (python-tds)
-- `database_pg.py` - PostgreSQL (psycopg2)
-
-### 2. AI Tool Use Pattern
-Claude AI uses structured tools:
-- `execute_sql` - Runs generated SQL queries
-- `ask_clarification` - Requests user input when ambiguous
-
-### 3. SSE Streaming Pattern
-Server-Sent Events for real-time chat responses with heartbeat to prevent Heroku timeout (55s limit)
-
-### 4. Learning System Pattern
-Universal learning system stores successful SQL queries keyed by:
-- Database type
-- User question
-- Generated SQL
-- Success/failure status
-
-### 5. JWT Authentication Pattern
-Self-hosted auth replacing Supabase:
-- bcrypt password hashing (12 rounds)
-- JWT tokens (HS256, 7-day expiration)
-- Stored in localStorage
-
-## Data Flow
-
-### Chat Query Flow
-1. User submits natural language question
-2. Frontend establishes SSE connection to `/api/v1/chat/stream`
-3. Backend loads database schema from cache/Azure SQL
-4. Backend retrieves learned queries for similar questions
-5. Backend constructs prompt with:
-   - Database schema
-   - Few-shot examples (Ipswich-specific)
-   - Learned queries
-   - User question
-6. Claude generates SQL using tool use
-7. Backend validates and executes SQL
-8. Results streamed back to frontend via SSE
-9. Frontend renders table + optional chart
-10. Successful query saved to learning system
-
-### Authentication Flow
-1. User submits email/password
-2. Backend validates against `app_users` table (RDS)
-3. Password verified with bcrypt
-4. JWT token generated with 7-day expiration
-5. Token stored in localStorage
-6. Token sent in Authorization header for subsequent requests
-
-## Security
-
-- Read-only SQL queries (SELECT only)
-- Query validation before execution
-- Row limits (max 1000)
-- IP whitelisting for Azure SQL
-- JWT token validation on protected routes
-- CORS configured for production domain
-- bcrypt password hashing (12 rounds)
-
-## Performance
-
-| Operation | Time |
-|-----------|------|
-| Schema loading | ~100-200ms |
-| Simple query (COUNT) | ~100-300ms |
-| Complex query (JOIN) | ~500-2000ms |
-| Extended thinking | ~3-5s |
-| Total response | ~5-10s |
-
-**Sources**: README.md:L388-L396
-
-## Scalability Considerations
-
-- Schema caching reduces database calls
-- Connection pooling for PostgreSQL
-- Learned queries improve accuracy (reduce retries)
-- SSE streaming improves perceived performance
-- Heroku horizontal scaling possible
-
-## Migration History
-
-1. **Jan 2026**: DuckDB + S3 → Azure SQL Server (performance)
-2. **Jan 2026**: Supabase Auth → Self-hosted JWT + RDS (cost/control)
+### Decision: Claude Opus 4 for SQL generation
+- **Rationale**: Most capable model for complex reasoning tasks like SQL generation from natural language. Better accuracy than Sonnet for multi-table joins and aggregations.
+- **Trade-offs**:
+  - Higher API costs compared to Sonnet ($15/MTok input vs $3/MTok)
+  - Slower response times (though mitigated by streaming)
+  - Benefits: Superior SQL accuracy, better handling of ambiguous queries, improved schema understanding

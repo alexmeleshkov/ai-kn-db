@@ -1,144 +1,59 @@
-# Features: ITFC Analysis
+# User-facing features
 
-## Core Features
+## Must-have
 
-### 1. Natural Language to SQL Conversion
-**Description**: Translates English questions into SQL queries using Claude AI
+### Natural Language Database Queries
+Users can ask questions in plain English (e.g., "Show me top scorers this season") and receive formatted results without writing SQL. The system translates natural language to SQL using Claude AI.
 
-**Capabilities**:
-- Simple queries (COUNT, SELECT)
-- Complex queries (JOINs, aggregations, GROUP BY)
-- Extended thinking for multi-step reasoning (5000 token budget)
-- Query validation before execution
-- Automatic retry with corrections (max 15 iterations)
+### Real-time Streaming Responses
+Chat responses stream in real-time via Server-Sent Events, showing SQL generation, query execution, and explanations as they happen. Users see immediate feedback rather than waiting for complete responses.
 
-**Example Questions**:
-- "How many fans are there?"
-- "Show me memberships by country"
-- "What are the top 10 communication sources?"
-- "Count fans with email permission"
+### Data Visualizations
+Query results automatically generate appropriate charts (bar, line, pie) based on data structure. Users can visualize trends, comparisons, and distributions without manual chart configuration.
 
-### 2. Chat Interface
-**Description**: Interactive chat interface with message history
+### Conversation History
+Users can save, retrieve, and resume past conversations. History includes full message threads with queries, results, and explanations for future reference.
 
-**Capabilities**:
-- Real-time SSE streaming responses
-- Markdown rendering for formatted responses
-- Message history within conversation
-- Loading states and error handling
-- Heartbeat mechanism to prevent timeout
+### Multi-table Query Support
+The system handles complex queries spanning multiple tables with JOIN operations, aggregations, and filtering. Schema introspection provides Claude with complete table and column metadata.
 
-### 3. Query Result Visualization
-**Description**: Display query results as tables and charts
+### User Authentication
+Secure registration and login with JWT token-based authentication. Passwords are hashed with bcrypt. Each user has isolated conversation history.
 
-**Capabilities**:
-- Tabular display with scrolling
-- CSV export functionality
-- Automatic chart generation for numeric results
-- Chart.js integration (bar, line, pie charts)
-- Responsive layout
+### Query Result Tables
+Results display in formatted, sortable tables with column headers. Large result sets are handled gracefully with clear data presentation.
 
-### 4. Authentication & Authorization
-**Description**: Self-hosted JWT-based authentication
+### SQL Transparency
+Generated SQL queries are displayed to users, enabling learning and verification. Users can see exactly what query was executed against the database.
 
-**Capabilities**:
-- User registration with email/password
-- Login with JWT token generation (7-day expiration)
-- Password visibility toggle
-- Token stored in localStorage
-- Protected API routes
-- bcrypt password hashing (12 rounds)
+### Error Handling and Recovery
+When queries fail or return no results, the system provides helpful error messages and suggestions for query refinement.
 
-### 5. Conversation History
-**Description**: Persistent storage of chat conversations
+### Responsive Design
+Interface adapts to mobile, tablet, and desktop screens with Ipswich Town brand colors (blue #1a365d).
 
-**Capabilities**:
-- List all user conversations
-- Load conversation with full message history
-- Delete conversations
-- Conversation titles (auto-generated or manual)
-- Search/filter conversations
+## Nice-to-have
 
-### 6. Database Schema Viewer
-**Description**: Browse database tables and columns
+### Query Learning System
+Backend tracks successful query patterns to improve future SQL generation accuracy. The system learns from user interactions over time.
 
-**Capabilities**:
-- View all tables in database
-- View column names and data types
-- Schema caching for performance
-- Manual schema refresh
-- Collapsible table view
+### Domain-Specific Examples
+Pre-loaded Ipswich Town football terminology and common query examples help Claude understand fan-specific questions about players, matches, and attendance.
 
-### 7. Universal Learning System
-**Description**: Learns from successful SQL queries to improve accuracy
+### Markdown Support in Responses
+Claude responses support rich markdown formatting including tables, lists, bold, italic, and code blocks for better readability.
 
-**Capabilities**:
-- Store successful question-SQL pairs
-- Retrieve similar queries for new questions
-- Auto-cleanup (max 100 queries per database)
-- Database-specific learning
-- Error pattern tracking
+### Schema Exploration
+Users can view available database tables and columns to understand what data is queryable.
 
-**Sources**: ARCHITECTURE.md:L249-L274
+### CSV Export
+Users can export query results to CSV format for external analysis (not yet implemented but planned).
 
-### 8. Ipswich-Specific Examples
-**Description**: Few-shot examples for common Ipswich fan data queries
+### Query Suggestions
+System could suggest related questions based on current conversation context (not yet implemented).
 
-**Capabilities**:
-- Static examples for fan counts, memberships, permissions
-- Column name glossary (prefixed columns like [fan.id])
-- Domain-specific query patterns
-- Examples included in LLM prompt
+### Dark Mode
+Interface could support dark theme preference (not yet implemented).
 
-### 9. Admin Features
-**Description**: Administrative capabilities for oversight
-
-**Capabilities**:
-- View all conversations across users
-- Monitor query patterns
-- System health checks
-
-## Technical Features
-
-### SSE Streaming
-- Server-Sent Events for real-time responses
-- Heartbeat messages to prevent Heroku timeout
-- Graceful connection handling
-
-### Query Intelligence
-- SQL syntax validation
-- Query optimization hints
-- Result row limiting (max 1000)
-- Timeout handling (30s default)
-
-### Database Adapters
-- Pluggable database backends (Azure SQL, PostgreSQL, DuckDB)
-- Connection pooling
-- Schema introspection
-- Read-only query enforcement
-
-### Docker Support
-- docker-compose configuration
-- Separate frontend/backend containers
-- Health checks
-- Non-root user execution
-
-## Planned/Missing Features
-
-### Not Yet Implemented
-- API documentation (Swagger/OpenAPI)
-- Query result pagination
-- Multi-tenant support
-- Role-based access control (RBAC)
-- Query scheduling/automation
-- Email notifications
-- Mobile responsive optimization
-- Dark mode
-- Query templates/saved queries
-- Data export formats (Excel, JSON)
-
-### Testing Gaps
-- No frontend unit tests
-- No integration tests
-- No E2E tests
-- No load/performance tests
+### Query Performance Metrics
+Display query execution time and row count for transparency (partially implemented).
