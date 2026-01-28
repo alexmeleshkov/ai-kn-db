@@ -117,7 +117,7 @@ capabilities:
       - AZURE_SQL_PASSWORD
 
 # Technology stack
-stack_ref: react-fastapi-postgresql
+stack_ref: stack-react-fastapi-sql
 
 # Reusable patterns
 pattern_refs:
