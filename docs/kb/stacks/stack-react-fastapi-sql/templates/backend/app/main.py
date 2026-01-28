@@ -5,6 +5,7 @@ Based on db-chat-nl architecture.md:13-20 (Backend structure)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .api import routes
+from .api import auth_routes
 
 
 # Initialize FastAPI app
@@ -27,6 +28,7 @@ app.add_middleware(
 # Include API routes
 # Based on modules.md:7-12 (API routes structure)
 app.include_router(routes.router)
+app.include_router(auth_routes.router)
 
 # Legacy health endpoint for backward compatibility
 @app.get("/health")

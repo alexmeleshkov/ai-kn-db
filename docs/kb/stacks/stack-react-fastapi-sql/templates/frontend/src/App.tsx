@@ -1,51 +1,104 @@
 /**
- * Main App component - Overrides default Vite template.
- * Based on db-chat-nl architecture.md:6-10 (Frontend structure with chat interface)
+ * Main App component with authentication and routing.
+ * Based on db-chat-nl architecture.md:64 (App.tsx with routing)
  */
 import React from 'react';
 import { ChatContainer } from './components/ChatContainer';
 import { ChatInput } from './components/ChatInput';
+import { AuthPage } from './components/AuthPage';
+import { Sidebar } from './components/Sidebar';
 import { useChat } from './hooks/useChat';
+import { AuthProvider, useAuth } from './hooks/useAuth';
 
 /**
- * App component integrating ChatContainer and ChatInput.
- * This replaces the default Vite template with a functional chat interface.
+ * Protected chat interface component.
+ * Only accessible when user is authenticated.
  */
-function App() {
+function ChatInterface() {
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat();
 
+  const handleNewChat = () => {
+    clearMessages();
+  };
+
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Chat Interface</h1>
-        <div className="header-actions">
-          <button
-            onClick={clearMessages}
-            className="clear-button"
-            disabled={messages.length === 0}
-          >
-            Clear Chat
-          </button>
-        </div>
-      </header>
+    <div className="chat-interface">
+      <Sidebar onNewChat={handleNewChat} />
 
-      <main className="app-main">
-        <ChatContainer
-          messages={messages}
-          isLoading={isLoading}
-          error={error}
-        />
-      </main>
+      <div className="chat-main">
+        <header className="app-header">
+          <h1>Chat Interface</h1>
+          <div className="header-actions">
+            <button
+              onClick={clearMessages}
+              className="clear-button"
+              disabled={messages.length === 0}
+            >
+              Clear Chat
+            </button>
+          </div>
+        </header>
 
-      <footer className="app-footer">
-        <ChatInput
-          onSubmit={sendMessage}
-          disabled={isLoading}
-          placeholder="Ask a question about your database..."
-        />
-      </footer>
+        <main className="app-main">
+          <ChatContainer
+            messages={messages}
+            isLoading={isLoading}
+            error={error}
+          />
+        </main>
+
+        <footer className="app-footer">
+          <ChatInput
+            onSubmit={sendMessage}
+            disabled={isLoading}
+            placeholder="Ask a question about your database..."
+          />
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * App router component that handles authentication state.
+ * Based on structure.md:27 (AuthProvider wrapper with routing)
+ */
+function AppRouter() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
+
+  return <ChatInterface />;
+}
+
+/**
+ * Root App component with AuthProvider.
+ * Based on architecture.md:64 (App.tsx root component)
+ */
+function App() {
+  return (
+    <AuthProvider>
+      <AppRouter />
 
       <style>{`
+        :root {
+          --primary-base: #1a365d;
+          --primary-dark: #142850;
+          --accent-base: #3182ce;
+          --success: #38a169;
+          --error: #e53e3e;
+        }
+
         * {
           box-sizing: border-box;
           margin: 0;
@@ -60,11 +113,31 @@ function App() {
           -moz-osx-font-smoothing: grayscale;
         }
 
-        .app {
+        .loading-screen {
           display: flex;
-          flex-direction: column;
+          align-items: center;
+          justify-content: center;
           height: 100vh;
           background-color: #f8f9fa;
+        }
+
+        .loading-spinner {
+          font-size: 18px;
+          color: var(--primary-base);
+          font-weight: 600;
+        }
+
+        .chat-interface {
+          display: flex;
+          height: 100vh;
+          background-color: #f8f9fa;
+        }
+
+        .chat-main {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
         }
 
         .app-header {
@@ -128,9 +201,13 @@ function App() {
           .app-header {
             padding: 12px 16px;
           }
+
+          .chat-interface {
+            flex-direction: column;
+          }
         }
       `}</style>
-    </div>
+    </AuthProvider>
   );
 }
 
