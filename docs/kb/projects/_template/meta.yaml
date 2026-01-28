@@ -8,8 +8,21 @@ domain_tags:
   - example-domain
 
 # What users can do (capabilities)
+# Enhanced format: structured objects with dependencies
 capabilities:
-  - example_capability
+  example_capability:
+    description: "Brief description of what this capability enables"
+    complexity: medium  # low | medium | high
+    frontend_dependencies:
+      - example-package@^1.0.0
+    backend_dependencies:
+      - example-package>=1.0.0
+    env_vars:
+      - EXAMPLE_VAR
+
+# Alternative: simple list format (legacy, less information)
+# capabilities:
+#   - example_capability
 
 # Recommended technology stack reference (from docs/kb/stacks)
 stack_ref: stack-example
