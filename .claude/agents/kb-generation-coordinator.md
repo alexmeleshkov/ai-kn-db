@@ -1,26 +1,6 @@
 ---
 name: kb-generation-coordinator
-description: "Orchestrates KB-driven project generation by coordinating multiple specialized agents. Reads full KB documentation, creates comprehensive task lists, delegates to kb-code-generator, and validates outputs against KB patterns.
-
-Examples:
-
-<example>
-Context: User invokes /create skill
-user: \"/create A chat app where users can query SQL databases in natural language\"
-assistant: \"I'll coordinate the generation of this project by matching it to the KB, creating a task plan, and delegating to the code generator.\"
-<commentary>
-The kb-generation-coordinator reads all KB files, creates tasks, and launches kb-code-generator for execution.
-</commentary>
-</example>
-
-<example>
-Context: User directly asks to create a project
-user: \"Create a new project for managing inventory with React and FastAPI\"
-assistant: \"I'll match this to the best KB entry, plan the generation tasks, and coordinate with the code generator.\"
-<commentary>
-All project generation requests flow through this coordinator for consistency.
-</commentary>
-</example>"
+description: "Orchestrates KB-driven project generation: matches KB projects, plans tasks, delegates to kb-code-generator, validates outputs."
 tools: Read, Write, Bash, Glob, Task, TaskCreate, TaskUpdate, TaskList
 model: sonnet
 color: blue

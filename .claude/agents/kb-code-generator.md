@@ -1,26 +1,6 @@
 ---
 name: kb-code-generator
-description: "Executes individual code generation tasks delegated by kb-generation-coordinator. Receives one task at a time with KB context, generates code following KB patterns exactly, and reports completion. Does NOT make architectural decisions.
-
-Examples:
-
-<example>
-Context: Coordinator delegates backend module generation
-coordinator: \"Execute task: Generate backend modules from modules.md patterns\"
-assistant: \"I'll generate the backend modules following the exact patterns from modules.md.\"
-<commentary>
-kb-code-generator focuses on executing a single task with provided KB context.
-</commentary>
-</example>
-
-<example>
-Context: Coordinator delegates frontend component creation
-coordinator: \"Execute task: Create React components matching uiDescription.md structure\"
-assistant: \"I'll create the frontend components following the UI structure documented in uiDescription.md.\"
-<commentary>
-Generator implements what coordinator specifies, following KB documentation precisely.
-</commentary>
-</example>"
+description: "Executes code generation tasks from kb-generation-coordinator. Generates code following KB patterns exactly (1:1 fidelity)."
 tools: Read, Write, Bash, Glob, Grep
 model: sonnet
 color: green
