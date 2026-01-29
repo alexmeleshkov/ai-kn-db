@@ -1,310 +1,231 @@
 # Technology Stack
 
-> **Purpose**: Document WHAT technologies and WHY they were chosen.
-> This file informs package.json/requirements.txt generation and technology decisions.
+> **Purpose**: Document technologies used and WHY they were chosen.
+> Focus on decisions that inform package generation and stack understanding.
 
-## Technology Overview
+## Stack Summary
 
-**Architecture**: [Pattern name - e.g., Layered Monolith, Microservices, SPA + API]
-**Deployment Model**: [e.g., Containerized, Serverless, Traditional VM]
+**Architecture**: [architecture pattern]
+**Deployment**: [deployment model]
 
 ---
 
-## Backend Technologies
+## Backend Stack
 
 ### Core Framework
-**[Framework Name]** - [Version requirement if critical]
+**[framework name and version]**
+
+**Why chosen**:
+- [reason 1]
+- [reason 2]
+- [reason 3]
 
 **Key features used**:
-- [Feature 1]
-- [Feature 2]
-- [Feature 3]
-- [Feature 4]
+- [feature 1]
+- [feature 2]
+- [feature 3]
 
 ---
 
-### Database & ORM
-**[Database Type and Name]** - [Version]
+### Database
+**[database type and version]**
 
-**ORM/Query Builder**: [Name and version if used]
-- [Key feature 1]
-- [Key feature 2]
-- [Key feature 3]
+**Why chosen**:
+- [reason 1]
+- [reason 2]
+- [reason 3]
 
----
-
-### Authentication & Security
-**[Library/Approach]** - [Version]
-
-**Purpose**: [Authentication method - e.g., session-based, token-based, OAuth]
-
-**Security approach**:
-- [Security measure 1]
-- [Security measure 2]
-- [Security measure 3]
-- [Security measure 4]
+**ORM/Query Tool**: [tool name]
+- Migrations: [migration tool]
+- Connection pooling: [yes/no and approach]
 
 ---
 
-### External Service Integration
-**[Service/API Name]**
+### Authentication
+**[authentication approach]**
 
-**Library**: [Client library name and version]
-**[Model/Version used]**: [If applicable]
-**Fallback strategy**: [How failures are handled]
+**Libraries**:
+- `[library]` - [purpose]
+- `[library]` - [purpose]
+
+**Security measures**:
+- [measure 1]
+- [measure 2]
+- [measure 3]
+
+---
+
+### External Services
+
+**[service name]**
+- **Library**: [client library]
+- **Purpose**: [what it's used for]
+- **Fallback**: [failure handling approach]
 
 ---
 
 ### Other Backend Dependencies
 
-**[Library Name]** - [Purpose and rationale]
+**[library]** - [purpose]
 
-**[Library Name]** - [Purpose and rationale]
+**[library]** - [purpose]
 
-**[Library Name]** - [Purpose and rationale]
+**[library]** - [purpose]
 
 ---
 
-## Frontend Technologies
+## Frontend Stack
 
 ### Core Framework
-**[Framework Name]** - [Version]
+**[framework and version]**
+
+**Why chosen**:
+- [reason 1]
+- [reason 2]
+- [reason 3]
 
 **Key features used**:
-- [Feature 1]
-- [Feature 2]
-- [Feature 3]
-- [Feature 4]
+- [feature 1]
+- [feature 2]
+- [feature 3]
 
 ---
 
-### Language & Type System
-**[Language]** - [Version]
+### Language
+**[language and version]**
 
-**[Config file - e.g., tsconfig] settings**:
-- [Setting 1]
-- [Setting 2]
-- [Setting 3]
+**Why chosen**:
+- [reason 1]
+- [reason 2]
+- [reason 3]
+
+**Config settings**:
+- [setting 1]
+- [setting 2]
+- [setting 3]
 
 ---
 
 ### Build Tool
-**[Tool]** - [Version]
+**[build tool]**
 
-**Key features**:
-- [Feature 1]
-- [Feature 2]
-- [Feature 3]
+**Why chosen**:
+- [reason 1]
+- [reason 2]
+- [reason 3]
 
 ---
 
-### UI Component Library
-**[Library name or "Custom components"]**
+### Styling
+**Approach**: [styling approach]
 
-**CSS approach**: [CSS Modules, Tailwind, styled-components, etc.]
+**Why this approach**:
+- [reason 1]
+- [reason 2]
 
 ---
 
 ### State Management
-**[Approach]**
+**[approach]**
 
-**Implementation**:
-- [Detail 1]
-- [Detail 2]
-- [Detail 3]
+**Why this approach**:
+- [reason 1]
+- [reason 2]
 
 ---
 
 ### Data Fetching
-**[Approach]**
+**[approach or library]**
 
-**Implementation**:
-- [Detail 1]
-- [Detail 2]
-- [Detail 3]
-
----
-
-### Data Visualization
-**[Library]**
-
-**Chart types supported**:
-- [Chart type 1]
-- [Chart type 2]
-- [Chart type 3]
+**Why chosen**:
+- [reason 1]
+- [reason 2]
 
 ---
 
 ### Other Frontend Dependencies
 
-**[Library]** - Purpose
-- Example: `date-fns` - Date formatting and manipulation
+**[library]** - [purpose]
 
-**[Library]** - Purpose
-- Example: `react-router-dom` - Client-side routing
+**[library]** - [purpose]
 
-**[Library]** - Purpose
-- Example: `axios` - HTTP client with interceptors (if not using fetch)
+**[library]** - [purpose]
 
 ---
 
-## Infrastructure & DevOps
+## Infrastructure
 
 ### Containerization
-**[Tool - e.g., Docker]**
+**[Docker / other / none]**
 
-**Dockerfile approach**:
-- Multi-stage builds for frontend
-- Python slim base image for backend
-- Layer caching optimization
+**Strategy**:
+- [approach description]
 
-**Docker Compose** for local development:
-- Frontend container
-- Backend container
-- Database container
-- Volumes for persistence
-
----
-
-### Deployment Platform
-**[Platform]**
-
-**Infrastructure as Code**: [Tool or approach]
+**Services** (if Docker Compose):
+- [service 1]
+- [service 2]
+- [service 3]
 
 ---
 
 ### Environment Management
-**Approach**: Environment variables via .env files
+**Approach**: [.env files / other]
 
 **Required variables**:
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `ANTHROPIC_API_KEY`
-- `CORS_ORIGINS`
-
-**Config library**: [e.g., python-dotenv, dotenv-webpack]
+- `[VAR_NAME]` - [description]
+- `[VAR_NAME]` - [description]
+- `[VAR_NAME]` - [description]
 
 ---
 
-### Monitoring & Logging
-**Logging**: [e.g., Python logging module, Winston]
+### Logging
+**Backend**: [logging approach]
 
-**Approach**:
-- Structured JSON logs
-- Log levels: DEBUG, INFO, WARNING, ERROR
-- Request/response logging
-- Error tracking: [Tool name or none]
+**Frontend**: [logging approach]
 
 ---
 
 ### Testing
 
-**Backend Testing**:
-- Framework: [e.g., pytest]
-- Coverage tool: [e.g., pytest-cov]
-- Test types: Unit, integration
+**Backend**:
+- Framework: [framework]
+- Test types: [unit / integration / e2e]
 
-**Frontend Testing**:
-- Framework: [e.g., Vitest, Jest]
-- Component testing: [e.g., React Testing Library]
-- E2E: [e.g., Playwright, Cypress, none]
-
-**CI/CD**: [e.g., GitHub Actions, GitLab CI, none]
+**Frontend**:
+- Framework: [framework]
+- Test types: [unit / integration / e2e]
 
 ---
 
-## Development Tools
+## Security Measures
 
-### Package Management
-**Backend**: [e.g., pip + requirements.txt, Poetry, pipenv]
-**Frontend**: [e.g., npm, yarn, pnpm]
-
-### Code Quality
-**Linting**:
-- Backend: [e.g., pylint, flake8, ruff]
-- Frontend: [e.g., ESLint with typescript-eslint]
-
-**Formatting**:
-- Backend: [e.g., Black, autopep8]
-- Frontend: [e.g., Prettier]
-
-**Type Checking**:
-- Backend: [e.g., mypy for type hints]
-- Frontend: [e.g., TypeScript compiler]
-
----
-
-## Security Considerations
-
-**Authentication**: JWT tokens with HTTP-only cookies (or Bearer tokens)
-**Password Storage**: bcrypt hashing with salt
-**SQL Injection Prevention**: Parameterized queries via ORM
-**XSS Prevention**: React escapes by default, sanitize user HTML if rendering
-**CORS**: Whitelist specific origins
-**Rate Limiting**: [Tool/approach or none]
-**Secrets Management**: Environment variables, never committed to repo
+- [security measure 1]
+- [security measure 2]
+- [security measure 3]
+- [security measure 4]
 
 ---
 
 ## Performance Considerations
 
 **Backend**:
-- Async I/O for database and API calls
-- Connection pooling for database
-- Caching strategy: [Approach or none]
+- [consideration 1]
+- [consideration 2]
 
 **Frontend**:
-- Code splitting by route
-- Lazy loading for heavy components
-- Image optimization
-- Bundle size target: [e.g., < 500KB gzipped]
+- [consideration 1]
+- [consideration 2]
 
 **Database**:
-- Indexes on frequently queried columns
-- Query optimization for N+1 problems
-- Pagination for large result sets
+- [consideration 1]
+- [consideration 2]
 
 ---
 
-## Technology Constraints & Trade-offs
+## Known Limitations
 
-**Known limitations**:
-- [Limitation - e.g., SSE not supported in HTTP/1.0]
-- [Limitation - e.g., SQLite not suitable for production]
-
-**Scalability bottlenecks**:
-- [Bottleneck - e.g., Stateful SSE connections limit horizontal scaling]
-- [Mitigation - e.g., Use Redis for session storage if scaling needed]
-
-**Browser compatibility**:
-- Target: Modern browsers (Chrome, Firefox, Safari, Edge)
-- IE11: Not supported
-- Critical APIs: EventSource, fetch, ES6+
-
----
-
-## Migration & Upgrade Paths
-
-**Database migrations**: [Tool - e.g., Alembic, Flyway, none]
-**Frontend versioning**: [Approach - e.g., Semver in package.json]
-**API versioning**: [Approach - e.g., /api/v1/ prefix]
-
-**Planned upgrades**:
-- [Future change - e.g., React 18 → 19 when stable]
-- [Future change - e.g., Consider switching to WebSockets for bidirectional chat]
-
----
-
-## Dependency Version Strategy
-
-**Backend**:
-- Pin major versions, allow minor/patch updates
-- Example: `anthropic>=0.40.0,<1.0.0`
-
-**Frontend**:
-- Use caret ranges for stability
-- Example: `"react": "^18.2.0"`
-
-**Security updates**: Monitor Dependabot/Snyk for vulnerabilities
+- [limitation 1]
+- [limitation 2]
+- [limitation 3]
 
 ---

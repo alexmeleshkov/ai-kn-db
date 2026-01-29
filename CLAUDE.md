@@ -63,33 +63,38 @@ PROJECT_PROMPT="Your project description" ./scripts/new-project
 
 ### KB-Driven Generator Pipeline
 
-The project uses a multi-phase generation approach:
+The project uses a pure 1:1 generation approach from KB documentation:
 
-1. **KB (Knowledge Base)**: Stores project templates in `docs/kb/projects/`
+1. **KB (Knowledge Base)**: Stores complete project documentation in `docs/kb/projects/`
 2. **Match**: Token-based matching selects the best KB entry for user requirements
-3. **Scaffold**: Technology stacks (`docs/kb/stacks/`) define CLI commands and templates
+3. **Generate**: Direct 1:1 generation from 7 KB files (modules.md, architecture.md, tech.md, etc.)
 4. **Output**: Generated project ready to run
 
-**Note**: The current generator (v1) uses generic scaffolding. Phase 2 will implement 1:1 generation from detailed KB documentation (architecture.md, modules.md, etc.).
+**Approach**: Pure KB-to-code generation. No generic scaffolding. Everything comes from KB documentation.
 
 ### Key Components
 
-- `scripts/kb/generate_from_kb.py` - Core generator (matching, scaffolding) [v1 - will be rewritten]
 - `scripts/kb/scan_repo_universal.py` - Universal KB scanner with 8 specialized extractors
 - `scripts/kb/extract_*.py` - 8 specialized extractors for KB documentation
 - `scripts/kb/validate_kb.py` - KB validation script
-- `scripts/new-project` - Bash wrapper for the generator
+- `scripts/kb/generate_from_kb.py` - Legacy generator (DEPRECATED - use agent workflow instead)
+- `scripts/new-project` - Bash wrapper (DEPRECATED - use /create skill instead)
 - `docs/kb/projects/*/meta.yaml` - KB project metadata
-- `docs/kb/stacks/*/stack.yaml` - Stack definitions with scaffold steps
 
 ### Agents & Skills
 
-- `.claude/agents/project-creator.md` - Orchestrates project generation workflow
+**Generation Workflow**:
 - `.claude/skills/create/SKILL.md` - Entry point for `/create` command
+- `.claude/agents/kb-generation-coordinator.md` - Orchestrates generation, plans tasks, validates outputs
+- `.claude/agents/kb-code-generator.md` - Executes code generation tasks from KB patterns
+
+**Scanning Workflow**:
 - `.claude/skills/scan/SKILL.md` - Entry point for `/scan` command
 - `.claude/agents/kb-repo-scanner.md` - Scans repositories and creates KB entries
 - `.claude/agents/kb-project-writer.md` - Writes KB documentation
-- `.claude/agents/generator-engineer.md` - Implements generator pipeline features
+
+**Infrastructure**:
+- `.claude/agents/generator-engineer.md` - Implements generator pipeline features (you are here)
 - `.claude/agents/tech-lead.md` - Coordinates architecture and planning
 
 ## Key Conventions
@@ -98,28 +103,18 @@ The project uses a multi-phase generation approach:
 
 ```
 docs/kb/
-├── projects/           # Reference projects with rich documentation
-│   ├── _template/      # Template for new KB entries
-│   └── <project-id>/   # Individual projects
-│       ├── meta.yaml   # Project metadata, capabilities, stack reference
-│       ├── business.md # Business context and requirements
-│       ├── architecture.md
-│       ├── modules.md
-│       ├── tech.md
-│       ├── features.md
-│       └── styles.md
-│       ├── capability_mapping.yaml
-│       ├── data_models.yaml
-│       ├── dependencies.yaml
-│       ├── external_interfaces.yaml
-│       ├── internal_boundaries.yaml
-│       ├── runtime_config.yaml
-│       ├── runtime_lifecycle.yaml
-│       └── ui_structure.yaml
-└── stacks/            # Technology stack definitions
-    └── <stack-id>/
-        ├── stack.yaml  # Scaffold steps, smoke tests
-        └── templates/  # Template files to copy
+└── projects/           # Reference projects with rich documentation
+    ├── _template/      # Template for new KB entries
+    └── <project-id>/   # Individual projects
+        ├── meta.yaml   # Project metadata, capabilities, technologies
+        ├── README.md   # Project overview
+        ├── business.md # Business context and requirements
+        ├── architecture.md  # Architecture patterns, layers, boundaries
+        ├── modules.md  # Module structure and code patterns (MOST IMPORTANT)
+        ├── tech.md     # Technology stack, versions, dependencies
+        ├── deployment.md    # Deployment configuration (docker, k8s, etc.)
+        ├── features.md      # Feature descriptions
+        └── uiDescription.md # UI structure and components
 ```
 
 ### Generated Projects

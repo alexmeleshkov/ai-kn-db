@@ -1,101 +1,69 @@
 # Architecture
 
-> **Purpose**: Document the WHY behind architectural choices and system design.
-> This file informs structural decisions during generation.
+> **Purpose**: Document WHY behind architectural choices and system design.
+> Focus on decisions that inform structural patterns during generation.
 
 ## Architecture Pattern
 
-**Pattern**: [Your Architecture Pattern - e.g., Layered Monolith, Microservices, Event-Driven, Hexagonal, MVC, Clean Architecture]
+**Pattern**: [pattern name]
 
-**Rationale**:
-- [Why this pattern was chosen - e.g., simplicity, scalability, team expertise]
-- [How it supports the business requirements]
-- [Future considerations - e.g., migration paths, evolution strategy]
+**Why chosen**:
+- [reason 1]
+- [reason 2]
+- [reason 3]
 
 **Trade-offs**:
-- ✅ **Advantages**: [List specific benefits for this project]
-- ⚠️ **Disadvantages**: [List known limitations accepted]
-
-**Alternative considered**: [Other pattern evaluated]
-- **Rejected because**: [Specific reasons for not choosing alternative]
+- ✅ [advantage 1]
+- ✅ [advantage 2]
+- ⚠️ [limitation 1]
+- ⚠️ [limitation 2]
 
 ---
 
 ## System Components
 
-### High-Level Architecture Diagram
+### High-Level Diagram
 
 ```
-[Draw ASCII diagram showing your system components]
-
-Example formats:
-- Web app: Client ◄─► Frontend ◄─► Backend ◄─► Database
-- API: Client ◄─► API Gateway ◄─► Services ◄─► Data Store
-- CLI: User ◄─► CLI ◄─► Core Logic ◄─► File System
-- Microservices: Client ◄─► Gateway ◄─► [Service A, Service B, Service C] ◄─► [DB, Queue, Cache]
+[ASCII diagram showing component relationships]
 ```
 
 ---
 
-### [Component 1 Name - e.g., Frontend/API Layer/CLI Interface]
+### [Component 1 Name]
 
-**Responsibility**: [What this component does - be specific]
+**Responsibility**: [what this component does]
 
-**Key Subsystems**:
-- **[Subsystem 1]**: [Purpose and approach]
-- **[Subsystem 2]**: [Purpose and approach]
-- **[Subsystem 3]**: [Purpose and approach]
+**Key subsystems**:
+- [subsystem 1]: [purpose]
+- [subsystem 2]: [purpose]
+- [subsystem 3]: [purpose]
 
-**Technologies**: [List actual technologies used]
-
-**Why this approach**: [Rationale for design choices - reference tech.md for details]
+**Technologies**: [list]
 
 ---
 
-### [Component 2 Name - e.g., Backend/Core Logic/Service Layer]
+### [Component 2 Name]
 
-**Responsibility**: [What this component does]
+**Responsibility**: [what this component does]
 
-**Key Layers** (if layered):
-1. **[Layer 1]** (`path/to/layer`): [Responsibility]
-2. **[Layer 2]** (`path/to/layer`): [Responsibility]
-3. **[Layer 3]** (`path/to/layer`): [Responsibility]
-
-**Why this structure**:
-- [Reason 1 - e.g., separation of concerns]
-- [Reason 2 - e.g., testability]
-- [Reason 3 - e.g., reusability]
+**Key layers**:
+1. [layer 1] (`path`): [responsibility]
+2. [layer 2] (`path`): [responsibility]
+3. [layer 3] (`path`): [responsibility]
 
 ---
 
-### [Component 3 Name - e.g., Database/Data Store/State Management]
+### [Component 3 Name]
 
-**Responsibility**: [What this component does]
+**Responsibility**: [what this component does]
 
-**Design Approach**: [e.g., Relational/NoSQL/Document/Key-Value/In-Memory/File-based]
+**Design approach**: [approach description]
 
-**Key Entities** (if applicable):
-- **[Entity 1]**: [Purpose and key fields]
-- **[Entity 2]**: [Purpose and key fields]
-- **[Entity 3]**: [Purpose and key fields]
-
-**Technology**: [Actual database/store technology used]
-
-**Migration Strategy**: [How schema changes are managed - if applicable]
-
----
-
-### [External Dependencies Section - Optional]
-
-#### [External Service/API 1]
-**Purpose**: Natural language to SQL generation
-**Integration**: `services/llm.py` using official `anthropic` SDK
-**Failure handling**: Graceful error messages, no fallback in MVP
-
-#### Database Connection (Azure SQL / PostgreSQL)
-**Purpose**: Execute generated SQL queries
-**Integration**: `services/database.py` using appropriate driver
-**Failure handling**: Connection pooling, timeout handling, retry logic
+**Key entities**:
+- [entity 1]: [purpose and key fields]
+- [entity 2]: [purpose and key fields]
+- [entity 3]: [purpose and key fields]
 
 ---
 
@@ -103,235 +71,154 @@ Example formats:
 
 ### [Component A] ↔ [Component B]
 
-**Protocol**: [Communication protocol - e.g., HTTP/HTTPS, gRPC, WebSocket, Message Queue, IPC]
+**Protocol**: [protocol]
 
 **Patterns**:
-1. **[Pattern 1]**: [Description]
-   - [Key characteristic or example]
-2. **[Pattern 2]**: [Description]
-   - [Key characteristic or example]
-3. **[Pattern 3]**: [Description - e.g., Authentication approach]
-   - [Implementation detail]
+1. [pattern 1]: [description]
+2. [pattern 2]: [description]
+3. [pattern 3]: [description]
 
-**Why [this approach] instead of [alternative]**:
-- [Reason 1]
-- [Reason 2]
-- [Reason 3]
+**Why this approach**:
+- [reason 1]
+- [reason 2]
 
 ---
 
 ### [Component C] ↔ [Component D]
 
-**Protocol**: [Communication protocol]
+**Protocol**: [protocol]
 
 **Patterns**:
-- [Pattern 1 - e.g., Connection pooling, retry logic]
-- [Pattern 2 - e.g., Query optimization, caching]
-- [Pattern 3 - e.g., Transaction handling]
-- [Pattern 4 - e.g., Error handling strategy]
+- [pattern 1]
+- [pattern 2]
+- [pattern 3]
 
 ---
 
 ## Data Architecture
 
-### [Data Schema/Structure]
+### [Entity/Table 1]
 
-**[Entity/Table 1]**:
 ```
-[Show actual schema definition in appropriate format]
-
-Examples:
-- SQL: CREATE TABLE ...
-- NoSQL: Document structure { }
-- GraphQL: type definition
-- File format: JSON/YAML structure
+[schema definition in appropriate format]
 ```
 
-**[Entity/Table 2]**:
+### [Entity/Table 2]
+
 ```
-[Schema definition]
+[schema definition]
 ```
 
-**[Entity/Table 3]**:
-```
-[Schema definition]
-```
-
-**Indexes/Optimization**:
-- [Index 1 - purpose]
-- [Index 2 - purpose]
-- [Index 3 - purpose]
+**Indexes**:
+- [index 1]: [purpose]
+- [index 2]: [purpose]
 
 ---
 
-### Data Flow: [Key Operation Name]
+### Data Flow: [Key Operation]
 
-[Describe the step-by-step flow of data through the system for a critical operation]
-
-1. **[Step 1]**: [What happens]
-2. **[Step 2]**: [What happens - reference specific component]
-3. **[Step 3]**: [What happens - reference specific module]
-4. **[Step 4]**: [What happens - data transformation]
-5. **[Step 5]**: [What happens - response/result]
+1. [step 1]: [what happens]
+2. [step 2]: [what happens]
+3. [step 3]: [what happens]
+4. [step 4]: [what happens]
+5. [step 5]: [what happens]
 
 ---
 
-## API Design (If Applicable)
+## API Design
 
-### [API Convention - e.g., REST, GraphQL, RPC]
+### [API Convention]
 
-**Endpoint structure**: [Pattern - e.g., /api/v1/resource/action or verb-based]
+**Endpoint structure**: [pattern]
 
-**[Protocol] specifics**:
-- [Convention 1]
-- [Convention 2]
-- [Convention 3]
-
-**Response format**: [Format description]
+**Response format**:
 ```
-[Show actual response format example]
+[example response structure]
 ```
 
 **Error format**:
 ```
-[Show actual error format example]
+[example error structure]
 ```
 
 ---
 
-### [Key Flow Name - e.g., Authentication, Data Processing]
+### [Key Flow Name]
 
-[Describe the flow with actual endpoint/method names]
-
-1. **[Step 1]**: [Endpoint/method]
-   - Input: [Structure]
-   - Output: [Structure]
-2. **[Step 2]**: [Endpoint/method]
-   - Input: [Structure]
-   - Output: [Structure]
-3. **Protected routes**: Include `Authorization: Bearer <token>` header
-4. **Token validation**: Middleware checks JWT signature and expiry
+1. [step 1]: [endpoint/method]
+   - Input: [structure]
+   - Output: [structure]
+2. [step 2]: [endpoint/method]
+   - Input: [structure]
+   - Output: [structure]
 
 ---
 
 ## Design Decisions
 
-### Decision 1: [Decision Name]
+### Decision 1: [Name]
 
-**Context**: [What problem needed solving]
+**Context**: [problem that needed solving]
 
 **Options considered**:
-1. [Option 1] - [Brief description]
-2. [Option 2] - [Brief description]
-3. [Option 3] - [Brief description]
+1. [option 1]
+2. [option 2]
+3. [option 3]
 
-**Choice**: [Chosen option]
+**Choice**: [chosen option]
 
 **Rationale**:
-- [Reason 1 - technical]
-- [Reason 2 - business/practical]
-- [Reason 3 - team/organizational]
-- [Reason 4 - future considerations]
+- [reason 1]
+- [reason 2]
+- [reason 3]
 
 **Implications**:
-- ✅ [Advantage 1]
-- ✅ [Advantage 2]
-- ⚠️ [Limitation 1 and mitigation if any]
-- ⚠️ [Limitation 2 and mitigation if any]
+- ✅ [advantage]
+- ⚠️ [limitation]
 
 ---
 
-### Decision 2: [Decision Name]
+### Decision 2: [Name]
 
-**Context**: [What problem needed solving]
-
-**Options considered**:
-1. [Option 1]
-2. [Option 2]
-3. [Option 3]
-
-**Choice**: [Chosen option]
-
-**Rationale**:
-- [Reason 1]
-- [Reason 2]
-- [Reason 3]
-
-**Implications**:
-- ✅ [Advantages]
-- ⚠️ [Limitations]
-
----
-
-### Decision 3: [Decision Name]
-
-**Context**: [What problem needed solving]
+**Context**: [problem]
 
 **Options considered**:
-1. [Option 1]
-2. [Option 2]
-3. [Option 3]
+1. [option 1]
+2. [option 2]
 
-**Choice**: [Chosen option]
+**Choice**: [chosen option]
 
 **Rationale**:
-- [Reason 1]
-- [Reason 2]
-- [Reason 3]
+- [reason 1]
+- [reason 2]
 
 **Implications**:
-- ✅ [Advantages]
-- ⚠️ [Limitations]
+- ✅ [advantage]
+- ⚠️ [limitation]
 
 ---
 
 ## Quality Attributes
 
 ### Modularity
-**Rating**: [Low/Medium/High]
-**Evidence**: [Specific evidence from codebase - reference modules.md]
+**Rating**: [low / medium / high]
+**Evidence**: [specific evidence]
 
 ### Testability
-**Rating**: [Low/Medium/High]
-**Evidence**: [How testing is enabled - e.g., dependency injection, mocking support]
+**Rating**: [low / medium / high]
+**Evidence**: [how testing is enabled]
 
 ### Performance
-**Rating**: [Low/Medium/High]
-**Expected**: [Specific performance characteristics - e.g., response times, throughput]
+**Rating**: [low / medium / high]
+**Expected**: [performance characteristics]
 
 ### Security
-**Rating**: [Low/Medium/High]
-**Measures**: [Security approaches implemented]
+**Rating**: [low / medium / high]
+**Measures**: [security approaches]
 
 ### Scalability
-**Rating**: [Low/Medium/High]
-**Current**: [Current capacity]
-**Bottleneck**: [Known scaling limitations]
-
----
-
-## Future Architecture Evolution
-
-### Phase 1 (Current): [Current State]
-- [Characteristic 1]
-- [Characteristic 2]
-
-### Phase 2: [Next Evolution]
-- [Change 1]
-- [Change 2]
-- [Change 3]
-
-### Phase 3: [Future State - if applicable]
-- [Change 1]
-- [Change 2]
-- [Change 3]
-
----
-
-## Unknowns
-
-- [ ] **[Unknown 1]**: [Question or area needing research]
-- [ ] **[Unknown 2]**: [Question or area needing validation]
-- [ ] **[Unknown 3]**: [Question or area needing decision]
+**Rating**: [low / medium / high]
+**Current capacity**: [description]
+**Bottleneck**: [known limitation]
 
 ---

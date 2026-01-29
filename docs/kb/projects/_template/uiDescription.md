@@ -1,284 +1,525 @@
-# UI Structure & User Flows
+# UI Structure & User Experience
 
-> **Purpose**: Document UI organization, navigation, and user interaction patterns.
-> This file informs layout generation and component hierarchy decisions.
+> **Purpose**: Document UI structure, component hierarchy, and user flows.
+> Focus on WHAT to build (structure, behavior), not HOW to style it.
+> **OPTIONAL**: Only needed for projects with significant UI/frontend components.
 
-## UI Overview
+## Page Structure Overview
 
-**Interface Type**: [Web App / Mobile App / Desktop App / CLI / Dashboard / Admin Panel]
+**Total pages/screens**: [number]
+**Layout pattern**: [single-page app / multi-page / hybrid]
 
-**Target Devices**: [Desktop-first / Mobile-first / Desktop-only / Mobile-only / Cross-platform]
-
-**Navigation Pattern**: [Sidebar navigation / Top navbar / Tabs / Bottom navigation / Command palette / Multi-panel]
-
-**Layout Approach**: [Single page / Multi-page / Modal-heavy / Drawer-based / Split panes]
-
----
-
-## Main UI Sections
-
-### [Section 1 Name - e.g., Navigation/Header/Sidebar]
-
-**Purpose**: [What this section provides - e.g., primary navigation, user menu, branding]
-
-**Location**: [Where it appears - e.g., left sidebar, top bar, fixed header]
-
-**Contents**:
-- [Element 1 - e.g., Logo/brand]
-- [Element 2 - e.g., Main navigation links]
-- [Element 3 - e.g., User profile dropdown]
-- [Element 4 - e.g., Search bar]
-
-**Behavior**:
-- [Interaction 1 - e.g., collapsible on mobile]
-- [Interaction 2 - e.g., highlights active page]
-- [Interaction 3 - e.g., sticky on scroll]
-
-**Visibility**: [Always visible / Hidden on mobile / Context-dependent]
+**Core pages**:
+- `[page/route]` - [purpose and content]
+- `[page/route]` - [purpose and content]
+- `[page/route]` - [purpose and content]
 
 ---
 
-### [Section 2 Name - e.g., Main Content Area/Dashboard]
+## Navigation Structure
 
-**Purpose**: [Primary user workspace]
+**Navigation type**: [top nav / sidebar / mobile drawer / tabs / other]
 
-**Layout**: [Single column / Multi-column / Grid / List view / Card layout]
+**Primary navigation items**:
+- [item 1] - [links to]
+- [item 2] - [links to]
+- [item 3] - [links to]
 
-**Key Components**:
-- [Component 1 with brief purpose]
-- [Component 2 with brief purpose]
-- [Component 3 with brief purpose]
+**Secondary navigation** (if applicable):
+- [item 1] - [context and purpose]
+- [item 2] - [context and purpose]
 
-**Responsive Behavior**:
-- Desktop: [Layout description]
-- Tablet: [How it adapts]
-- Mobile: [How it adapts]
+**Breadcrumbs**: [yes/no - where used]
 
 ---
 
-### [Section 3 Name - e.g., Sidebar Panel/Details Pane]
+## Layout Patterns
 
-**Purpose**: [Contextual information, filters, settings]
+### Overall Layout Structure
+```
+[Describe layout hierarchy using ASCII or text structure]
+Example:
+┌─────────────────────────────────────┐
+│ Header (logo, nav, user menu)       │
+├──────────┬──────────────────────────┤
+│ Sidebar  │ Main Content Area        │
+│ (nav)    │                          │
+│          │                          │
+└──────────┴──────────────────────────┘
+```
 
-**Location**: [Right side / Left side / Slide-out drawer]
+**Header**: [components present]
+- [element 1]
+- [element 2]
+- [element 3]
 
-**Shows**: [What information is displayed]
+**Sidebar** (if applicable): [components present]
+- [element 1]
+- [element 2]
 
-**Trigger**: [How user accesses it - e.g., click button, automatic, always visible]
+**Main content area**: [typical structure]
+- [pattern description]
+
+**Footer** (if applicable): [components present]
+- [element 1]
+- [element 2]
+
+---
+
+## Key Pages/Screens
+
+### [Page 1: name]
+
+**Route/URL**: `[path]`
+**Purpose**: [what this page does]
+
+**Layout sections**:
+1. [Section name] - [content/purpose]
+2. [Section name] - [content/purpose]
+3. [Section name] - [content/purpose]
+
+**Key components**:
+- [Component name] - [purpose and behavior]
+- [Component name] - [purpose and behavior]
+- [Component name] - [purpose and behavior]
+
+**Interactions**:
+- [User action] → [system response]
+- [User action] → [system response]
+
+**Navigation from this page**:
+- [Link/button] → [destination]
+- [Link/button] → [destination]
+
+---
+
+### [Page 2: name]
+
+**Route/URL**: `[path]`
+**Purpose**: [what this page does]
+
+**Layout sections**:
+1. [Section name] - [content/purpose]
+2. [Section name] - [content/purpose]
+
+**Key components**:
+- [Component name] - [purpose and behavior]
+- [Component name] - [purpose and behavior]
+
+**Interactions**:
+- [User action] → [system response]
+- [User action] → [system response]
+
+**Navigation from this page**:
+- [Link/button] → [destination]
+
+---
+
+### [Page 3: name]
+
+**Route/URL**: `[path]`
+**Purpose**: [what this page does]
+
+**Layout sections**:
+1. [Section name] - [content/purpose]
+2. [Section name] - [content/purpose]
+
+**Key components**:
+- [Component name] - [purpose and behavior]
+- [Component name] - [purpose and behavior]
+
+**Interactions**:
+- [User action] → [system response]
 
 ---
 
 ## Component Hierarchy
 
+### High-Level Component Tree
 ```
-[Show visual hierarchy - adapt format to your app structure]
-
-Example formats:
-
-Web App:
-AppLayout
-├── Navigation
-│   ├── Logo
-│   ├── MenuItems
-│   └── UserMenu
-├── MainContent
-│   ├── PageHeader
-│   ├── ContentArea
-│   │   ├── [Feature Components]
-│   │   └── [Data Display Components]
-│   └── Footer
-└── Sidebar (optional)
-    ├── Filters
-    └── QuickActions
-
-Dashboard:
-DashboardLayout
-├── TopBar (AppBar/Header)
-├── SideNav (Drawer)
-└── MainArea
-    ├── WidgetGrid
-    └── DetailPanel
-
-Mobile App:
-RootNavigator
-├── BottomTabNavigator
-│   ├── HomeScreen
-│   ├── SearchScreen
-│   └── ProfileScreen
-└── ModalStack
+[Show component nesting/hierarchy]
+Example:
+App
+├── Layout
+│   ├── Header
+│   │   ├── Logo
+│   │   ├── Navigation
+│   │   └── UserMenu
+│   ├── Sidebar (optional)
+│   └── MainContent
+│       ├── [PageComponent1]
+│       └── [PageComponent2]
+└── Footer
 ```
 
 ---
 
-## Key User Flows
+## Reusable Components
 
-### Flow 1: [Primary User Journey - e.g., Complete Core Task]
+### [Component Name 1]
 
-**Entry Point**: [How user starts - e.g., clicks button, navigates to page]
+**Purpose**: [what it does]
+**Where used**: [list pages/contexts]
+
+**Content/Structure**:
+- [element 1]
+- [element 2]
+- [element 3]
+
+**Interactive elements**:
+- [interaction description]
+- [interaction description]
+
+**Variants** (if any):
+- [variant 1] - [difference]
+- [variant 2] - [difference]
+
+---
+
+### [Component Name 2]
+
+**Purpose**: [what it does]
+**Where used**: [list pages/contexts]
+
+**Content/Structure**:
+- [element 1]
+- [element 2]
+
+**Interactive elements**:
+- [interaction description]
+
+**States**: [loading / error / success / empty]
+
+---
+
+### [Component Name 3]
+
+**Purpose**: [what it does]
+**Where used**: [list pages/contexts]
+
+**Content/Structure**:
+- [element 1]
+- [element 2]
+
+**Interactive elements**:
+- [interaction description]
+
+---
+
+## UI States
+
+### Loading States
+
+**Where used**:
+- [Context 1] - [loading indicator type]
+- [Context 2] - [loading indicator type]
+- [Context 3] - [loading indicator type]
+
+**Pattern**: [skeleton / spinner / progress bar / text]
+
+---
+
+### Error States
+
+**Where displayed**:
+- [Context 1] - [error display approach]
+- [Context 2] - [error display approach]
+
+**Error types handled**:
+- [Error type 1] - [user-facing message approach]
+- [Error type 2] - [user-facing message approach]
+- [Error type 3] - [user-facing message approach]
+
+**Recovery actions**:
+- [Action 1]
+- [Action 2]
+
+---
+
+### Empty States
+
+**Where used**:
+- [Context 1] - [message and actions shown]
+- [Context 2] - [message and actions shown]
+
+**Pattern**: [message + illustration / CTA / help text]
+
+---
+
+### Success States
+
+**Where used**:
+- [Context 1] - [success feedback approach]
+- [Context 2] - [success feedback approach]
+
+**Pattern**: [toast / modal / inline message / redirect]
+
+---
+
+## User Flows
+
+### [Flow 1: Primary User Journey]
+
+**Trigger**: [what starts this flow]
 
 **Steps**:
-1. [Action 1] → [Screen/Component shown]
-2. [Action 2] → [What happens, what's displayed]
-3. [Action 3] → [Feedback provided]
-4. [Action 4] → [Success state/result]
+1. User [action] on [page/component]
+2. System [response]
+3. User [action]
+4. System [response]
+5. User sees [result/feedback]
 
-**UI Components Involved**:
-- [Component 1] - [Role in flow]
-- [Component 2] - [Role in flow]
-- [Component 3] - [Role in flow]
-
-**Visual Feedback**:
-- [Loading states]
-- [Progress indicators]
-- [Success/error messages]
-
-**Exit Points**: [How flow completes or can be abandoned]
+**Success endpoint**: [where user ends up]
+**Failure handling**: [what happens on error]
 
 ---
 
-### Flow 2: [Secondary Journey]
+### [Flow 2: Secondary User Journey]
 
-**Entry Point**: [Starting action]
+**Trigger**: [what starts this flow]
 
 **Steps**:
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
+1. User [action]
+2. System [response]
+3. User [action]
+4. System [response]
 
-**UI Components**: [List relevant components]
-
----
-
-### Flow 3: [Error/Edge Case Flow]
-
-**Trigger**: [What causes this flow]
-
-**Steps**: [How error is handled in UI]
-
-**Recovery**: [How user gets back on track]
+**Success endpoint**: [where user ends up]
+**Failure handling**: [what happens on error]
 
 ---
 
-## Navigation Patterns
+### [Flow 3: User Journey]
 
-### Primary Navigation
+**Trigger**: [what starts this flow]
 
-**Type**: [Sidebar / Top bar / Bottom tabs / Breadcrumbs]
+**Steps**:
+1. User [action]
+2. System [response]
+3. User [action]
 
-**Items**:
-- [Nav item 1] → [Destination]
-- [Nav item 2] → [Destination]
-- [Nav item 3] → [Destination]
-
-**Active State Indication**: [How current page is shown]
-
-### Secondary Navigation
-
-**Type**: [Tabs / Sub-menu / Dropdown / Step indicator]
-
-**Context**: [When it appears]
-
-**Items**: [List navigation options]
+**Success endpoint**: [where user ends up]
 
 ---
 
-## Modal/Overlay Patterns
+## Forms & Input
 
-### [Modal Type 1 - e.g., Confirmation Dialog]
+### [Form 1: name]
 
-**Trigger**: [When it appears]
+**Location**: [where this form appears]
+**Purpose**: [what it accomplishes]
 
-**Content**: [What it shows]
+**Fields**:
+- [Field name] - [type] - [validation rules]
+- [Field name] - [type] - [validation rules]
+- [Field name] - [type] - [validation rules]
 
-**Actions**: [Button options - e.g., Confirm/Cancel]
+**Validation approach**: [client-side / server-side / both]
+**Error display**: [inline / summary / both]
 
-**Dismissal**: [How user closes it]
+**Submit behavior**:
+- Success: [what happens]
+- Error: [what happens]
 
 ---
 
-### [Modal Type 2 - e.g., Form Dialog]
+### [Form 2: name]
 
-**Purpose**: [What it's for]
+**Location**: [where this form appears]
+**Purpose**: [what it accomplishes]
 
-**Layout**: [Single form / Multi-step / Tabbed]
+**Fields**:
+- [Field name] - [type] - [validation rules]
+- [Field name] - [type] - [validation rules]
 
-**Validation**: [Inline / On submit / Real-time]
+**Validation approach**: [client-side / server-side / both]
+
+**Submit behavior**:
+- Success: [what happens]
+- Error: [what happens]
+
+---
+
+## Modals & Overlays
+
+### [Modal 1: name]
+
+**Trigger**: [what opens this modal]
+**Purpose**: [what it's for]
+
+**Content**:
+- [element 1]
+- [element 2]
+
+**Actions**:
+- [Primary action] → [result]
+- [Secondary action] → [result]
+- [Close/cancel] → [result]
+
+**Dismissal**: [click outside / close button / ESC key]
+
+---
+
+### [Modal 2: name]
+
+**Trigger**: [what opens this modal]
+**Purpose**: [what it's for]
+
+**Content**:
+- [element 1]
+- [element 2]
+
+**Actions**:
+- [Primary action] → [result]
+- [Cancel] → [result]
+
+---
+
+## Data Display Patterns
+
+### Lists/Tables
+
+**Where used**: [locations]
+
+**Display pattern**: [table / cards / list items]
+
+**Columns/Fields shown**:
+- [Field 1]
+- [Field 2]
+- [Field 3]
+
+**Sorting**: [yes/no - which columns]
+**Filtering**: [yes/no - which fields]
+**Pagination**: [yes/no - approach]
+
+**Row/Item actions**:
+- [Action 1]
+- [Action 2]
+
+---
+
+### Cards/Panels
+
+**Where used**: [locations]
+**Purpose**: [what they display]
+
+**Content structure**:
+- [element 1]
+- [element 2]
+- [element 3]
+
+**Actions available**:
+- [Action 1]
+- [Action 2]
+
+---
+
+## Real-time Updates
+
+**Where used**: [list pages/components with live data]
+
+**Update mechanism**: [WebSocket / polling / SSE / other]
+
+**Visual feedback**: [how user knows data updated]
+
+**Examples**:
+- [Context 1] - [what updates in real-time]
+- [Context 2] - [what updates in real-time]
 
 ---
 
 ## Responsive Behavior
 
-### Desktop (> 1024px)
-- [Layout characteristic 1]
-- [Layout characteristic 2]
-- [Layout characteristic 3]
+**Breakpoints approach**: [mobile-first / desktop-first / adaptive]
 
-### Tablet (768px - 1024px)
-- [Adaptation 1]
-- [Adaptation 2]
-- [Adaptation 3]
+**Mobile adaptations**:
+- [Navigation] → [mobile pattern]
+- [Sidebar] → [mobile pattern]
+- [Tables/Complex layouts] → [mobile pattern]
 
-### Mobile (< 768px)
-- [Adaptation 1]
-- [Adaptation 2]
-- [Adaptation 3]
-
----
-
-## State Management in UI
-
-### Global States
-- [State 1 - e.g., User authentication status]
-  - Affects: [Which components]
-  - Shown as: [UI indication]
-
-- [State 2 - e.g., Active filters]
-  - Affects: [Which components]
-  - Shown as: [UI indication]
-
-### Local Component States
-- [State 1 - e.g., Form validation]
-- [State 2 - e.g., Loading indicators]
-- [State 3 - e.g., Expanded/collapsed sections]
-
----
-
-## Loading & Empty States
-
-### Loading States
-**During data fetch**: [What user sees - e.g., skeleton screens, spinners, progress bars]
-
-**During action**: [What user sees - e.g., button disabled + spinner, overlay]
-
-### Empty States
-**No data**: [Message and action shown]
-
-**No search results**: [Message and suggested actions]
-
-**First-time user**: [Onboarding or empty state with guidance]
-
----
-
-## Error Handling in UI
-
-### Error Display Patterns
-- **Inline validation**: [Where and how shown]
-- **Toast notifications**: [Positioning and duration]
-- **Error pages**: [Full page error states]
-- **Inline alerts**: [Contextual error messages]
-
-### Recovery Actions
-- [What actions user can take to fix errors]
-- [Links to help/support if applicable]
+**Touch interactions**: [list touch-specific behaviors]
 
 ---
 
 ## Accessibility Considerations
 
-- **Keyboard Navigation**: [Tab order, shortcuts]
-- **Screen Reader Support**: [ARIA labels, announcements]
-- **Focus Management**: [Focus trapping in modals, focus restoration]
-- **Color Contrast**: [Meeting WCAG standards]
-- **Interactive Element Size**: [Minimum touch targets]
+**Keyboard navigation**: [how it's supported]
+
+**Screen reader support**:
+- [Support area 1]
+- [Support area 2]
+
+**Focus management**: [how focus is handled in modals/overlays]
+
+**ARIA labels**: [where used]
+
+---
+
+## Key User Interactions
+
+### [Interaction Pattern 1]
+
+**Context**: [where this happens]
+**User action**: [what user does]
+**System response**: [immediate feedback]
+**Result**: [final outcome]
+
+---
+
+### [Interaction Pattern 2]
+
+**Context**: [where this happens]
+**User action**: [what user does]
+**System response**: [immediate feedback]
+**Result**: [final outcome]
+
+---
+
+### [Interaction Pattern 3]
+
+**Context**: [where this happens]
+**User action**: [what user does]
+**System response**: [immediate feedback]
+
+---
+
+## Onboarding/First-Time Experience
+
+**Approach**: [tutorial / tooltips / empty state CTAs / documentation links]
+
+**Flow**:
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+
+---
+
+## Search & Discovery
+
+**Where available**: [locations]
+
+**Search scope**: [what can be searched]
+
+**Search behavior**:
+- Input method: [text / voice / filters]
+- Results display: [instant / on-submit]
+- Filtering options: [list available filters]
+
+**No results state**: [what's shown]
+
+---
+
+## Notifications & Feedback
+
+**Notification types**:
+- [Type 1] - [when shown] - [display method]
+- [Type 2] - [when shown] - [display method]
+- [Type 3] - [when shown] - [display method]
+
+**Display patterns**:
+- Toast/Snackbar: [when used]
+- Modal: [when used]
+- Inline message: [when used]
+- Badge/Indicator: [when used]
 
 ---

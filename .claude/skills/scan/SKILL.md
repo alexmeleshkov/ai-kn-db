@@ -6,18 +6,25 @@ allowed-tools: Task
 context: fork
 ---
 
-You are the `/scan` skill entry point. Your only job is to delegate to the kb-repo-scanner agent.
+You are the `/scan` skill entry point. **IMMEDIATELY delegate to the kb-repo-scanner agent. Do NOT do any work yourself.**
 
 ## Input
 
-- $ARGUMENTS: The local directory path and project ID provided by the user (e.g., "/path/to/project project-id")
+- $ARGUMENTS: The local directory path and project ID (e.g., "/path/to/project project-id")
 
 ## Workflow
 
-1. Parse $ARGUMENTS to extract local_path and project_id
-2. Use the Task tool to invoke the `kb-repo-scanner` agent
-3. Pass both the local path and project ID to the agent
-4. Let the agent handle the entire scanning workflow
+**IMMEDIATELY invoke the Task tool** - do not analyze, do not validate paths, do not read files:
+
+```
+Task(
+  subagent_type: "kb-repo-scanner",
+  description: "Scan repository and create KB entry",
+  prompt: "Scan repository with these arguments: $ARGUMENTS"
+)
+```
+
+That's it. The scanner agent handles everything else (parsing args, validation, extraction).
 
 ## Example
 

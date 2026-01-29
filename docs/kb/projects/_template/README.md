@@ -1,68 +1,54 @@
 # [Project Name]
 
-[One-paragraph overview: What is this project? What problem does it solve? Who is it for?]
+[One-paragraph overview: What problem does this solve? What does it do? Who uses it?]
 
 ## Quick Facts
 
-- **Status**: [Stable/Draft/Deprecated]
-- **Stack**: [Frontend] + [Backend] + [Database]
-- **Key Technologies**: [Top 3-5 technologies]
-- **Architecture**: [Pattern name]
-- **Deployment**: [Platform/Environment]
+- **Status**: [stable | draft | deprecated]
+- **Stack**: [Frontend Framework] + [Backend Framework] + [Database]
+- **Architecture**: [Pattern - e.g., Layered Monolith, SPA + API, Microservices]
+- **Deployment**: [Platform - e.g., Docker, Heroku, AWS]
 
 ## Core Capabilities
 
-[List 5-8 main things users can do]
+[List 5-8 main things this project enables - these map to `capabilities` in meta.yaml]
 
-1. [Capability 1]
-2. [Capability 2]
-3. [Capability 3]
+1. [Capability 1 - e.g., User authentication with JWT]
+2. [Capability 2 - e.g., Natural language to SQL query conversion]
+3. [Capability 3 - e.g., Real-time data visualization]
 4. [Capability 4]
 5. [Capability 5]
 
-## Documentation Structure
-
-This KB entry contains:
-
-- **architecture.md** - System design, patterns, decisions
-- **business.md** - Purpose, users, use cases
-- **tech.md** - Technology stack with justifications
-- **modules.md** - ⭐ Code patterns and implementations
-- **features.md** - Must-have vs nice-to-have features
-- **structure.md** - File organization and capability mapping
-- **deployment.md** - Build, run, deploy instructions
-- **uiDescription.md** - UI structure and user flows (if applicable)
-- **meta.yaml** - Structured metadata
-
 ## Quick Start
 
-[3-5 commands to run the project locally]
-
 ```bash
-[Command 1 - Install dependencies]
-[Command 2 - Configure environment]
-[Command 3 - Run locally]
+# Clone and setup
+git clone <repo-url>
+cd <project-dir>
+
+# Install dependencies
+[command 1 - e.g., npm install]
+[command 2 - e.g., pip install -r requirements.txt]
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your credentials
+
+# Run locally
+[command - e.g., docker-compose up]
+# Or: npm run dev (frontend) + python -m uvicorn app.main:app --reload (backend)
 ```
 
-## 1:1 Generation Readiness
+**Access**: [http://localhost:5173] (frontend) | [http://localhost:8000] (backend)
 
-This KB entry is designed for 1:1 project generation. It includes:
+## Documentation
 
-- ✅ Code patterns with actual implementations (modules.md)
-- ✅ Architecture decisions with rationale (architecture.md)
-- ✅ Technology justifications (tech.md)
-- ✅ Exact build/deploy commands (deployment.md)
-- ✅ Feature prioritization (features.md)
-- ✅ Complete file structure (structure.md)
-
-An LLM can recreate this project with high fidelity using this KB entry.
-
-## Source
-
-- **Original Repository**: [GitHub URL if available]
-- **Production Deployment**: [URL if available]
-- **Extraction Date**: [YYYY-MM-DD]
+- **meta.yaml** - Project metadata, stack reference, capabilities, run commands
+- **modules.md** - Code patterns with implementation examples and file structure
+- **tech.md** - Technology stack with rationale
+- **architecture.md** - System design decisions and architectural patterns
+- **deployment.md** - Build, run, test, and deploy commands
 
 ---
 
-*This KB entry follows the [Universal KB Standard](../../README.md) for 1:1 project generation.*
+*This KB entry follows the Universal KB Standard for 1:1 project generation.*

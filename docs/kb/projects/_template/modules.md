@@ -1,212 +1,219 @@
-# Core Modules
+# Code Modules & Implementation Patterns
 
-> **CRITICAL**: This file must include IMPLEMENTATION PATTERNS with code snippets.
-> These patterns enable 1:1 project generation without guessing.
->
-> **This is a TEMPLATE showing structure** - the scanner will fill with actual code.
+> **CRITICAL**: This file must contain ACTUAL CODE PATTERNS from the reference project.
+> Include real implementation with proper imports, types, and error handling.
+> NO pseudocode - show real, working code that enables 1:1 project generation.
 
-## [Section Name - e.g., Backend Services / Frontend Components / Core Logic]
+## File Structure Overview
 
-### 1. [filename].[ext] - [Module Purpose in 5-10 words]
+```
+[Show actual project directory tree with file paths]
+```
+
+**Organization Strategy**: [describe approach - by feature / by layer / hybrid]
+
+**Import Patterns**:
+- [describe import style used]
+- [path aliases if any]
+
+---
+
+## Backend Modules
+
+### [Module 1: filename.ext]
+
+**Purpose**: [what this module does]
 
 **Responsibilities**:
-- [Specific responsibility 1 - be concrete, not generic]
-- [Specific responsibility 2]
-- [Specific responsibility 3]
+- [responsibility 1]
+- [responsibility 2]
+- [responsibility 3]
 
 **Key Functions/Methods**:
-- `[function_name]([param1]: [type], [param2]: [type]) -> [return_type]` - [What it does]
-- `[another_function]([params]) -> [return]` - [Purpose and behavior]
-- `[third_function]([params])` - [Side effects if any]
+- `[function_signature]` - [description]
+- `[function_signature]` - [description]
 
 **Code Pattern**:
 ```[language]
-[Show 15-30 lines of ACTUAL implementation from the reference repo]
-[Include: imports/requires, function signatures, key logic, error handling]
-[Show real patterns: async/await, error handling, data transformation]
-[NOT pseudocode - real code that compiles/runs]
-
-[Example structure - DO NOT use this exact code:]
-import [necessary_libraries]
-
-[type_definitions_or_interfaces]
-
-function [core_function]([params_with_types]): [return_type] {
-  [validation_or_setup]
-
-  [main_logic_with_error_handling]
-
-  return [result]
-}
-
-[Show 1-2 more key functions if critical to understanding]
+[PASTE ACTUAL CODE - 20-60 lines showing real implementation]
 ```
 
-**Dependencies**: [package-name]>=[version], [another-package]
-**Environment Variables**: [VAR_NAME], [ANOTHER_VAR]
-**Configuration**: [Config file path or special settings if needed]
-
-**Integration Points**:
-- Calls: [module_name], [another_module], [external_api]
-- Called by: [consuming_module], [route_handler]
-- External services: [database_name], [api_name], [queue_name]
+**Dependencies**: [list packages]
+**Environment Variables**: [list vars if any]
+**Integration**: [what this calls / what calls this]
 
 ---
 
-### 2. [another_filename].[ext] - [Another Purpose]
+### [Module 2: filename.ext]
+
+**Purpose**: [what this module does]
 
 **Responsibilities**:
-- [Responsibility 1]
-- [Responsibility 2]
+- [responsibility 1]
+- [responsibility 2]
 
 **Key Functions/Methods**:
-- `[function_signature]` - [Behavior]
+- `[function_signature]` - [description]
 
 **Code Pattern**:
 ```[language]
-[Show actual implementation - class-based example structure]
-
-class [ClassName] {
-  [Show constructor/initialization]
-  constructor([dependencies]) {
-    [dependency_injection_or_setup]
-  }
-
-  [Show 1-2 key methods with full implementation]
-  async [method_name]([params]): [return_type] {
-    [validation]
-    [core_logic]
-    [error_handling]
-    return [result]
-  }
-}
-
-[Export or usage pattern]
+[PASTE ACTUAL CODE]
 ```
 
-**Dependencies**: [list]
-**Environment Variables**: [list]
-**Error Handling**: [Approach - e.g., try/catch with custom errors, Result<T,E>, panic]
+**Dependencies**: [list packages]
+**Environment Variables**: [list vars if any]
 
 ---
 
-## [Another Section - e.g., Frontend Components / API Handlers / CLI Commands]
+### [Module 3: filename.ext]
 
-### 3. [ComponentOrModuleName].[ext] - [Purpose]
+**Purpose**: [what this module does]
 
-**Component Contract** (if applicable):
+**Endpoints** (if API routes):
+- `[METHOD] [/path]` - [description]
+- `[METHOD] [/path]` - [description]
+
+**Code Pattern**:
 ```[language]
-[Show interface/props/public API]
+[PASTE ACTUAL CODE]
+```
 
-interface [Name] {
-  [field]: [type];
-  [optional_field]?: [type];
-  [callback]?: ([param]: [type]) => [return];
-}
+**Dependencies**: [list packages]
+**Integration**: [calls which services]
+
+---
+
+## Frontend Modules
+
+### [Module 4: ComponentName.ext]
+
+**Purpose**: [what this component does]
+
+**Props/Interface**:
+```[language]
+[PASTE ACTUAL INTERFACE/PROPS TYPE]
 ```
 
 **Code Pattern**:
 ```[language]
-[Show complete implementation - component example structure]
-
-[imports]
-
-export [const|function|class] [Name] = ([params]) => {
-  [Show state management - hooks, signals, observables, etc.]
-
-  [Show event handlers or methods]
-
-  [Show render/return logic or main execution]
-
-  return [result_structure]
-}
-
-[OR for class-based]
-export class [Name] {
-  [properties]
-
-  [methods_with_full_implementation]
-}
+[PASTE ACTUAL COMPONENT CODE - 30-60 lines]
 ```
 
-**Dependencies**: [framework], [libraries]
-**State Management**: [Approach used - Context, Redux, Signals, etc.]
-**Styling Approach**: [CSS modules, Tailwind, styled-components, etc.]
+**Dependencies**: [list packages]
+**State Management**: [approach used]
+**Styling**: [approach used]
 
 ---
 
-## [Section for Utilities/Helpers/Shared Code]
+### [Module 5: filename.ext]
 
-### 4. [utils_or_helper_file].[ext] - [Utility Purpose]
+**Purpose**: [what this module does]
 
 **Exported Functions**:
-- `[function_name]([params])` - [What it does]
-- `[another_function]([params])` - [Purpose]
+- `[function_signature]` - [description]
+- `[function_signature]` - [description]
 
 **Code Pattern**:
 ```[language]
-[Show utility functions with full implementation]
-
-export function [utility_name]([param]: [type]): [return_type] {
-  [full_implementation]
-  return [result]
-}
-
-export const [constants_or_config] = {
-  [KEY]: [value],
-  [ANOTHER_KEY]: [value]
-}
-
-[Show 2-3 actual utility functions from reference]
+[PASTE ACTUAL CODE]
 ```
 
-**Usage Example**:
-```[language]
-[Show how other modules import and use this]
-import { [function], [constant] } from '[path]'
+**Dependencies**: [list packages]
+**Environment Variables**: [list vars if any]
 
-const [result] = [function]([args])
+---
+
+## Database/Data Layer
+
+### [Module 6: filename.ext]
+
+**Purpose**: [what this module does]
+
+**Schema/Fields**:
+- [field]: [type] - [description]
+- [field]: [type] - [description]
+
+**Code Pattern**:
+```[language]
+[PASTE ACTUAL CODE showing model/schema definition]
+```
+
+**Database**: [database type and ORM]
+**Migrations**: [migration tool and location]
+
+---
+
+## Utility Modules
+
+### [Module 7: filename.ext]
+
+**Purpose**: [what this module provides]
+
+**Exported Functions**:
+- `[function_signature]` - [description]
+- `[function_signature]` - [description]
+
+**Code Pattern**:
+```[language]
+[PASTE ACTUAL UTILITY FUNCTIONS]
 ```
 
 ---
 
-## [Section for Data Layer - if applicable]
+## Capability Implementation Mapping
 
-### 5. [database_or_storage_file].[ext] - [Data Access Purpose]
+[Map each capability from meta.yaml to specific files/functions]
 
-**Responsibilities**:
-- [Database connection management / File I/O / API client]
-- [Query execution / Data persistence]
-- [Schema validation / Data transformation]
+| Capability | Backend Implementation | Frontend Implementation |
+|------------|----------------------|------------------------|
+| [capability_1] | [file:function] | [file:component] |
+| [capability_2] | [file:function] | [file:component] |
+| [capability_3] | [file:function] | [file:component] |
 
-**Code Pattern**:
+---
+
+## Integration Points
+
+**Backend → Database**:
+- Connection: [approach]
+- ORM: [tool]
+- Migrations: [tool and location]
+
+**Frontend → Backend**:
+- Protocol: [protocol]
+- Auth: [auth approach]
+- Real-time: [approach if any]
+
+**Backend → External Services**:
+- [Service]: [integration details]
+- [Service]: [integration details]
+
+---
+
+## Error Handling Patterns
+
+**Backend**:
 ```[language]
-[Show connection/initialization pattern]
-
-export function [create_connection_or_client](): [Type] {
-  return new [Client]({
-    [configuration_from_env_vars]
-  })
-}
-
-[Show query/access patterns]
-export async function [query_or_operation]<T>([params]): Promise<T> {
-  const [connection] = await [get_connection]()
-  try {
-    [execute_operation]
-    return [result]
-  } catch ([error]) {
-    [error_handling]
-  } finally {
-    [cleanup]
-  }
-}
-
-[Show 1-2 more critical data operations]
+[PASTE ACTUAL ERROR HANDLING CODE]
 ```
 
-**Dependencies**: [database_driver], [ORM], [connection_pool_library]
-**Environment Variables**: [DB_HOST], [DB_PORT], [DB_NAME], [DB_USER], [DB_PASSWORD]
-**Migration Strategy**: [How schema changes are managed - Alembic, Flyway, migrations folder]
+**Frontend**:
+```[language]
+[PASTE ACTUAL ERROR HANDLING CODE]
+```
+
+---
+
+## Testing Patterns (if applicable)
+
+**Backend Tests** (location):
+```[language]
+[PASTE TEST EXAMPLE if critical]
+```
+
+**Frontend Tests** (location):
+```[language]
+[PASTE TEST EXAMPLE if critical]
+```
 
 ---

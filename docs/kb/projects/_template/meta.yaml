@@ -1,130 +1,85 @@
 # KB Project Metadata
-# This file contains essential metadata for the knowledge base entry
-# Used by: generator matching, stack resolution, validation
+# Used by: generator matching and validation
 
 # ============================================================================
 # IDENTIFICATION
 # ============================================================================
 
 id: [project-id]
-# Unique identifier (lowercase, hyphens only)
+# Unique identifier (lowercase, hyphens only, e.g., "db-chat-nl")
 
 name: [Project Name]
-# Human-readable name
+# Human-readable name (e.g., "Database Chat NL")
 
 description: [One-line description of what this project does]
-# Brief summary (max 200 chars)
+# Brief summary, max 200 chars (e.g., "Chat interface for querying databases with natural language")
 
 status: stable
 # Options: draft | stable | deprecated
-# - draft: KB entry incomplete, not ready for generation
-# - stable: Production-tested, ready for 1:1 generation
-# - deprecated: Outdated, prefer newer alternatives
-
-version: "1.0.0"
-# Semantic version of KB entry (not project version)
-# Increment when making significant KB updates
 
 # ============================================================================
 # TECHNOLOGY STACK
 # ============================================================================
 
-# Technology classification (high-level)
-stack:
-  frontend: [frontend-framework]  # react | vue | angular | svelte | none
-  backend: [backend-framework]    # fastapi | express | django | flask | spring | none
-  database: [database-type]       # postgresql | mysql | mongodb | redis | sqlite | none
-
-# Technology stack reference (links to docs/kb/stacks/<stack-id>/)
-# Used by generator for scaffolding
-stack_ref: [stack-id]
-
-# Major technologies (top 5-8, extracted from tech.md)
-# Used for matching user requirements to KB entries
+# Major technologies (top 5-8) - used for matching user requirements
 technologies:
-  - [Technology 1]
-  - [Technology 2]
-  - [Technology 3]
-  - [Technology 4]
-  - [Technology 5]
+  - [Technology 1]  # e.g., React 18
+  - [Technology 2]  # e.g., FastAPI
+  - [Technology 3]  # e.g., PostgreSQL
+  - [Technology 4]  # e.g., TypeScript
+  - [Technology 5]  # e.g., Docker
 
 # ============================================================================
 # CAPABILITIES (What the project does)
 # ============================================================================
 
-# Core capabilities - used for matching user requirements
-# Each capability should map to implementation in modules.md
+# Core capabilities - used for matching user requirements to KB entries
+# Each capability should have implementation details in modules.md
 capabilities:
-  - [capability_1]
-  - [capability_2]
-  - [capability_3]
-  - [capability_4]
-  - [capability_5]
+  - [capability_1]  # e.g., "user_authentication"
+  - [capability_2]  # e.g., "nl_to_sql_generation"
+  - [capability_3]  # e.g., "real_time_data_streaming"
+  - [capability_4]  # e.g., "data_visualization"
+  - [capability_5]  # e.g., "database_schema_introspection"
 
 # ============================================================================
 # ARCHITECTURE
 # ============================================================================
 
 # Architecture pattern (from architecture.md)
-architecture_pattern: [pattern]  # layered | microservices | mvc | modular_monolith | event_driven
-
-# Deployment platform (from deployment.md)
-deployment:
-  platform: [platform]           # heroku | aws | gcp | azure | docker | kubernetes
-  environment: [environment]     # cloud | on_premise | hybrid
+architecture_pattern: [pattern]
+# Options: layered | microservices | mvc | modular_monolith | event_driven | hexagonal
 
 # ============================================================================
-# QUALITY ATTRIBUTES
+# OPERATIONAL INFO (Run & Build)
 # ============================================================================
 
-# Non-functional requirements
-nfr:
-  performance: [level]    # low | medium | high
-  security: [level]       # low | medium | high
-  scalability: [level]    # low | medium | high
-
-# ============================================================================
-# OPERATIONAL INFO
-# ============================================================================
-
-# Prerequisites for running locally (from deployment.md)
+# Prerequisites for running locally
 run:
   prerequisites:
-    - [Prerequisite 1]
-    - [Prerequisite 2]
-    - [Prerequisite 3]
-    - [API keys or credentials needed]
+    - [Prerequisite 1]  # e.g., "Node.js >= 18.0.0"
+    - [Prerequisite 2]  # e.g., "Python >= 3.11"
+    - [Prerequisite 3]  # e.g., "Docker >= 24.0"
+    - [Prerequisite 4]  # e.g., "PostgreSQL >= 14 (or via Docker)"
+
+  env_vars:
+    - [VAR_1]  # e.g., "DATABASE_URL"
+    - [VAR_2]  # e.g., "JWT_SECRET"
+    - [VAR_3]  # e.g., "ANTHROPIC_API_KEY"
+    - [VAR_4]  # e.g., "CORS_ORIGINS"
 
   commands:
-    - [Command 1 to install dependencies]
-    - [Command 2 to install dependencies]
-    - [Command 3 to start services]
+    - [Command 1]  # e.g., "npm install"
+    - [Command 2]  # e.g., "pip install -r requirements.txt"
+    - [Command 3]  # e.g., "docker-compose up"
 
-# Build/Deploy commands
+# Build commands (if different from run)
 build:
   commands:
-    - [Build command 1]
-    - [Build command 2]
+    - [Build command 1]  # e.g., "npm run build"
+    - [Build command 2]  # e.g., "docker build -t project:latest ."
 
-# ============================================================================
-# KB METADATA (Extraction info)
-# ============================================================================
-
-kb_metadata:
-  created_date: "[ISO timestamp]"
-  last_updated: "[ISO timestamp]"
-  extractor_version: "[version]"
-  source_repo: "[repository URL]"  # Optional
-  extraction_method: [method]  # manual | automated
-  coverage: [percentage]  # Percentage (0-100)
-
-# ============================================================================
-# VALIDATION CHECKLIST
-# ============================================================================
-# Before marking status: stable, ensure:
-# ✅ modules.md has code patterns for all capabilities
-# ✅ tech.md explains WHY each technology chosen
-# ✅ architecture.md has design decisions with rationale
-# ✅ deployment.md has exact build/run commands
-# ✅ features.md separates must-have from nice-to-have
-# ✅ All files reference actual file paths from source repo
+# Smoke test - critical for validating generated projects
+smoke_test:
+  command: [smoke test command]  # e.g., "npm run smoke" or "./scripts/smoke-test.sh"
+  description: [what it verifies]  # e.g., "Verifies backend starts, frontend builds, API responds"

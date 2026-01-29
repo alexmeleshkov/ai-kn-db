@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
 """
-KB-driven project generator.
+DEPRECATED: KB-driven project generator (v1 - stack-based scaffolding).
 
+This script is deprecated in favor of the two-agent workflow:
+- kb-generation-coordinator: Plans tasks and validates outputs
+- kb-code-generator: Executes pure 1:1 generation from KB files
+
+The new workflow generates code directly from modules.md, architecture.md, and
+other KB files WITHOUT using generic scaffolding or stack references.
+
+This file is kept for reference but should NOT be used for new projects.
+Use the /create skill instead, which invokes the agent workflow.
+
+---
+
+OLD FUNCTIONALITY (no longer used):
 - Reads docs/kb/projects/*/meta.yaml
 - Selects best-matching KB project for a user prompt (simple token overlap)
-- Resolves stack_ref -> docs/kb/stacks/<stack_id>/stack.yaml
+- Resolves stack_ref -> docs/kb/stacks/<stack_id>/stack.yaml (NO LONGER EXISTS)
 - Executes stack scaffold steps (CLI commands + template copy)
 - Optionally runs stack smoke test (docker compose)
 
