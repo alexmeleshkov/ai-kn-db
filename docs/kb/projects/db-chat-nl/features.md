@@ -1,59 +1,136 @@
-# User-facing features
+# Features & Capabilities
 
-## Must-have
+## Must-Have Features (MVP)
 
-### Natural Language Database Queries
-Users can ask questions in plain English (e.g., "Show me top scorers this season") and receive formatted results without writing SQL. The system translates natural language to SQL using Claude AI.
+### 1. User Authentication (JWT + bcrypt)
+**Description**: Secure user registration and login
 
-### Real-time Streaming Responses
-Chat responses stream in real-time via Server-Sent Events, showing SQL generation, query execution, and explanations as they happen. Users see immediate feedback rather than waiting for complete responses.
+**Implementation**:
+- Module: backend/app/services/auth.py, frontend/src/hooks/useAuth.tsx
+- Endpoints: POST /api/v1/auth/register, POST /api/v1/auth/login, GET /api/v1/auth/me
+- UI: AuthPage.tsx with email/password inputs
 
-### Data Visualizations
-Query results automatically generate appropriate charts (bar, line, pie) based on data structure. Users can visualize trends, comparisons, and distributions without manual chart configuration.
+**Acceptance Criteria**:
+- [x] User can register with email/password
+- [x] Passwords hashed with bcrypt (12 rounds)
+- [x] JWT token issued on login (7-day expiration)
+- [x] Protected routes require valid token
 
-### Conversation History
-Users can save, retrieve, and resume past conversations. History includes full message threads with queries, results, and explanations for future reference.
+**Priority**: CRITICAL
 
-### Multi-table Query Support
-The system handles complex queries spanning multiple tables with JOIN operations, aggregations, and filtering. Schema introspection provides Claude with complete table and column metadata.
+### 2. Natural Language to SQL
+**Description**: Convert user questions to SQL queries using Claude AI
 
-### User Authentication
-Secure registration and login with JWT token-based authentication. Passwords are hashed with bcrypt. Each user has isolated conversation history.
+**Implementation**:
+- Module: backend/app/services/llm.py, backend/app/services/chat.py
+- Endpoint: POST /api/v1/chat/stream (SSE)
+- Tools: execute_sql, ask_clarification
 
-### Query Result Tables
-Results display in formatted, sortable tables with column headers. Large result sets are handled gracefully with clear data presentation.
+**Acceptance Criteria**:
+- [x] Natural language converted to SQL
+- [x] Extended thinking for complex queries (5000 tokens)
+- [x] Query validation before execution
+- [x] Streaming responses with heartbeat
 
-### SQL Transparency
-Generated SQL queries are displayed to users, enabling learning and verification. Users can see exactly what query was executed against the database.
+**Priority**: CRITICAL
 
-### Error Handling and Recovery
-When queries fail or return no results, the system provides helpful error messages and suggestions for query refinement.
+### 3. Chat History Persistence
+**Description**: Save conversations for later retrieval
 
-### Responsive Design
-Interface adapts to mobile, tablet, and desktop screens with Ipswich Town brand colors (blue #1a365d).
+**Implementation**:
+- Module: backend/app/services/app_data.py, conversations.py
+- Endpoints: GET /api/v1/conversations, GET /api/v1/conversations/{id}
+- Database: conversations, messages tables
 
-## Nice-to-have
+**Acceptance Criteria**:
+- [x] Conversations stored per user
+- [x] Messages include role, content, metadata
+- [x] User can load previous conversations
 
-### Query Learning System
-Backend tracks successful query patterns to improve future SQL generation accuracy. The system learns from user interactions over time.
+**Priority**: HIGH
 
-### Domain-Specific Examples
-Pre-loaded Ipswich Town football terminology and common query examples help Claude understand fan-specific questions about players, matches, and attendance.
+### 4. Query Result Visualization
+**Description**: Auto-generate charts from query results
 
-### Markdown Support in Responses
-Claude responses support rich markdown formatting including tables, lists, bold, italic, and code blocks for better readability.
+**Implementation**:
+- Module: frontend/src/components/QueryChart.tsx
+- Library: Chart.js with react-chartjs-2
+- Chart types: Bar, Line, Pie
 
-### Schema Exploration
-Users can view available database tables and columns to understand what data is queryable.
+**Acceptance Criteria**:
+- [x] Numeric data triggers chart generation
+- [x] Chart type auto-selected (bar for categorical, line for time series)
+- [x] Responsive design
 
-### CSV Export
-Users can export query results to CSV format for external analysis (not yet implemented but planned).
+**Priority**: HIGH
 
-### Query Suggestions
-System could suggest related questions based on current conversation context (not yet implemented).
+### 5. Database Schema Viewer
+**Description**: Browse available tables and columns
 
-### Dark Mode
-Interface could support dark theme preference (not yet implemented).
+**Implementation**:
+- Module: backend/app/services/database_azure.py
+- Endpoint: GET /api/v1/database/schema
+- UI: DatabaseInfo.tsx in sidebar
 
-### Query Performance Metrics
-Display query execution time and row count for transparency (partially implemented).
+**Acceptance Criteria**:
+- [x] Schema loaded from database
+- [x] Tables and columns displayed
+- [x] Collapsible tree view
+
+**Priority**: MEDIUM
+
+## Nice-to-Have Features
+
+### 6. CSV Export
+**Description**: Download query results as CSV
+
+**Implementation**: DataViewer.tsx (CSV generation client-side)
+**Priority**: LOW
+**Effort**: Low (1-2 hours)
+
+### 7. Admin Panel
+**Description**: View all user conversations (admin only)
+
+**Implementation**: AdminConversationViewer.tsx
+**Priority**: MEDIUM
+**Effort**: Medium (4-6 hours)
+
+## Feature Matrix
+
+| Feature | Priority | Status | Dependencies |
+|---------|----------|--------|--------------|
+| JWT Auth | CRITICAL | Complete | PyJWT, bcrypt |
+| NL to SQL | CRITICAL | Complete | Anthropic API |
+| Chat History | HIGH | Complete | PostgreSQL |
+| Visualizations | HIGH | Complete | Chart.js |
+| Schema Viewer | MEDIUM | Complete | Database driver |
+| CSV Export | LOW | Complete | Client-side JS |
+| Admin Panel | MEDIUM | Complete | JWT is_admin flag |
+
+## User Flows
+
+### Primary Flow: Query Database
+1. User types question: "How many fans are there?"
+2. Backend streams SSE events: status -> thinking -> SQL -> results
+3. Frontend displays table + auto-generated chart
+4. User asks follow-up in same conversation
+
+**Critical Path**: Auth -> Chat -> LLM -> Database -> Visualization
+
+## Non-Functional Requirements
+
+### Performance
+- SQL generation: < 3 seconds
+- Total response: < 10 seconds (with extended thinking)
+- Query timeout: 30 seconds
+
+### Security
+- bcrypt hashing (12 rounds)
+- JWT expiration (7 days)
+- Read-only queries (SELECT only)
+- Row limit: 1000 per query
+
+### Usability
+- Mobile-responsive (breakpoints: 768px, 1024px)
+- Streaming feedback (loading states)
+- Error messages user-friendly

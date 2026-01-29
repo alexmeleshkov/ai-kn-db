@@ -1,154 +1,235 @@
-# Project Structure: [Project Name]
+# Project Structure
+
+> **Purpose**: Document the directory layout and file organization.
+> This file informs project scaffolding and file placement during generation.
+>
+> **This is a TEMPLATE showing structure** - the scanner will fill with actual paths.
 
 ## Directory Tree
 
 ```
-project-root/
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── __init__.py
-│   │   │   └── routes.py              # Main API routes
-│   │   ├── core/
-│   │   │   ├── __init__.py
-│   │   │   └── config.py              # Configuration management
-│   │   ├── services/
-│   │   │   ├── __init__.py
-│   │   │   └── [service_files]        # Business logic services
-│   │   └── main.py                    # Application entry point
-│   ├── requirements.txt               # Python dependencies
-│   ├── Dockerfile                     # Backend container definition
-│   └── .env.example                   # Environment variables template
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── [components]           # React components
-│   │   ├── hooks/
-│   │   │   └── [hooks]                # Custom React hooks
-│   │   ├── services/
-│   │   │   └── api.ts                 # API client
-│   │   ├── types/
-│   │   │   └── [types]                # TypeScript type definitions
-│   │   ├── styles/
-│   │   │   └── index.css              # Global styles
-│   │   ├── App.tsx                    # Root component
-│   │   └── main.tsx                   # React entry point
-│   ├── public/
-│   │   └── [assets]                   # Static assets
-│   ├── index.html                     # HTML entry point
-│   ├── package.json                   # Node dependencies
-│   ├── tsconfig.json                  # TypeScript configuration
-│   ├── vite.config.ts                 # Build tool configuration
-│   └── Dockerfile                     # Frontend container definition
-├── docker-compose.yml                 # Multi-container orchestration
-└── README.md                          # Project documentation
+[project-root]/
+├── [backend-dir]/                    # Backend/server code (or main application for CLI/monorepo)
+│   ├── [source-dir]/                 # Main source code directory
+│   │   ├── [entry-file].[ext]       # Application entry point
+│   │   ├── [config-file].[ext]      # Configuration and settings
+│   │   ├── [models-dir]/             # Data models / Domain entities
+│   │   │   ├── [model1].[ext]
+│   │   │   └── [model2].[ext]
+│   │   ├── [routes-or-handlers-dir]/ # API endpoints / Request handlers
+│   │   │   ├── [route1].[ext]
+│   │   │   ├── [route2].[ext]
+│   │   │   └── [route3].[ext]
+│   │   ├── [services-or-logic-dir]/  # Business logic / Core services
+│   │   │   ├── [service1].[ext]
+│   │   │   ├── [service2].[ext]
+│   │   │   └── [service3].[ext]
+│   │   ├── [schemas-or-types-dir]/   # Type definitions / Validation schemas
+│   │   │   ├── [schema1].[ext]
+│   │   │   └── [schema2].[ext]
+│   │   └── [utils-dir]/              # Utility functions / Helpers
+│   │       ├── [util1].[ext]
+│   │       └── [util2].[ext]
+│   ├── [tests-dir]/                  # Test suite
+│   │   ├── [test-file1].[ext]
+│   │   ├── [test-file2].[ext]
+│   │   └── [test-config].[ext]       # Test fixtures/config
+│   ├── [migrations-dir]/             # Database migrations (if applicable)
+│   │   └── [migration-files]
+│   ├── [dependencies-file]           # Dependency manifest (requirements.txt, package.json, Cargo.toml, go.mod)
+│   ├── [env-example]                 # Environment variable template
+│   ├── [dockerfile]                  # Container definition (if using Docker)
+│   └── [readme]                      # Backend-specific documentation
+│
+├── [frontend-dir]/                   # Frontend application (if web app with separate frontend)
+│   ├── [public-or-static-dir]/       # Static assets
+│   │   ├── [asset1]
+│   │   └── [asset2]
+│   ├── [source-dir]/                 # Source code
+│   │   ├── [entry-file].[ext]       # Entry point (main.tsx, index.js, App.vue)
+│   │   ├── [root-component].[ext]   # Root component
+│   │   ├── [components-dir]/        # UI components
+│   │   │   ├── [category1]/         # Grouped by feature/domain
+│   │   │   │   ├── [Component1].[ext]
+│   │   │   │   └── [Component2].[ext]
+│   │   │   ├── [category2]/
+│   │   │   │   ├── [Component3].[ext]
+│   │   │   │   └── [Component4].[ext]
+│   │   │   └── [shared-or-common]/  # Reusable components
+│   │   │       ├── [SharedComp1].[ext]
+│   │   │       └── [SharedComp2].[ext]
+│   │   ├── [pages-or-views-dir]/    # Page-level components (if using router)
+│   │   │   ├── [Page1].[ext]
+│   │   │   ├── [Page2].[ext]
+│   │   │   └── [Page3].[ext]
+│   │   ├── [hooks-or-composables]/  # Custom hooks/composables/stores
+│   │   │   ├── [hook1].[ext]
+│   │   │   ├── [hook2].[ext]
+│   │   │   └── [hook3].[ext]
+│   │   ├── [contexts-or-stores]/    # State management
+│   │   │   ├── [context1].[ext]
+│   │   │   └── [store1].[ext]
+│   │   ├── [services-or-api-dir]/   # API client / Service layer
+│   │   │   ├── [api-client].[ext]
+│   │   │   └── [api-endpoints].[ext]
+│   │   ├── [utils-dir]/             # Utility functions
+│   │   │   ├── [util1].[ext]
+│   │   │   └── [util2].[ext]
+│   │   ├── [types-or-interfaces]/   # Type definitions
+│   │   │   ├── [types1].[ext]
+│   │   │   └── [types2].[ext]
+│   │   └── [styles-dir]/            # Styling (if not component-colocated)
+│   │       ├── [global].[ext]
+│   │       └── [theme].[ext]
+│   ├── [tests-dir]/                 # Frontend tests
+│   │   ├── [test1].[ext]
+│   │   └── [test2].[ext]
+│   ├── [dependencies-file]          # package.json, etc.
+│   ├── [build-config]               # vite.config, webpack.config, etc.
+│   ├── [env-example]
+│   └── [readme]
+│
+├── [shared-or-common-dir]/          # Shared code (if monorepo)
+│   ├── [types-dir]/                 # Shared types/interfaces
+│   ├── [utils-dir]/                 # Shared utilities
+│   └── [constants-dir]/             # Shared constants
+│
+├── [config-dir]/                    # Configuration files (optional)
+│   ├── [deployment-configs]
+│   └── [environment-configs]
+│
+├── [docs-dir]/                      # Documentation (optional)
+│   ├── [api-docs]
+│   └── [architecture-diagrams]
+│
+├── [scripts-dir]/                   # Build/deployment scripts (optional)
+│   ├── [build-script]
+│   ├── [deploy-script]
+│   └── [migration-script]
+│
+├── [docker-compose-file]            # Docker Compose (if using)
+├── [ci-cd-config]                   # .github/workflows, .gitlab-ci.yml, etc.
+├── [gitignore]
+├── [readme]                         # Main project README
+└── [license]
 ```
 
-## File Categorization
+## Directory Descriptions
 
-### Core Files (Always Present)
+### [backend-dir] / [main-application-dir]
+**Purpose**: [Server-side logic / Core application / API implementation]
 
-| File | Purpose | Modifiable |
-|------|---------|------------|
-| `backend/app/main.py` | FastAPI application entry, CORS, route registration | Yes - add route imports |
-| `backend/app/core/config.py` | Environment variable configuration | Yes - add new settings |
-| `frontend/src/App.tsx` | React root component, routing setup | Yes - add routes |
-| `frontend/src/main.tsx` | React application entry point | Rarely |
-| `frontend/src/styles/index.css` | Global styles and CSS variables | Yes - extend variables |
+**Key subdirectories**:
+- `[source-dir]/`: [Main application source code]
+- `[routes-or-handlers-dir]/`: [HTTP endpoints / Request handlers / CLI commands]
+- `[services-or-logic-dir]/`: [Business logic separated from routing]
+- `[models-dir]/`: [Data models / Domain entities / Database schemas]
+- `[tests-dir]/`: [Test files mirroring source structure]
 
-### Capability-Specific Files
+**Entry point**: `[entry-file].[ext]` - [Starts the application / Defines main function]
 
-Document files that belong to specific capabilities:
+**Configuration**: `[config-file].[ext]` - [Environment-based config / Settings management]
 
-| Capability | Files | Must Coexist |
-|------------|-------|--------------|
-| `[capability_name]` | `backend/app/api/[routes].py`, `backend/app/services/[service].py`, `frontend/src/components/[Component].tsx`, `frontend/src/hooks/[useHook].tsx` | Yes/No - explain dependencies |
+---
 
-### Configuration Files (Generator Must Modify)
+### [frontend-dir] (if applicable)
+**Purpose**: [User interface / Client application]
 
-| File | When to Modify |
-|------|----------------|
-| `backend/requirements.txt` | Add Python dependencies for enabled capabilities |
-| `frontend/package.json` | Add Node dependencies for enabled capabilities |
-| `backend/.env.example` | Add environment variables for enabled capabilities |
-| `docker-compose.yml` | Add service definitions if needed |
+**Key subdirectories**:
+- `[components-dir]/`: [UI components organized by feature or type]
+- `[pages-or-views-dir]/`: [Top-level page components]
+- `[hooks-or-composables]/`: [Reusable logic hooks / Vue composables / Svelte stores]
+- `[services-or-api-dir]/`: [API client / Backend communication layer]
 
-## Integration Points
+**Entry point**: `[entry-file].[ext]` - [Application bootstrap / Root render]
 
-### Adding New Capabilities
+**Routing**: [How navigation is handled - React Router, Vue Router, file-based routing]
 
-Document how to integrate new features into the existing structure:
+---
 
-1. **Backend Integration**:
-   - Add route file to `backend/app/api/`
-   - Add service file to `backend/app/services/`
-   - Import router in `backend/app/main.py`:
-     ```python
-     from app.api.[feature]_routes import router as [feature]_router
-     app.include_router([feature]_router, prefix="/api/v1/[feature]", tags=["[feature]"])
-     ```
-   - Add dependencies to `requirements.txt`
-   - Add environment variables to `.env.example`
+### [shared-or-common-dir] (if monorepo)
+**Purpose**: [Code shared between frontend and backend / Multiple services]
 
-2. **Frontend Integration**:
-   - Add component files to `frontend/src/components/`
-   - Add hook files to `frontend/src/hooks/`
-   - Update `App.tsx` routing or context providers
-   - Add dependencies to `package.json`
+**Contents**:
+- Type definitions used across boundaries
+- Validation schemas
+- Constants and enums
+- Utility functions
 
-### File Dependencies Graph
+---
 
-```
-[Document major file relationships]
-Example:
-main.py
-  ├─> routes.py ────> service.py
-  └─> config.py
+## File Naming Conventions
 
-App.tsx
-  ├─> Component.tsx ─> useHook.ts ─> api.ts
-  └─> OtherComponent.tsx
-```
+**[Describe the naming patterns used]**
 
-## Naming Conventions
+Examples:
+- Component files: `[PascalCase].[ext]` or `[kebab-case].[ext]`
+- Service files: `[camelCase].[ext]` or `[snake_case].[ext]`
+- Test files: `[name].test.[ext]` or `[name].spec.[ext]` or `test_[name].[ext]`
+- Type files: `[name].types.[ext]` or `[name].interface.[ext]`
 
-**Backend**:
-- Route files: `[feature]_routes.py`
-- Service files: `[feature].py`
-- API prefix: `/api/v1/[feature]/`
-- Python modules: snake_case
+---
 
-**Frontend**:
-- Components: PascalCase (e.g., `ComponentName.tsx`)
-- Hooks: camelCase with "use" prefix (e.g., `useFeatureName.tsx`)
-- Types: PascalCase interfaces (e.g., `TypeName`)
-- Utilities: camelCase (e.g., `utilityFunction.ts`)
+## Module Organization Strategy
 
-## Build and Deployment
+**[Describe how modules are organized]**
 
-### Development
-```bash
-# Backend
-cd backend
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+Options:
+- **By feature**: Each feature has its own directory with routes, services, models
+- **By layer**: All routes together, all services together, all models together
+- **Hybrid**: Layer separation within feature directories
 
-# Frontend
-cd frontend
-npm install
-npm run dev
-```
+**This project uses**: [Chosen strategy with rationale]
 
-### Docker
-```bash
-docker-compose up --build
-```
+---
 
-### Production
-[Document production build and deployment steps if applicable]
+## Import Path Patterns
 
-## Evidence
+**[Show how modules import each other]**
 
-[Reference source files or documentation used to create this structure map]
+Examples:
+- Relative imports: `import { [function] } from './[relative-path]'`
+- Absolute imports: `import { [function] } from '@/[absolute-path]'`
+- Package imports: `import { [function] } from '[package-name]'`
+
+**Alias configuration**: [If using path aliases, describe them]
+- `@/` → `[resolved-to-directory]`
+- `~/` → `[resolved-to-directory]`
+
+---
+
+## Configuration Files
+
+**[List and describe key configuration files]**
+
+Examples:
+- `[dependencies-file]`: [Package manifest - dependencies and scripts]
+- `[build-config-file]`: [Build tool configuration]
+- `[env-example]`: [Template for environment variables]
+- `[docker-compose-file]`: [Multi-container orchestration]
+- `[ci-cd-config]`: [Continuous integration/deployment]
+
+---
+
+## Capability Mapping
+
+**[Map features to file locations - helps with targeted generation]**
+
+| Capability | Backend Files | Frontend Files |
+|------------|--------------|----------------|
+| [Feature 1 - e.g., Authentication] | `[backend-paths]` | `[frontend-paths]` |
+| [Feature 2 - e.g., Data Query] | `[backend-paths]` | `[frontend-paths]` |
+| [Feature 3 - e.g., User Profile] | `[backend-paths]` | `[frontend-paths]` |
+
+---
+
+## Build Artifacts
+
+**[Describe generated/compiled directories - should be in .gitignore]**
+
+- `[build-output-dir]/` - [Compiled/bundled code]
+- `[dist-dir]/` - [Distribution files]
+- `[cache-dir]/` - [Build cache]
+- `[coverage-dir]/` - [Test coverage reports]
+
+---

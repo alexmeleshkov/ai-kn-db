@@ -1,208 +1,218 @@
-# Core modules
+# Core Modules
+
+> **CRITICAL**: This file includes IMPLEMENTATION PATTERNS with real code snippets
 
 ## Backend Services
 
-### 1. auth.py - Authentication Service
+### 1. llm.py - Claude AI Integration with Tool Use
+
+**Location**: backend/app/services/llm.py
 
 **Responsibilities**:
-- User registration with password hashing (bcrypt)
-- Login validation and JWT token generation
-- Token verification for protected routes
+- Natural language to SQL via Claude Opus 4
+- Agentic tool use (execute_sql, ask_clarification)
+- Extended thinking (5000 tokens)
+- SSE streaming with heartbeat
 
 **Key Functions**:
-- `create_user(username, email, password)` - Register new user with hashed password
-- `verify_password(plain_password, hashed_password)` - Validate login credentials
-- `create_access_token(user_id)` - Generate JWT with expiration
-- `verify_token(token)` - Decode and validate JWT, return user_id
+- generate_sql_stream() - Streams SQL generation with tool use
+- serialize_rows() - JSON-safe result serialization
 
-**Code Pattern**:
+**Code Pattern** (simplified):
 ```python
-# JWT token generation
-def create_access_token(user_id: int) -> str:
-    payload = {
-        "sub": str(user_id),
-        "exp": datetime.utcnow() + timedelta(hours=24),
-        "iat": datetime.utcnow()
-    }
-    return jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
+from anthropic import Anthropic
 
-# Password hashing with bcrypt
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-```
+SQL_TOOLS = [{
+    "name": "execute_sql",
+    "description": "Execute SQL query (SELECT only)",
+    "input_schema": {"type": "object", "properties": {"sql": {"type": "string"}}}
+}]
 
-**Dependencies**: PyJWT, bcrypt, fastapi
-**Environment Variables**: JWT_SECRET, JWT_ALGORITHM
-
----
-
-### 2. llm.py - Claude AI Integration
-
-**Responsibilities**:
-- Interface with Anthropic Claude API
-- Generate SQL queries from natural language
-- Stream responses via SSE
-- Provide explanations and query validation
-
-**Key Functions**:
-- `generate_sql(question, schema, history)` - Convert NL to SQL using Claude Opus 4
-- `stream_response(prompt)` - Async generator for SSE streaming
-- `build_prompt(question, schema, examples)` - Construct Claude prompt with context
-
-**Code Pattern**:
-```python
-# Streaming Claude response
-async def stream_response(prompt: str):
-    client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+def generate_sql_stream(question, schema, db_service):
+    client = Anthropic(api_key=settings.api_key)
     
-    async with client.messages.stream(
-        model="claude-opus-4-5-20250929",
-        max_tokens=4096,
-        temperature=0.0,
-        messages=[{"role": "user", "content": prompt}]
+    with client.messages.stream(
+        model="claude-opus-4",
+        thinking={"type": "enabled", "budget_tokens": 5000},
+        tools=SQL_TOOLS,
+        messages=[{"role": "user", "content": question}]
     ) as stream:
-        async for text in stream.text_stream:
-            yield text
+        for event in stream:
+            if event.type == "tool_use" and event.name == "execute_sql":
+                sql = event.input["sql"]
+                yield {"type": "sql", "content": sql}
+                results = db_service.execute_query(sql)
+                yield {"type": "results", "data": results}
 ```
 
 **Dependencies**: anthropic>=0.40.0
-**Environment Variables**: ANTHROPIC_API_KEY
+**Environment**: ANTHROPIC_API_KEY
 
 ---
 
-### 3. database_azure.py - Azure SQL Server Connector
+### 2. auth.py - JWT Authentication
+
+**Location**: backend/app/services/auth.py
 
 **Responsibilities**:
-- Connect to Azure SQL Server for fan data
-- Execute SELECT queries
-- Extract schema metadata
-- Handle connection pooling
+- User registration/login with bcrypt
+- JWT token generation (HS256, 7-day expiration)
+- Token validation
 
 **Code Pattern**:
 ```python
-def get_connection():
-    return pytds.connect(
-        server=settings.AZURE_SQL_SERVER,
-        database=settings.AZURE_SQL_DATABASE,
-        user=settings.AZURE_SQL_USER,
-        password=settings.AZURE_SQL_PASSWORD,
-        port=1433,
-        timeout=30
+import bcrypt
+import jwt
+from datetime import datetime, timedelta
+
+class AuthService:
+    def register(self, email, password):
+        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+        # Insert user into app_users table
+        token = self.create_token(user_id, email)
+        return {"user": user, "token": token}
+    
+    def create_token(self, user_id, email):
+        payload = {
+            "user_id": user_id,
+            "exp": datetime.utcnow() + timedelta(days=7)
+        }
+        return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+```
+
+**Dependencies**: PyJWT>=2.8.0, bcrypt>=4.1.0
+**Database**: app_users (id, email, password_hash)
+
+---
+
+### 3. routes.py - FastAPI SSE Streaming
+
+**Location**: backend/app/api/routes.py
+
+**Responsibilities**:
+- HTTP endpoints (chat, health, schema)
+- SSE streaming for real-time responses
+
+**Code Pattern**:
+```python
+from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
+
+@router.post("/chat/stream")
+async def stream_chat(request, chat_request):
+    async def event_generator():
+        for event in chat_service.stream_response(chat_request.message):
+            yield f"data: {json.dumps(event)}\n\n"
+        yield "data: [DONE]\n\n"
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream"
     )
 ```
-
-**Dependencies**: python-tds>=1.15.0
-**Environment Variables**: AZURE_SQL_SERVER, AZURE_SQL_DATABASE, AZURE_SQL_USER, AZURE_SQL_PASSWORD
-
----
-
-### 4. chat.py - Chat Orchestration
-
-**Responsibilities**:
-- Coordinate NL to SQL to Results pipeline
-- Stream SSE responses
-- Handle errors and fallbacks
-
-**Code Pattern**:
-```python
-async def stream_sse_response(question: str, schema: dict):
-    yield f"data: {json.dumps({'type': 'status', 'content': 'Generating SQL...'})}\n\n"
-    sql = await llm.generate_sql(question, schema)
-    yield f"data: {json.dumps({'type': 'sql', 'content': sql})}\n\n"
-    results = database_azure.execute_query(sql)
-    yield f"data: {json.dumps({'type': 'results', 'data': results})}\n\n"
-```
-
-**Dependencies**: fastapi, llm.py, database_azure.py
 
 ---
 
 ## Frontend Components
 
-### 5. ChatContainer.tsx - Main Chat Interface
+### 4. useAuth.tsx - Auth Context
 
-**Component Contract**:
-```typescript
-interface ChatContainerProps {
-  conversationId?: string;
-  onNewMessage?: (message: Message) => void;
-}
-```
+**Location**: frontend/src/hooks/useAuth.tsx
+
+**Responsibilities**:
+- Global auth state (React Context)
+- Login/logout functions
+- Token storage (localStorage)
 
 **Code Pattern**:
 ```typescript
-const streamMessage = async (question: string) => {
-  const eventSource = new EventSource(
-    `/api/v1/chat/stream?question=${encodeURIComponent(question)}`
-  );
+const AuthContext = createContext<AuthContextType>(null);
 
-  eventSource.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    switch (data.type) {
-      case 'status': setStatus(data.content); break;
-      case 'sql': setCurrentSQL(data.content); break;
-      case 'results': setQueryResults(data.data); break;
-    }
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  
+  const login = async (email, password) => {
+    const response = await apiLogin(email, password);
+    setAuthToken(response.token);
+    setUser(response.user);
   };
-};
-```
-
-**Dependencies**: react, useChat hook
-
----
-
-### 6. DataViewer.tsx - Query Results Display
-
-**Component Contract**:
-```typescript
-interface DataViewerProps {
-  data: QueryResult[];
-  sql: string;
-}
-```
-
-**Code Pattern**:
-```typescript
-const DataViewer: React.FC<DataViewerProps> = ({ data, sql }) => {
-  const columns = Object.keys(data[0]);
+  
   return (
-    <table>
-      <thead>
-        <tr>{columns.map(col => <th key={col}>{col}</th>)}</tr>
-      </thead>
-      <tbody>
-        {data.map((row, i) => (
-          <tr key={i}>
-            {columns.map(col => <td key={col}>{row[col]}</td>)}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <AuthContext.Provider value={{ user, login }}>
+      {children}
+    </AuthContext.Provider>
   );
-};
-```
-
-**Dependencies**: react
-
----
-
-### 7. QueryChart.tsx - Data Visualization
-
-**Component Contract**:
-```typescript
-interface QueryChartProps {
-  data: QueryResult[];
-  chartType?: 'bar' | 'line' | 'pie' | 'auto';
 }
 ```
 
+---
+
+### 5. useChat.ts - SSE Streaming Hook
+
+**Location**: frontend/src/hooks/useChat.ts
+
+**Responsibilities**:
+- Chat state management
+- SSE connection for streaming
+- Message sending/receiving
+
 **Code Pattern**:
 ```typescript
-const detectChartType = (data: QueryResult[]): ChartType => {
-  const columns = Object.keys(data[0]);
-  const numericColumns = columns.filter(col => typeof data[0][col] === 'number');
-  return numericColumns.length === 1 ? 'bar' : 'line';
-};
+export function useChat() {
+  const [messages, setMessages] = useState([]);
+  
+  const sendMessage = (content) => {
+    const eventSource = new EventSource("/api/v1/chat/stream");
+    
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "sql") {
+        setMessages(prev => [...prev, { sql: data.content }]);
+      } else if (data.type === "results") {
+        setMessages(prev => [...prev, { results: data.data }]);
+      }
+    };
+  };
+  
+  return { messages, sendMessage };
+}
 ```
 
-**Dependencies**: chart.js, react-chartjs-2
+---
+
+### 6. QueryChart.tsx - Chart.js Visualization
+
+**Location**: frontend/src/components/QueryChart.tsx
+
+**Responsibilities**:
+- Auto-generate charts from results
+- Chart type detection (bar/line/pie)
+
+**Code Pattern**:
+```typescript
+import { Bar, Line } from "react-chartjs-2";
+
+export function QueryChart({ data }) {
+  const chartData = {
+    labels: data.map(row => row[0]),
+    datasets: [{ data: data.map(row => row[1]) }]
+  };
+  
+  return <Bar data={chartData} options={{ responsive: true }} />;
+}
+```
+
+**Dependencies**: chart.js>=4.5.1, react-chartjs-2>=5.3.1
+
+---
+
+## Key Patterns Summary
+
+1. **Agentic Tool Use**: Claude autonomously calls execute_sql and ask_clarification
+2. **SSE Streaming**: Real-time server-to-client events
+3. **JWT Auth**: Self-hosted with bcrypt + PyJWT
+4. **React Context**: Global auth state
+5. **Connection Pooling**: PostgreSQL ThreadedConnectionPool
+6. **Extended Thinking**: 5000-token budget for complex queries
+
+All patterns extracted from C:/work/db-chat-nl-master (production-tested).

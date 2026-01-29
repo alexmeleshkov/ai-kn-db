@@ -1,31 +1,82 @@
-# Business goal (user perspective)
+# Business Context
 
-ITFC Analysis enables Ipswich Town Football Club fans to explore match statistics, player performance, and fan engagement data using natural language questions instead of writing SQL queries. The system democratizes access to comprehensive fan database analytics by allowing anyone to ask questions like "Show me attendance trends for the last 5 seasons" or "Which players scored the most goals in home games?" without technical database knowledge.
+> **Purpose**: Document the problem domain, target users, and business value.
 
-## Target users
+## Problem Statement
 
-- **Ipswich Town fans**: Casual supporters who want to explore team statistics and history without technical skills
-- **Fan analysts**: Dedicated supporters who want deeper insights into player performance, match trends, and historical data
-- **Content creators**: Bloggers, podcasters, and social media creators looking for data-driven stories about the club
-- **Club staff**: Marketing, communications, or operations team members who need quick access to fan engagement metrics
+**What problem does this solve?**
 
-## Main user scenarios
+Database analysts, data scientists, and business users struggle to query databases quickly. Traditional methods require:
+- SQL expertise (barrier for non-technical users)
+- Context switching between documentation and query tools
+- Trial-and-error debugging of complex joins
+- Slow iteration cycles when exploring data
 
-1. **Exploring historical match data**: A fan asks "What were our best wins at home in the Championship?" and receives a formatted table with match details, scores, and dates, along with visualizations showing score distributions.
+This creates bottlenecks in data-driven decision making and limits database access to technical users only.
 
-2. **Analyzing player performance**: A content creator queries "Show me top scorers by season since 2020" and gets both tabular data and a bar chart comparing player statistics across seasons.
+## Solution Overview
 
-3. **Tracking attendance trends**: Club staff asks "What is our average attendance by competition this season?" and receives aggregated data with trend visualizations to inform marketing strategies.
+**How does this project solve it?**
 
-4. **Learning from past queries**: The system remembers successful query patterns (e.g., "show top X by Y") and improves SQL generation accuracy over time, reducing errors and improving response quality.
+DB Chat NL provides a conversational AI interface where users ask questions in natural language. Claude AI translates questions to SQL, executes queries, and presents results with auto-generated visualizations. The system learns from successful queries and uses agentic tool use for iterative refinement.
 
-5. **Reviewing conversation history**: Users can return to previous conversations to reference past analyses or refine their questions based on earlier results.
+## Target Users
 
-## Success criteria
+### Primary Users
 
-- **Query accuracy**: 90%+ of natural language questions correctly translate to valid SQL queries that return expected results
-- **Response time**: Streaming responses begin within 2 seconds of question submission
-- **User engagement**: Users ask follow-up questions in 60%+ of conversations, indicating the tool provides valuable insights
-- **Error recovery**: When a query fails or returns no results, the system provides helpful feedback and alternative suggestions
-- **Accessibility**: Non-technical users successfully retrieve data on their first attempt 70%+ of the time
-- **Data freshness**: Query results reflect the most current database state with minimal staleness
+**Data Analysts**
+- **Role**: Query databases daily for business insights
+- **Technical skill**: SQL proficient but appreciate faster workflows
+- **Goals**: Answer business questions quickly, explore data patterns, iterate rapidly
+- **Pain points**: Slow iteration, context switching, debugging complex joins
+- **How this helps**: Natural language eliminates SQL syntax errors, streaming responses provide immediate feedback
+
+**Business Analysts**
+- **Role**: Non-technical stakeholders needing data insights
+- **Technical skill**: Excel proficient, minimal SQL knowledge
+- **Goals**: Access database insights without technical dependencies
+- **Pain points**: Dependency on data team, long wait times
+- **How this helps**: Conversational interface removes SQL barrier, visualizations make insights immediate
+
+## Core Use Cases
+
+### Use Case 1: Quick Data Exploration
+**User Story**: As a business analyst, I want to ask "How many fans are there?" in plain English.
+
+**Steps**:
+1. User types: "How many fans are there?"
+2. System generates SQL: SELECT COUNT(*) FROM fan
+3. Query executes and streams results
+4. User sees count in < 3 seconds
+
+**Business value**: Reduces time to insight from 10 minutes to 30 seconds
+
+### Use Case 2: Complex Multi-Table Analysis
+**User Story**: As a data analyst, I need insights requiring joins across multiple tables.
+
+**Steps**:
+1. User asks: "Show me top communication sources by fan count"
+2. Claude uses extended thinking to plan multi-step query
+3. System generates JOIN query with aggregations
+4. Results displayed with auto-generated bar chart
+
+**Business value**: Eliminates 30-60 minute manual query construction time
+
+## Business Value
+
+**Time Savings**: 3+ hours per analyst per day
+**Cost Reduction**: Enables self-service analytics, reduces data team bottleneck
+**Revenue Impact**: Faster insights enable quicker decisions
+
+## Success Metrics
+
+- **Query accuracy**: 95% success rate
+- **Response time**: < 3 seconds
+- **User adoption**: 80% of data team using weekly
+- **Time saved**: 3 hours per user per day
+
+## Risks & Mitigation
+
+- **AI accuracy risk**: Show generated SQL, allow editing
+- **Security risk**: Read-only permissions, query validation
+- **API cost risk**: Rate limiting, learning system reduces retries

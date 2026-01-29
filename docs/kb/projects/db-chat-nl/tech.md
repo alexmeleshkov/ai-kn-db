@@ -1,91 +1,38 @@
-# Tech stack
+# Technology Stack
 
-## Frontend
+## Backend Technologies
+- **FastAPI** (>=0.109.0): Async framework for SSE streaming
+- **Python** 3.11: Modern Python with type hints
+- **PostgreSQL**: AWS RDS for app data (auth, conversations)
+- **Azure SQL Server**: Live production data queries
+- **PyJWT + bcrypt**: Self-hosted JWT authentication
+- **Anthropic Claude API**: Claude Opus 4 with extended thinking
 
-### Core Framework
-- React 18.2.0 - Component-based UI library
-- TypeScript 5.2.2 - Type-safe JavaScript
-- Vite 5.0.8 - Fast build tool with HMR
+## Frontend Technologies  
+- **React** 18: Hooks and Context API
+- **TypeScript** 5.2: Type safety
+- **Vite** 5: Fast build tool
+- **Chart.js**: Data visualization
+- **Vanilla CSS**: Custom properties for theming
 
-### Visualization
-- Chart.js 4.5.1 - Canvas-based charting
-- react-chartjs-2 5.3.1 - React wrapper for Chart.js
-- react-markdown 9.0.1 - Markdown rendering
+## Why These Technologies
 
-### Frontend Dependency Catalog
+**FastAPI**: Chosen for async support (SSE streaming), automatic API docs, Python ecosystem.
+**Claude Opus 4**: Superior SQL generation, extended thinking, agentic tool use.
+**Self-hosted JWT**: Cost savings vs Supabase, full control, no vendor lock-in.
+**PostgreSQL**: Reliable, ACID-compliant, free tier availability.
+**React**: Mature ecosystem, TypeScript support, easy SSE integration.
+**Vite**: 10x faster than Webpack, better DX.
 
-| Package | Version | Category | Purpose |
-|---------|---------|----------|---------|
-| react | 18.2.0 | Core | UI framework |
-| react-dom | 18.2.0 | Core | React renderer |
-| typescript | 5.2.2 | Dev | Type safety |
-| vite | 5.0.8 | Dev | Build tool |
-| chart.js | 4.5.1 | Visualization | Charts |
-| react-chartjs-2 | 5.3.1 | Visualization | Chart wrapper |
-| react-markdown | 9.0.1 | Content | Markdown |
-| remark-gfm | 4.0.0 | Content | GFM support |
+## Security
+- bcrypt password hashing (12 rounds)
+- JWT tokens (HS256, 7-day expiration)
+- Parameterized queries (SQL injection prevention)
+- CORS whitelist
+- Read-only database permissions
 
-## Backend
-
-### Core Framework
-- FastAPI >= 0.109.0 - Modern async web framework
-- Uvicorn >= 0.27.0 - ASGI server
-- Pydantic >= 2.5.0 - Data validation
-
-### Database Drivers
-- python-tds >= 1.15.0 - Azure SQL Server
-- psycopg2-binary >= 2.9.0 - PostgreSQL
-- duckdb >= 1.0.0 - Local development
-
-### AI Integration
-- anthropic >= 0.40.0 - Claude API client
-
-### Authentication
-- PyJWT >= 2.8.0 - JWT encoding/decoding
-- bcrypt >= 4.1.0 - Password hashing
-
-### Backend Dependency Catalog
-
-| Package | Version | Category | Purpose |
-|---------|---------|----------|---------|
-| fastapi | >=0.109.0 | Core | Web framework |
-| uvicorn | >=0.27.0 | Core | ASGI server |
-| python-tds | >=1.15.0 | Database | Azure SQL |
-| psycopg2-binary | >=2.9.0 | Database | PostgreSQL |
-| duckdb | >=1.0.0 | Database | Local dev |
-| anthropic | >=0.40.0 | AI/ML | Claude API |
-| PyJWT | >=2.8.0 | Auth | JWT tokens |
-| bcrypt | >=4.1.0 | Auth | Passwords |
-| pysocks | >=1.7.0 | Cloud | SOCKS proxy |
-| pytest | >=7.4.0 | Testing | Test framework |
-
-## Database / Storage
-
-### Azure SQL Server
-- Primary data source for Ipswich Town fan analytics
-- Access via python-tds with SOCKS proxy
-- IP whitelisting, TLS encryption, read-only access
-
-### AWS RDS PostgreSQL
-- Application data: users, conversations, learned queries
-- JSONB for flexible conversation storage
-- SSL required
-
-### DuckDB
-- Local development database
-- Zero-configuration embedded database
-
-## Tooling
-
-### Build Tools
-- Vite 5.0.8 - Frontend bundling
-- build.sh - Production build script
-
-### Testing
-- pytest - Python test framework
-- No frontend tests configured
-
-### Infrastructure
-- Heroku Standard-2X dyno
-- QuotaGuard Static for Azure SQL whitelist
-- Cost: ~$129/month
+## Performance
+- Async I/O throughout backend
+- Connection pooling (5 connections)
+- SSE heartbeat (15s) for Heroku timeout
+- Code splitting and lazy loading

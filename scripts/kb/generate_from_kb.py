@@ -26,8 +26,9 @@ from typing import Any, Iterable
 import yaml
 
 # Import preference extraction and style injection modules
-from extract_preferences import extract_preferences, preferences_to_dict
-from inject_styles import inject_styles
+# COMMENTED OUT FOR MVP - Style injection removed per tech-lead decision
+# from extract_preferences import extract_preferences, preferences_to_dict
+# from inject_styles import inject_styles
 
 RE_WORD = re.compile(r"[a-zA-Z0-9]+")
 
@@ -121,6 +122,70 @@ def copy_tree(src: Path, dst: Path) -> None:
     shutil.copytree(src, dst, dirs_exist_ok=True)
 
 
+def extract_code_patterns(project_path: Path) -> dict[str, str]:
+    """
+    Extract code patterns from KB project's modules.md.
+
+    Returns dict mapping file paths to code content.
+    Example: {"backend/app/services/llm.py": "from anthropic import..."}
+    """
+    modules_md = project_path / "modules.md"
+    if not modules_md.exists():
+        return {}
+
+    content = modules_md.read_text(encoding="utf-8")
+    patterns = {}
+
+    # Regex: match **Location**: path followed by code block
+    location_pattern = r'\*\*Location\*\*:\s*([^\n]+)'
+
+    # Find all locations
+    locations = list(re.finditer(location_pattern, content))
+
+    for i, match in enumerate(locations):
+        file_path = match.group(1).strip()
+        start_pos = match.end()
+
+        # Determine end position (next location or end of file)
+        end_pos = locations[i + 1].start() if i + 1 < len(locations) else len(content)
+        section = content[start_pos:end_pos]
+
+        # Find code block in this section
+        code_block = re.search(r'```(?:python|typescript|tsx?|javascript|jsx)\n(.*?)```',
+                              section, re.DOTALL)
+        if code_block:
+            patterns[file_path] = code_block.group(1).strip()
+
+    return patterns
+
+
+def inject_code_patterns(project_dir: Path, patterns: dict[str, str]) -> int:
+    """
+    Inject code patterns from modules.md into generated stub files.
+
+    Returns number of files updated.
+    """
+    updated = 0
+
+    for file_path, code_content in patterns.items():
+        target_file = project_dir / file_path
+
+        if not target_file.exists():
+            print(f"  ! {file_path} (not found, skipping)")
+            continue
+
+        # Write the extracted code to the file
+        try:
+            target_file.parent.mkdir(parents=True, exist_ok=True)
+            target_file.write_text(code_content, encoding="utf-8")
+            print(f"  ✓ {file_path}")
+            updated += 1
+        except Exception as e:
+            print(f"  ! {file_path} (error: {e})")
+
+    return updated
+
+
 def apply_stack(repo_root: Path, stack: dict[str, Any], project_dir: Path) -> None:
     scaffold = stack.get("scaffold", {})
     steps = scaffold.get("steps", [])
@@ -187,12 +252,24 @@ def main() -> int:
     stack = load_stack(repo_root, stack_id)
     apply_stack(repo_root, stack, out_dir)
 
+    # Inject code patterns from modules.md
+    print("==> injecting code patterns from KB")
+    kb_project_path = repo_root / "docs" / "kb" / "projects" / chosen.project_id
+    patterns = extract_code_patterns(kb_project_path)
+    print(f"==> extracted {len(patterns)} code patterns from modules.md")
+    if patterns:
+        updated = inject_code_patterns(out_dir, patterns)
+        print(f"==> injected code into {updated}/{len(patterns)} files")
+    else:
+        print("==> no code patterns found in modules.md (keeping stubs)")
+
+    # COMMENTED OUT FOR MVP - Style injection removed per tech-lead decision
     # Inject style preferences after scaffolding
-    print("==> extracting style preferences from prompt")
-    preferences = extract_preferences(args.prompt)
-    prefs_dict = preferences_to_dict(preferences)
-    print(f"==> preferences: colors={list(prefs_dict['colors'].keys())}, fonts={list(prefs_dict['fonts'].keys())}")
-    inject_styles(out_dir, prefs_dict)
+    # print("==> extracting style preferences from prompt")
+    # preferences = extract_preferences(args.prompt)
+    # prefs_dict = preferences_to_dict(preferences)
+    # print(f"==> preferences: colors={list(prefs_dict['colors'].keys())}, fonts={list(prefs_dict['fonts'].keys())}")
+    # inject_styles(out_dir, prefs_dict)
 
     if args.run_smoke:
         run_smoke_test(stack, out_dir)

@@ -1,9 +1,0 @@
-./ARCHITECTURE.md
-./README.md
-./backend/.env.example
-./backend/Dockerfile
-./backend/app/main.py
-./docker-compose.yml
-./frontend/package.json
-./frontend/src/App.tsx
-./frontend/tsconfig.json
