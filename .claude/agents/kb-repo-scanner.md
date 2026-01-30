@@ -54,7 +54,29 @@ This generates manifest with:
 
 ### Phase 3: Extract Code Patterns
 
-**CRITICAL**: Extract code patterns for ALL tier1 and tier2 files. If manifest has 36 tier1 files + 15 tier2 files, modules.md must document all 51 files.
+**CRITICAL COMPLETENESS REQUIREMENT**:
+- Extract code patterns for ALL tier1 and tier2 files
+- If manifest has 36 tier1 files + 15 tier2 files, modules.md MUST document all 51 files
+- **EVERY file in the file structure section MUST have a corresponding code pattern section**
+- If a file appears in file structure but has no pattern → FATAL ERROR (incomplete KB)
+
+**Special Rule for Framework Entry Files**:
+Even if file_discovery.py doesn't classify these as tier1/tier2, you MUST extract patterns for:
+- **React/Vite**: `index.html`, `main.tsx` or `main.jsx`, `App.tsx` or `App.jsx`
+- **Next.js**: `pages/_app.tsx`, `pages/_document.tsx`, `pages/index.tsx`
+- **FastAPI**: `main.py` (app initialization)
+- **Flask**: `app.py` or `__init__.py`
+- **Express**: `server.js`, `app.js`, `index.js`
+
+These files are CRITICAL for generated projects to be runnable.
+
+**Validation Before Writing modules.md**:
+1. List all files in the file structure section
+2. Count them: N files
+3. List all code pattern sections (### or #### headers)
+4. Count them: M patterns
+5. Assert: M >= N (every file has pattern)
+6. If M < N: Identify missing files and extract their patterns
 
 #### Tier 1 Files (Services, Components, Routes)
 
@@ -163,15 +185,34 @@ For each file below:
 - Core capabilities list
 **ACTION**: Write README.md NOW, then proceed to file 3.
 
-**File 3/7: modules.md** ⭐ CRITICAL
-- **Include file structure overview** (merged from old structure.md)
+**File 3/7: modules.md** ⭐ CRITICAL - COMPLETENESS REQUIRED
+
+**Structure**:
+1. **File Structure Overview** section (lines 1-60 typically)
+   - Show directory tree with ALL files that will be generated
+   - Include framework entry files: index.html, main.tsx, App.tsx, etc.
+
+2. **Code Pattern Sections** (lines 60+)
+   - **One pattern section per file in structure**
+   - Use `### Module Name` or `#### filename` headers
+   - Include: Location, Responsibilities, Code Pattern (full code), Dependencies
+
+**Content Requirements**:
 - Pattern for EVERY tier1 file (full implementation patterns)
 - Pattern for EVERY tier2 file (simplified utility patterns)
-- If manifest has 36 tier1 + 15 tier2 → modules.md must have 51 patterns
+- **Pattern for EVERY framework entry file** (index.html, main.tsx, App.tsx, main.py, etc.)
+- If manifest has 36 tier1 + 15 tier2 → modules.md must have 51+ patterns
 - Real code with actual names from repository
-- No comments in code
-- Document: Location, Responsibilities, Code Pattern, Dependencies
-**ACTION**: Write modules.md NOW, then proceed to file 4.
+- No comments in code blocks
+
+**BEFORE writing modules.md**:
+1. Count files in structure tree → N files
+2. Count tier1 + tier2 + entry files → M files to extract
+3. Extract pattern for ALL M files
+4. Write modules.md with structure + M pattern sections
+5. Validate: M pattern sections exist (grep "^###\|^####" modules.md | wc -l)
+
+**ACTION**: Write modules.md NOW with ALL patterns, then proceed to file 4.
 
 **File 4/7: tech.md**
 - All technologies used
