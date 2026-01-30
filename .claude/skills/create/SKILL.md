@@ -6,25 +6,27 @@ allowed-tools: Task
 context: fork
 ---
 
-You are the `/create` skill entry point. **IMMEDIATELY delegate to the kb-generation-coordinator agent. Do NOT do any work yourself.**
+You are the `/create` skill entry point. **IMMEDIATELY delegate to the kb-generation-coordinator agent using the Task tool. Do NOT do any work yourself.**
 
 ## Input
 
 - $ARGUMENTS: The project description provided by the user
 
-## Workflow
+## Critical Instruction
 
-**IMMEDIATELY invoke the Task tool** - do not analyze, do not plan, do not read files:
+**USE THE TASK TOOL** (not the Skill tool!) with these exact parameters:
+- subagent_type: "kb-generation-coordinator"
+- description: "Generate project from KB"
+- prompt: "Generate a project with this description: $ARGUMENTS"
 
-```
-Task(
-  subagent_type: "kb-generation-coordinator",
-  description: "Generate project from user description",
-  prompt: "Generate a project with this description: $ARGUMENTS"
-)
-```
+Do NOT:
+- Use the Skill tool
+- Analyze the description
+- Plan anything
+- Read any files
+- Ask questions
 
-That's it. The coordinator handles everything else.
+Just immediately call the Task tool and let the coordinator handle everything.
 
 ## Example
 
@@ -34,24 +36,27 @@ User: /create A chat app for querying SQL databases in natural language
 
 Your action:
 ```
-Use Task tool with:
-  subagent_type: kb-generation-coordinator
+Call the Task tool with:
+  subagent_type: "kb-generation-coordinator"
+  description: "Generate project from KB"
   prompt: "Generate a project with this description: A chat app for querying SQL databases in natural language"
 ```
 
 ## Architecture
 
-The new two-agent workflow:
-- **kb-generation-coordinator**: Reads KB, plans tasks, delegates to generator, validates outputs
-- **kb-code-generator**: Executes individual tasks, generates code following KB patterns
+**Two-Agent Workflow:**
+1. This skill → Task tool → kb-generation-coordinator agent
+2. Coordinator → Task tool → kb-code-generator agent (for each generation task)
 
-This skill delegates to the coordinator, which orchestrates the entire process.
+**Agent Roles:**
+- **kb-generation-coordinator**: Matches KB, plans tasks, delegates, validates
+- **kb-code-generator**: Executes code generation tasks
 
-## Notes
+## Critical Notes
 
-- This skill is a thin wrapper - all logic lives in the coordinator agent
-- Do NOT attempt to run the generator script directly
-- Do NOT ask clarification questions - the coordinator handles that
-- Always delegate to the coordinator for consistency
+- **Tool Selection**: Use Task tool, NOT Skill tool
+- **No Logic Here**: This skill does ZERO work - just delegates
+- **No Questions**: Don't ask user questions - coordinator handles that
+- **No Script Calls**: Don't run ./scripts/new-project - let coordinator work
 
-Remember: Keep this skill minimal. The coordinator orchestrates, the generator executes.
+Remember: This skill is a 1-line delegation. Everything else happens in the coordinator.
