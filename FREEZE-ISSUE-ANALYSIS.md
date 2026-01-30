@@ -112,6 +112,52 @@ Test completed in ~30 seconds with NO freezing.
 ### Attempt #2: Clarify Skill Instructions
 **Date**: 2026-01-30 (current session)
 **Git Commit**: `9e9b296` - "Clarify /create skill: explicitly use Task tool not Skill tool"
+**Result**: ✅ Fixed freeze, but coordinator still didn't run
+
+### Attempt #3: Remove context:fork from Skill
+**Date**: 2026-01-30 (current session)
+**Git Commit**: `af48f00` - "Fix: Remove context:fork from /create skill"
+
+**What Was Done**:
+```diff
+File: .claude/skills/create/SKILL.md
+
+-context: fork
+```
+
+**Why This Was The Issue**:
+After fix #2, `/create` no longer froze, but coordinator didn't actually run:
+1. Skill invoked Task tool ✅
+2. Task #1 created ✅
+3. Skill returned immediately ❌
+4. Coordinator never executed ❌
+
+**Root Cause**: `context: fork` isolates the skill in a separate context.
+- The Task tool call completes
+- But the spawned agent runs in isolated context
+- Agent work doesn't persist back to main session
+- User sees nothing happen
+
+**Why /scan Works (Maybe?)**:
+- `/scan` also has `context: fork`
+- It might have the same issue (untested)
+- Or kb-repo-scanner agent is simpler and completes in forked context
+
+**Evidence**:
+```
+Task #1: Generate project from KB
+Status: pending  ← Never changed to in_progress
+Description: Generate a project with this description: ...
+             ← Generic description, not KB-matched project
+```
+
+The task description should say "Creating [project-name] from KB: db-chat-nl"
+but instead says the raw user input, proving coordinator never ran matching phase.
+
+**Expected After Fix**:
+- Coordinator runs in main context
+- Can create files, spawn agents, track progress
+- Work persists and is visible to user
 
 **What Was Done**:
 ```diff
@@ -284,6 +330,12 @@ If fixes #1 and #2 don't resolve it:
 - Currently only Bash permissions are listed
 - Try adding Task tool to allowed permissions
 
+**Hypothesis #7: context:fork Isolation** ✅ **CONFIRMED - FIX APPLIED**
+- Skills with `context: fork` run in isolated context
+- Task tool invocations complete but agent work doesn't persist
+- Agent runs but results don't return to main session
+- **FIX**: Remove `context: fork` from skill frontmatter (commit af48f00)
+
 ### Files to Check After Freeze
 
 1. `.claude/tmp/generation-tasks.yaml` - Was task plan created?
@@ -360,6 +412,7 @@ Return to user
 ### Relevant Commits (Newest First)
 
 ```
+af48f00 (2026-01-30 current) - Fix: Remove context:fork from /create skill
 9e9b296 (2026-01-30 current) - Clarify /create skill: explicitly use Task tool
 78c4216 (2026-01-30 current) - Fix: Restore Task tools to kb-generation-coordinator
 227f63d (2026-01-30 02:02)   - Remove invalid Task* tools [INCORRECT - CAUSED ISSUE]
