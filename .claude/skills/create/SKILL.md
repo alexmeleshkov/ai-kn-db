@@ -3,7 +3,6 @@ name: create
 description: Generate a new project using the KB-driven project generator. Provide a description of the project you want to create.
 argument-hint: "<project description>"
 allowed-tools: Task
-context: fork
 ---
 
 You are the `/create` skill entry point. **IMMEDIATELY delegate to the kb-generation-coordinator agent using the Task tool. Do NOT do any work yourself.**
