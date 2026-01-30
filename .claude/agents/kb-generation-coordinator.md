@@ -326,57 +326,158 @@ build.gradle: "gradle build"
 - If installation fails, report errors but continue (smoke test will catch issues)
 - Installation happens in Task 5, after all code/config is generated
 
-### Task 3 Auto-Splitting Logic
+### Task 3 Logical Splitting Strategy
 
-**Purpose**: Automatically split large code generation tasks to prevent context overflow and enable incremental progress.
+**Purpose**: Split code generation by logical architectural boundaries for better organization, validation, and incremental progress.
 
-**When to Split**:
-- Analyze modules.md to count total modules
-- Count modules by looking for file patterns: `### [Filename]`, `**Location**:`, or module headers
-- Apply splitting strategy based on count
-
-**Splitting Thresholds**:
-```yaml
-< 15 modules:   No split - single Task 3
-15-50 modules:  Semantic split by directory type
-> 50 modules:   Count-based chunking (15-20 per chunk)
-```
-
-**Semantic Categories** (check file paths in modules.md):
-```python
-categories = {
-    "backend": ["backend/", "server/", "api/", "src/api/", "app/"],
-    "frontend": ["frontend/", "client/", "ui/", "components/", "src/components/"],
-    "shared": ["lib/", "utils/", "shared/", "common/", "helpers/"],
-    "database": ["models/", "db/", "database/", "entities/"],
-    "other": []  # everything else
-}
-```
+**Philosophy**: Split by PROJECT STRUCTURE, not by module count. Every project should have logical task boundaries.
 
 **Splitting Process**:
 
-1. **Count modules** in Phase 2 before creating task plan:
+1. **Analyze Project Structure** in Phase 2:
    ```bash
-   # Count module headers and location markers
-   grep -c "^### \|^\*\*Location\*\*:" modules.md
-
-   # Or count unique file paths
-   grep -oP "(?<=\*\*Location\*\*: ).*" modules.md | wc -l
+   # Extract all file paths from modules.md
+   grep -oP "(?<=\*\*Location\*\*: ).*" modules.md > /tmp/file_list.txt
+   # OR
+   grep "^### " modules.md | cut -d' ' -f2 > /tmp/file_list.txt
    ```
-   Store module count for threshold comparison.
 
-2. **If < 15 modules**: Create single Task 3
+2. **Identify Logical Boundaries** by examining file paths:
+
+   **Common Patterns to Detect**:
+   ```python
+   # Backend/Server patterns
+   backend_indicators = ["backend/", "server/", "api/", "src/api/", "app/api/", "app/services/"]
+
+   # Frontend patterns
+   frontend_indicators = ["frontend/", "client/", "web/", "ui/", "src/components/", "src/pages/"]
+
+   # State management
+   store_indicators = ["store/", "stores/", "redux/", "state/", "context/"]
+
+   # Data layer
+   data_indicators = ["models/", "schemas/", "entities/", "database/", "db/"]
+
+   # Shared/Common
+   shared_indicators = ["lib/", "utils/", "shared/", "common/", "helpers/", "core/"]
+
+   # Mobile specific
+   mobile_indicators = ["ios/", "android/", "mobile/", "native/"]
+   ```
+
+3. **Create Sub-Tasks Based on Detected Boundaries**:
+
+   **Example: Full-Stack Web App** (backend + frontend detected)
    ```yaml
-   - id: 3
-     name: "Generate all code files"
-     description: "Create all code files from modules.md"
-     ...
+   - id: 3a
+     name: "Generate backend services"
+     description: "Create backend API routes, services, and data models"
+     kb_refs: ["modules.md:backend-section"]
+     module_paths:
+       - "backend/app/api/"
+       - "backend/app/services/"
+       - "backend/app/models/"
+     depends_on: [2]
+
+   - id: 3b
+     name: "Generate frontend components"
+     description: "Create React components and hooks"
+     kb_refs: ["modules.md:frontend-section"]
+     module_paths:
+       - "frontend/src/components/"
+       - "frontend/src/hooks/"
+     depends_on: [2]
+
+   - id: 3c
+     name: "Generate frontend services"
+     description: "Create API client and state management"
+     kb_refs: ["modules.md:frontend-services"]
+     module_paths:
+       - "frontend/src/services/"
+       - "frontend/src/store/"
+     depends_on: [3b]
    ```
 
-3. **If 15-50 modules**: Semantic split
-   - Parse modules.md to extract file paths
-   - Categorize by directory patterns
-   - Create sub-tasks:
+   **Example: API-Only Backend** (no frontend detected)
+   ```yaml
+   - id: 3a
+     name: "Generate API routes"
+     description: "Create all API endpoint handlers"
+     module_paths: ["backend/app/api/"]
+     depends_on: [2]
+
+   - id: 3b
+     name: "Generate services layer"
+     description: "Create business logic services"
+     module_paths: ["backend/app/services/"]
+     depends_on: [3a]
+
+   - id: 3c
+     name: "Generate data models"
+     description: "Create database models and schemas"
+     module_paths: ["backend/app/models/", "backend/app/schemas/"]
+     depends_on: [3a]
+   ```
+
+   **Example: Frontend-Only SPA** (no backend detected)
+   ```yaml
+   - id: 3a
+     name: "Generate pages and layouts"
+     description: "Create page components and layout structure"
+     module_paths: ["src/pages/", "src/layouts/"]
+     depends_on: [2]
+
+   - id: 3b
+     name: "Generate reusable components"
+     description: "Create shared UI components"
+     module_paths: ["src/components/"]
+     depends_on: [3a]
+
+   - id: 3c
+     name: "Generate hooks and store"
+     description: "Create custom hooks and state management"
+     module_paths: ["src/hooks/", "src/store/"]
+     depends_on: [3b]
+   ```
+
+4. **Fallback for Unusual Structures**:
+   If no clear boundaries detected, group by directory depth:
+   ```yaml
+   - id: 3a: All files in top-level directories
+   - id: 3b: All files in second-level directories
+   - id: 3c: All files in deeper directories
+   ```
+
+5. **Update Task Dependencies**:
+   - Task 4 (deployment) depends on: [3a, 3b, 3c, ...] (all code subtasks)
+   - Task 5 (dependencies) depends on: [2, 3a, 3b, 3c, ..., 4]
+
+**Decision Tree**:
+```
+Analyze modules.md file paths:
+
+Has backend/ AND frontend/?
+  YES → Split: 3a=backend, 3b=frontend components, 3c=frontend services
+
+Has only backend/?
+  YES → Split: 3a=API routes, 3b=services, 3c=models
+
+Has only frontend/?
+  YES → Split: 3a=pages/layouts, 3b=components, 3c=hooks/store
+
+Has mobile (ios/android/)?
+  YES → Split: 3a=shared, 3b=ios, 3c=android
+
+None of above?
+  → Split by directory depth or keep as single Task 3
+```
+
+**Benefits of Logical Splitting**:
+- ✅ Clear architectural boundaries
+- ✅ Independent validation per layer
+- ✅ Better progress visibility (backend done, frontend in progress)
+- ✅ Easier debugging (know which layer failed)
+- ✅ Scales to any project size
    ```yaml
    - id: 3a
      name: "Generate backend modules"
@@ -438,9 +539,11 @@ categories = {
 
 ---
 
-## ⚠️ CRITICAL: STOP AFTER PHASE 2 - RETURN TO SKILL
+## ⚠️ TWO MODES OF OPERATION
 
-**When invoked by /create skill**:
+### Mode 1: Planning (Initial Invocation)
+
+**When invoked with**: "Match KB and create task plan"
 
 After completing Phase 2 (task planning), **STOP and RETURN** with this summary:
 
@@ -459,11 +562,64 @@ The /create skill will now execute each task using kb-code-generator.
 **DO NOT execute tasks.**
 **DO NOT generate code.**
 
-The skill orchestrator will:
-1. Read your task plan
-2. Spawn kb-code-generator for each task
-3. Coordinate task execution
-4. Report final results
+### Mode 2: Validation (Per-Task Invocation)
+
+**When invoked with**: "Validate task N output"
+
+You will receive:
+- Task specification (what should have been created)
+- Output directory (where files should be)
+- Generator report (what generator claims it created)
+
+**Your validation steps**:
+
+1. **Check File Existence**:
+   ```bash
+   # For each file in task outputs
+   ls -la [OUTPUT_DIR]/[expected-file]
+   ```
+   Missing files = FAIL
+
+2. **Check File Content**:
+   ```bash
+   # Verify files are not empty
+   wc -l [OUTPUT_DIR]/[file]
+   ```
+   Empty files (0 lines) = FAIL
+
+3. **Check Structure** (for code tasks):
+   ```bash
+   # Verify key imports/patterns exist
+   grep "import\|from\|class\|function\|const" [file] | head -10
+   ```
+   No code patterns found = FAIL
+
+4. **Compare Against Acceptance Criteria**:
+   - Read each acceptance criterion from task spec
+   - Verify it's met (check files exist, check patterns match)
+   - Document which criteria passed/failed
+
+5. **Return Validation Result**:
+
+   **If all checks pass**:
+   ```
+   VALIDATION PASSED
+
+   Task: [task name]
+   Files created: [N files]
+   All acceptance criteria: MET
+   ```
+
+   **If any check fails**:
+   ```
+   VALIDATION FAILED
+
+   Task: [task name]
+   Issues found:
+   - Missing file: [filename]
+   - Empty file: [filename]
+   - Acceptance criterion failed: [specific criterion]
+   ```
 
 ---
 

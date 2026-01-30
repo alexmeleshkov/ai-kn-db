@@ -46,9 +46,9 @@ Return the following:
 Read .claude/tmp/generation-tasks.yaml
 ```
 
-### Phase 2: Execution (Spawn Generator for Each Task)
+### Phase 2: Execution (Generator + Validator Working in Pair)
 
-For each task in the task plan (typically 7 tasks):
+For each task in the task plan (typically 7-15 tasks depending on splitting):
 
 **Step 3**: Update task status to in_progress:
 ```
@@ -81,12 +81,49 @@ Instructions:
 )
 ```
 
-**Step 5**: After generator completes, update task status:
+**Step 5**: After generator completes, spawn coordinator to validate:
+
 ```
-TaskUpdate(taskId: N, status: "completed")
+Task(
+  subagent_type: "kb-generation-coordinator",
+  description: "Validate task N output",
+  prompt: "Validate that task N was completed correctly:
+
+TASK SPECIFICATION:
+[Copy full task YAML from plan]
+
+KB PROJECT PATH:
+[KB base path]
+
+OUTPUT DIRECTORY:
+[Output directory]
+
+GENERATOR REPORTED:
+[What generator said it created]
+
+Your validation job:
+1. Check that ALL files in task outputs exist
+2. Verify files are not empty
+3. For code tasks: Check imports/syntax are reasonable
+4. Compare against acceptance criteria
+5. Report: PASS or FAIL with specific issues
+
+Return one of:
+- VALIDATION PASSED: All acceptance criteria met
+- VALIDATION FAILED: [Specific issues found]"
+)
 ```
 
-**Step 6**: Repeat steps 3-5 for all tasks in dependency order
+**Step 6**: Based on validation result, update task status:
+```
+If validation says "PASSED":
+  TaskUpdate(taskId: N, status: "completed")
+Else:
+  TaskUpdate(taskId: N, status: "failed")
+  Report failure to user and stop (or retry if possible)
+```
+
+**Step 7**: Repeat steps 3-6 for all tasks in dependency order
 
 ### Phase 3: Completion
 
