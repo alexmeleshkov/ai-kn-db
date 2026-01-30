@@ -225,36 +225,6 @@ tasks:
     status: pending
 
   - id: 5
-    name: "Install dependencies"
-    description: "Install project dependencies based on tech stack"
-    phase: setup
-    kb_refs:
-      - "tech.md"
-      - "deployment.md"
-    inputs:
-      - "Complete code and config files"
-    outputs:
-      - "Dependencies installed"
-      - "node_modules/ or venv/ or vendor/ created"
-    acceptance_criteria:
-      - "Detect package manager from config files"
-      - "Run appropriate install command"
-      - "Installation succeeds without errors"
-    depends_on: [2, 3, 4]  # If Task 3 is split, becomes [2, 3a, 3b, 3c, ..., 4]
-    status: pending
-    installation_logic: |
-      If package.json exists: npm install
-      If requirements.txt exists: pip install -r requirements.txt
-      If Pipfile exists: pipenv install
-      If pyproject.toml exists: poetry install
-      If Cargo.toml exists: cargo build
-      If go.mod exists: go mod download
-      If composer.json exists: composer install
-      If Gemfile exists: bundle install
-      If pom.xml exists: mvn install
-      If build.gradle exists: gradle build
-
-  - id: 6
     name: "Generate project documentation"
     description: "Create README from KB documentation"
     phase: documentation
@@ -269,62 +239,19 @@ tasks:
     acceptance_criteria:
       - "Prerequisites from meta.yaml documented"
       - "Run commands from deployment.md or meta.yaml included"
-    depends_on: [5]
-    status: pending
-
-  - id: 7
-    name: "Execute smoke test"
-    description: "Run smoke test from meta.yaml"
-    phase: validation
-    kb_refs:
-      - "meta.yaml:smoke_test"
-    inputs:
-      - "Complete project with README"
-    outputs:
-      - "Smoke test results"
-    acceptance_criteria:
-      - "Smoke test command from meta.yaml executes"
-      - "Project is runnable"
-    depends_on: [6]
+    depends_on: [4]  # If Task 3 is split, becomes [3a, 3b, 3c, ..., 4]
     status: pending
 ```
 
 **Task Planning Rules**:
 
-1. **Phases**: Organize tasks into logical phases (structure, config, code, deployment, setup, documentation, validation)
+1. **Phases**: Organize tasks into logical phases (structure, config, code, deployment, documentation)
 2. **Dependencies**: Use `depends_on` to enforce correct execution order
 3. **KB References**: Every task MUST cite specific KB files and sections
 4. **Acceptance Criteria**: Each task needs objective, verifiable success criteria
 5. **Granularity**: Balance between too fine-grained (micro-managing) and too coarse (generator overwhelmed)
 6. **Dynamic Splitting**: Apply "Task 3 Auto-Splitting Logic" BEFORE finalizing the task plan
 7. **Task Renumbering**: When splitting Task 3 into 3a/3b/3c, update all subsequent task dependencies
-
-### Dependency Installation Strategy
-
-**Universal Detection**:
-1. Check which manifest files exist in generated project
-2. Run corresponding package manager automatically
-
-**Package Manager Map**:
-```yaml
-package.json: "npm install"
-requirements.txt: "pip install -r requirements.txt"
-Pipfile: "pipenv install"
-pyproject.toml: "poetry install"
-Cargo.toml: "cargo build"
-go.mod: "go mod download"
-composer.json: "composer install"
-Gemfile: "bundle install"
-pom.xml: "mvn install"
-build.gradle: "gradle build"
-```
-
-**Installation Task Delegation**:
-- Pass list of detected manifests to generator
-- Generator runs appropriate install commands in OUTPUT_DIR
-- Capture and log installation output
-- If installation fails, report errors but continue (smoke test will catch issues)
-- Installation happens in Task 5, after all code/config is generated
 
 ### Task 3 Logical Splitting Strategy
 
@@ -450,7 +377,7 @@ build.gradle: "gradle build"
 
 5. **Update Task Dependencies**:
    - Task 4 (deployment) depends on: [3a, 3b, 3c, ...] (all code subtasks)
-   - Task 5 (dependencies) depends on: [2, 3a, 3b, 3c, ..., 4]
+   - Task 5 (documentation) depends on: [3a, 3b, 3c, ..., 4]
 
 **Decision Tree**:
 ```
@@ -722,9 +649,9 @@ When delegating tasks, use **streaming extraction** to avoid loading large files
 - Command: `head -150 deployment.md` (usually small file)
 - Result: 100-150 lines maximum
 
-**For Task 5 (Dependencies)**:
-- No extraction needed - just pass manifest detection logic (inline text)
-- Result: 30-50 lines maximum
+**For Task 5 (Documentation)**:
+- Command: `cat README.md` (from KB project)
+- Result: Full README from KB for generation
 
 **General Rules for Streaming**:
 1. **NEVER use Read tool** on modules.md (1351 lines) - use bash streaming
@@ -762,14 +689,13 @@ After each task completion:
 3. **Validate Acceptance Criteria**: Check each criterion
 4. **Approve or Request Changes**: If issues found, create correction task
 
-### Phase 5: Final Validation & Report
+### Phase 5: Final Report
 
 After all tasks complete:
 
-1. **Run Smoke Test**: Execute final validation (task 8)
-2. **Verify Completeness**: Check all files exist and are complete
-3. **Generate Report**: Create summary for user
-4. **Provide Next Steps**: Give clear instructions on using the project
+1. **Verify Completeness**: Check all files exist and are complete
+2. **Generate Report**: Create summary for user
+3. **Provide Next Steps**: Give clear instructions on using the project
 
 ## Task Delegation Format
 
@@ -829,7 +755,6 @@ INSTRUCTIONS:
 2. Use excerpts for quick reference
 3. Generate code matching KB patterns exactly
 4. Write all files to WORKING_DIRECTORY
-5. For Task 5 (dependencies): detect manifests and run install commands
 
 Generate the code/files for this task following the KB patterns exactly."
 ```
@@ -898,7 +823,6 @@ When validating generated code:
 
 **Validation Failures**:
 - If code doesn't match KB, create correction task
-- If smoke test fails, debug and create fix tasks
 
 ## Progress Reporting
 
@@ -944,20 +868,20 @@ TaskUpdate(taskId: "2", status: "completed")    # Task 2 done
 This creates visible progress indicators in the UI like:
 ```
 # Without split (small project):
-[1/7] ✓ Create project directory structure
-[2/7] ⏳ Generate configuration files...
-[3/7] ⏳ Generate all code files...
-[4/7] ⏳ Create deployment files...
-[5/7] ⏳ Install dependencies...
+[1/5] ✓ Create project directory structure
+[2/5] ✓ Generate configuration files
+[3/5] ⏳ Generate all code files...
+[4/5] ⏸️ Create deployment files
+[5/5] ⏸️ Generate project documentation
 
 # With split (large project):
-[1/9] ✓ Create project directory structure
-[2/9] ✓ Generate configuration files
-[3/9] ✓ Generate backend modules (3a)
-[4/9] ⏳ Generate frontend modules (3b)...
-[5/9] ⏸️ Generate shared modules (3c)
-[6/9] ⏸️ Create deployment files...
-[7/9] ⏸️ Install dependencies...
+[1/7] ✓ Create project directory structure
+[2/7] ✓ Generate configuration files
+[3/7] ✓ Generate backend modules (3a)
+[4/7] ⏳ Generate frontend modules (3b)...
+[5/7] ⏸️ Generate shared modules (3c)
+[6/7] ⏸️ Create deployment files
+[7/7] ⏸️ Generate project documentation
 ```
 
 ## Output Structure
@@ -970,14 +894,13 @@ C:\work\ai-knowledge-db\generated\[slug]-[timestamp]\
 ## Success Criteria
 
 Project generation is successful when:
-- [ ] All tasks completed (7-15 tasks depending on auto-split)
+- [ ] All tasks completed (5-7 tasks depending on Task 3 split)
 - [ ] If Task 3 was split, all sub-tasks completed successfully
 - [ ] Output directory created with proper naming
 - [ ] Code matches KB patterns (validated)
-- [ ] Dependencies installed successfully
-- [ ] Smoke test passes (if defined in meta.yaml)
-- [ ] README is complete
-- [ ] User can run project with documented commands
+- [ ] All deployment files created (.env.example, docker-compose.yml, .gitignore)
+- [ ] README is complete with setup instructions
+- [ ] Generated project matches git repository structure
 
 ## Example Coordination Flow
 
@@ -989,7 +912,7 @@ Project generation is successful when:
    - Creates output directory: generated/[slug]-[timestamp]/
    - Creates TaskCreate for main progress task
    - Counts modules using: grep -c "^### " modules.md
-   - Creates 7-task plan (or 9 if Task 3 split) in .claude/tmp/generation-tasks.yaml
+   - Creates 5-task plan (or 7 if Task 3 split) in .claude/tmp/generation-tasks.yaml
 
 3. Coordinator → Generator (Task 1):
    - "Create directory structure from modules.md"
@@ -1035,20 +958,18 @@ Project generation is successful when:
 11. Coordinator → Generator (Task 4):
    - "Create deployment files from deployment.md"
    - Provides deployment.md content
-   - Generator creates Docker/deployment configs
+   - Generator creates Docker/deployment configs (.env.example, docker-compose.yml, .gitignore)
 
 12. Coordinator → Generator (Task 5):
-    - "Install dependencies"
-    - Generator detects manifests and runs install commands
-    - Reports installation success/failure
-
-... continue for remaining tasks (6, 7) ...
+    - "Generate project documentation"
+    - Provides README.md from KB
+    - Generator creates README with setup instructions
 
 6. Final Report:
    "Project generated successfully!
     Location: [path]
-    Tests: [smoke test result]
-    Run: [commands from deployment.md or meta.yaml]"
+    Files: [count]
+    Next steps: [setup instructions from README]"
 ```
 
 ## Key Principles

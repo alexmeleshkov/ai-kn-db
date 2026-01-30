@@ -143,12 +143,10 @@ Coordinator creates task plan:
   Task 3b: Generate frontend components ← SPLIT
   Task 3c: Generate frontend services ← SPLIT
   Task 4: Create deployment files
-  Task 5: Install dependencies
-  Task 6: Generate README
-  Task 7: Smoke test
+  Task 5: Generate README
 
 Coordinator returns:
-  "Planning Complete! 9 tasks created."
+  "Planning Complete! 7 tasks created."
 ```
 
 ### Execution Phase (Task 3a Example)
@@ -239,7 +237,7 @@ Generating project...
 ```
 Phase 1: Planning
 ✅ Matched KB: db-chat-nl
-✅ Created task plan: 9 tasks
+✅ Created task plan: 7 tasks
 
 Phase 2: Execution
 ✅ Task 1: Create directories (completed)
@@ -354,7 +352,7 @@ payment-service/
 **Planning Phase**:
 1. Coordinator analyzes structure
 2. Detects backend/ and frontend/
-3. Creates 9-11 tasks with logical splits:
+3. Creates 5-7 tasks with logical splits:
    - Task 3a: Backend services
    - Task 3b: Frontend components
    - Task 3c: Frontend services

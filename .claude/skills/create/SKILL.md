@@ -48,7 +48,7 @@ Read .claude/tmp/generation-tasks.yaml
 
 ### Phase 2: Execution (Generator + Validator Working in Pair)
 
-For each task in the task plan (typically 7-15 tasks depending on splitting):
+For each task in the task plan (typically 5-7 tasks depending on Task 3 splitting):
 
 **Step 3**: Update task status to in_progress:
 ```
