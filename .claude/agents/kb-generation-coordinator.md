@@ -1,7 +1,7 @@
 ---
 name: kb-generation-coordinator
 description: "Orchestrates KB-driven project generation: matches KB projects, plans tasks, delegates to kb-code-generator, validates outputs."
-tools: Read, Write, Bash, Glob
+tools: Read, Write, Bash, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet
 model: sonnet
 color: blue
 ---
