@@ -85,7 +85,7 @@ For each batch (1 to num_batches):
 ```
 TaskCreate(
   subject: "Extract patterns from batch {N}/{num_batches}",
-  description: "Read {len(files)} files from batch {N}, extract complete patterns using 17-point extraction rules, write to {scan_dir}/patterns/batch-{N}.md. Files: {file_list}",
+  description: "Read {len(files)} files from batch {N}, extract complete patterns using 19-point extraction rules, write to {scan_dir}/patterns/batch-{N}.md. Files: {file_list}",
   activeForm: "Extracting batch {N}/{num_batches}"
 )
 ```
@@ -111,7 +111,7 @@ For batch N in 1..num_batches:
 1. **Find task**: Use TaskList, filter by subject "Extract patterns from batch {N}/"
 2. **Update status**: TaskUpdate(taskId, status="in_progress")
 3. **Read files**: Read the files specified for this batch from batch-plan.json
-4. **Extract patterns**: Apply Pattern Extraction Rules (17 points) to each file
+4. **Extract patterns**: Apply Pattern Extraction Rules (19 points) to each file
 5. **Write output**: Write patterns to `{scan_dir}/patterns/batch-{N}.md`
 6. **Update plan**: Update batch-plan.json to mark batch N as "completed"
 7. **Update status**: TaskUpdate(taskId, status="completed")
@@ -198,7 +198,7 @@ Next step: Run kb-writer agent to generate KB documentation
 
 ## Pattern Extraction Rules (Complete Description Approach)
 
-**Updated with 17 points** (added #16: Module Exports, #17: Initialization Patterns) to capture interface contracts and factory patterns that enable correct code generation.
+**Updated with 19 points** (added #16: Module Exports, #17: Initialization Patterns, #18: CSS and Styling Patterns, #19: Application Structure and Entry Points) to capture interface contracts, factory patterns, visual design, and application bootstrap that enable complete code generation.
 
 **PHILOSOPHY**: Extract COMPLETE behavioral specifications that allow 1:1 code generation. NO code copying - only rich descriptions.
 
@@ -469,6 +469,95 @@ Next step: Run kb-writer agent to generate KB documentation
       ```
     - **Critical**: Without this section, generated code will call constructors with wrong parameters or in wrong order
 
+18. **CSS and Styling Patterns**: Visual design system and styling approach
+    - **Styling methodology**: CSS Modules, Styled Components, Tailwind, vanilla CSS, or mixed approach
+    - **Global theme**: Color palette (primary, secondary, background, text colors with semantic names)
+    - **Typography system**: Font families, font sizes (heading sizes, body text), line heights, font weights
+    - **Spacing scale**: Padding/margin values used (e.g., 4px, 8px, 16px, 24px, 32px)
+    - **Layout patterns**: How components are positioned (flexbox column/row, grid, absolute positioning)
+    - **Component visual structure**: Describe appearance of key components
+      - Example: "ChatContainer: full viewport height, white background, flex column with header (sticky, shadowed), scrollable message area, fixed input at bottom"
+      - Example: "MessageBubble: rounded corners (8px), padding (12px 16px), user messages aligned right with blue background (#3b82f6), assistant messages left with gray background (#f3f4f6)"
+    - **Interactive states**: Hover effects, focus styles, active states, disabled states
+    - **Responsive behavior**: Layout changes at different breakpoints, mobile vs desktop differences
+    - **Animations**: What elements animate (fade in, slide, rotate), timing (0.2s, 0.3s), easing functions
+    - **Visual hierarchy**: How importance is conveyed (size, weight, color contrast, spacing)
+    - Example:
+      ```
+      Styling System:
+
+      Methodology: CSS Modules (*.module.css) for components, global styles in index.css
+
+      Color Palette:
+      - Primary: Blue (#3b82f6) - buttons, links, user messages
+      - Background: White (#ffffff) main, Light gray (#f9fafb) alternate
+      - Text: Dark gray (#1f2937) primary, Medium gray (#6b7280) secondary
+      - Border: Light gray (#e5e7eb)
+      - Success: Green (#10b981), Error: Red (#ef4444)
+
+      Typography:
+      - Font: 'Inter', system-ui, sans-serif
+      - Headings: 24px/32px/20px (h1/h2/h3), weight 600
+      - Body: 16px, line-height 1.5, weight 400
+      - Small: 14px for labels, 12px for captions
+
+      Spacing Scale: 4px base (8px, 12px, 16px, 24px, 32px, 48px)
+
+      Component Patterns:
+      - Cards: white background, 1px border, 8px radius, 16px padding, subtle shadow
+      - Buttons: 12px vertical padding, 24px horizontal, rounded 6px, hover darkens 10%
+      - Inputs: 1px border, 8px padding, focus ring (blue, 2px offset)
+
+      Layout:
+      - Main container: max-width 1200px, centered, 24px side padding
+      - Chat area: flex-1 scrollable, 16px message spacing
+      - Two-column on desktop (>768px), single column mobile
+
+      Animations:
+      - Messages fade in: opacity 0→1 over 0.3s ease-out
+      - Buttons: background color transition 0.2s
+      - Loading spinner: continuous rotation, 1s linear
+      ```
+    - **Critical**: Without this section, generated project will have no styling and look nothing like original
+
+19. **Application Structure and Entry Points**: How the application bootstraps and initializes
+    - **HTML entry point** (index.html):
+      - Document structure (doctype, html/head/body tags)
+      - Meta tags (charset, viewport, description)
+      - Title pattern
+      - Root div ID (e.g., id="root")
+      - Script tag location and type (e.g., `<script type="module" src="/src/main.tsx"></script>`)
+      - Link tags for stylesheets or favicons
+    - **Frontend entry point** (main.tsx, main.jsx, index.tsx):
+      - React import pattern (React, ReactDOM)
+      - Root element selection (getElementById)
+      - Render method (createRoot, render)
+      - StrictMode usage (yes/no)
+      - Root component import and usage
+      - Global style imports
+      - Example description: "Uses ReactDOM.createRoot to mount App component to #root div, wrapped in StrictMode, imports global index.css"
+    - **Root component** (App.tsx, App.jsx):
+      - Top-level composition (what providers/routers wrap the app)
+      - Provider nesting order (e.g., Router → AuthProvider → ThemeProvider → children)
+      - Main layout structure (header, sidebar, main content area, footer)
+      - Routing configuration (route definitions, layout components)
+      - Global state initialization
+      - Example: "App.tsx wraps content with BrowserRouter, then AuthProvider (manages user session), then renders ChatContainer as main content. No header/footer - full viewport chat interface."
+    - **Build configuration** (vite.config.ts, webpack.config.js, next.config.js):
+      - Build tool used (Vite, Webpack, Next.js)
+      - Plugins configured (React plugin, TypeScript, etc.)
+      - Dev server settings (port, proxy configuration)
+      - Build output configuration
+      - Path aliases (if any)
+      - Example: "Vite with @vitejs/plugin-react, dev server on port 5173, proxy /api requests to localhost:8000"
+    - **TypeScript configuration** (tsconfig.json, tsconfig.node.json):
+      - Compiler options (target, module, jsx)
+      - Strict mode settings
+      - Path mappings
+      - Include/exclude patterns
+      - Example: "Target ES2020, module ESNext, jsx: react-jsx, strict mode enabled, includes src/**/*"
+    - **Critical**: Without this section, generated project cannot start - missing index.html, main.tsx, or configs will cause 404 or build errors
+
 **NO CODE EXAMPLES** (except template strings): Do not include code snippets for logic. Description must be complete enough to generate code without seeing the original.
 
 ### For tier2 files (utils, helpers, middleware):
@@ -517,6 +606,10 @@ Before writing each batch file, verify:
 - ✅ **Iteration logic detailed** (new)
 - ✅ **Error patterns specified** (new)
 - ✅ **Algorithms explained** (new)
+- ✅ **Module exports documented** (#16)
+- ✅ **Initialization patterns captured** (#17)
+- ✅ **CSS and styling described** (#18 for frontend files)
+- ✅ **Entry points and app structure documented** (#19)
 
 If a file is too simple to need all sections (e.g., just a constant definition), note: "Simple file - single purpose, no complex logic."
 

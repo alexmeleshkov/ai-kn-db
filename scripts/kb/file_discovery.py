@@ -27,6 +27,7 @@ TIER1_PATTERNS = {
         'schemas/**/*.py',
     ],
     'frontend': [
+        # Components and logic
         'components/**/*.tsx',
         'components/**/*.jsx',
         'pages/**/*.tsx',
@@ -39,6 +40,19 @@ TIER1_PATTERNS = {
         'contexts/**/*.ts',
         'stores/**/*.ts',
         'stores/**/*.js',
+        # Entry points (critical for app bootstrap)
+        'index.html',
+        'src/main.tsx',
+        'src/main.jsx',
+        'src/index.tsx',
+        'src/index.jsx',
+        'src/App.tsx',
+        'src/App.jsx',
+        # Styling (visual design)
+        'src/styles/**/*.css',
+        'src/**/*.module.css',
+        'src/index.css',
+        'src/App.css',
     ]
 }
 
@@ -64,8 +78,12 @@ TIER3_PATTERNS = [
     'Dockerfile',
     '.env.example',
     'tsconfig.json',
-    'vite.config.*',
-    'webpack.config.*',
+    'tsconfig.node.json',
+    'tsconfig.app.json',
+    'vite.config.ts',
+    'vite.config.js',
+    'webpack.config.js',
+    'webpack.config.ts',
 ]
 
 # Framework detection patterns

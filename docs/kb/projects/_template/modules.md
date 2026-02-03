@@ -292,6 +292,165 @@ function useCustomHook(param: Type): {
 
 ---
 
+## CSS & Styling Patterns
+
+> **NOTE**: This section describes the visual design system. Include for projects with frontend/UI.
+
+**Styling Methodology**: [CSS Modules / Styled Components / Tailwind / vanilla CSS / mixed approach]
+
+**Global Theme**:
+- **Color Palette**:
+  - Primary: [color name] (#hex) - [usage]
+  - Secondary: [color name] (#hex) - [usage]
+  - Background: [color] (#hex) - [main/alternate backgrounds]
+  - Text: [color] (#hex) primary, [color] (#hex) secondary
+  - Border: [color] (#hex)
+  - Status colors: Success (#hex), Error (#hex), Warning (#hex)
+
+- **Typography System**:
+  - Font families: [primary font], [fallbacks]
+  - Heading sizes: h1 (Xpx), h2 (Xpx), h3 (Xpx) with weights
+  - Body text: Xpx, line-height X.X, weight XXX
+  - Small text: Xpx for labels, Xpx for captions
+
+- **Spacing Scale**: [base unit]px base → [derived values: 8px, 12px, 16px, 24px, etc.]
+
+**Component Visual Patterns**:
+- **[ComponentName]**: [Describe appearance]
+  - Layout: [flexbox/grid structure, dimensions]
+  - Colors: [background, text, borders]
+  - Spacing: [padding, margins]
+  - Visual effects: [shadows, borders, radius]
+
+- **[ComponentName2]**: [Describe appearance]
+  - [Structure and visual properties]
+
+**Interactive States**:
+- Hover: [what changes - colors, shadows, scale]
+- Focus: [focus rings, outlines, highlights]
+- Active: [pressed state appearance]
+- Disabled: [opacity, cursor, color changes]
+
+**Layout Patterns**:
+- Container: [max-width, centering, padding]
+- Grids: [column counts, gap sizes]
+- Flexbox: [direction, alignment, common patterns]
+- Positioning: [sticky headers, fixed elements]
+
+**Responsive Behavior**:
+- Mobile (<768px): [layout changes, stacking, font sizes]
+- Tablet (768-1024px): [intermediate layout]
+- Desktop (>1024px): [full layout with sidebars/columns]
+
+**Animations & Transitions**:
+- [Element type]: [animation description - fade in, slide, etc.]
+- Timing: [duration values - 0.2s, 0.3s]
+- Easing: [ease-in-out, ease-out, cubic-bezier values]
+
+**Visual Hierarchy**:
+- How importance is conveyed: [size, weight, color contrast, spacing]
+- Focus patterns: [how user attention is directed]
+
+---
+
+## Application Structure & Entry Points
+
+> **NOTE**: Critical infrastructure files that bootstrap the application.
+
+### HTML Entry Point (index.html)
+
+**Document Structure**:
+- Doctype and HTML structure
+- Meta tags: [charset, viewport, description]
+- Title: [page title pattern]
+- Root element: [div id and any data attributes]
+- Script tag: [type, src path, defer/async]
+- Stylesheets: [link tags if any]
+- Other head elements: [favicons, manifest, etc.]
+
+**Example Description**: "Standard HTML5 document with viewport meta tag for mobile, title 'Database Chat NL', root div with id='root', module script loading /src/main.tsx, no external stylesheets"
+
+---
+
+### Frontend Entry Point (main.tsx / index.tsx)
+
+**Bootstrap Pattern**:
+- React import style: [React, ReactDOM from libraries]
+- Root element selection: [getElementById or querySelector]
+- Render method: [createRoot, legacy render, hydrateRoot]
+- Wrapper components: [StrictMode, any providers at entry level]
+- Root component imported: [App, Main, Root, etc.]
+- Global imports: [CSS, polyfills, initialization scripts]
+
+**Example Description**: "Imports React 18's createRoot, selects #root element, renders App wrapped in StrictMode, imports ./index.css for global styles"
+
+---
+
+### Root Component (App.tsx / App.jsx)
+
+**Top-Level Composition**:
+- Provider nesting order: [list providers from outer to inner]
+  - Example: BrowserRouter → AuthProvider → ThemeProvider → QueryClientProvider
+- Layout structure: [header, sidebar, main, footer arrangement]
+- Routing: [route definitions, path patterns, lazy loading]
+- Global state initialization: [context setup, store creation]
+
+**Component Hierarchy**:
+```
+App
+├── [ProviderName]
+│   ├── [LayoutComponent]
+│   │   ├── Header (if present)
+│   │   ├── Sidebar (if present)
+│   │   ├── Main Content
+│   │   │   └── Routes/Children
+│   │   └── Footer (if present)
+```
+
+**Example Description**: "App.tsx sets up BrowserRouter, wraps with AuthProvider for session management, renders ChatContainer as main content filling full viewport - no traditional header/footer/sidebar layout, pure chat interface"
+
+---
+
+### Build Configuration (vite.config.ts / webpack.config.js)
+
+**Build Tool**: [Vite / Webpack / Next.js / etc.]
+
+**Configuration**:
+- Plugins: [list plugins with purpose]
+  - Example: @vitejs/plugin-react for JSX transformation
+- Dev server:
+  - Port: [port number]
+  - Proxy: [API proxy rules if any]
+  - Host: [localhost / 0.0.0.0]
+  - HTTPS: [yes/no]
+- Build output:
+  - Directory: [dist, build, .next]
+  - Format: [ES modules, CommonJS]
+  - Minification: [enabled/disabled]
+- Path aliases: [if using @ or ~ imports]
+
+**Example**: "Vite 5.x with React plugin, dev server on port 5173, proxies /api to http://localhost:8000 with changeOrigin:true, builds to dist/, no custom aliases"
+
+---
+
+### TypeScript Configuration (tsconfig.json)
+
+**Compiler Options**:
+- Target: [ES2020, ES2022, ESNext]
+- Module: [ESNext, CommonJS]
+- JSX: [react-jsx, react, preserve]
+- Strict mode: [enabled/disabled + specific flags]
+- Module resolution: [bundler, node]
+- Base URL & Paths: [if path mapping used]
+
+**Include/Exclude**:
+- Include: [src/**/* patterns]
+- Exclude: [node_modules, dist, etc.]
+
+**Example**: "Target ES2020, module ESNext, jsx: react-jsx, strict mode fully enabled, includes src/**/*.ts and src/**/*.tsx, excludes node_modules and dist"
+
+---
+
 ## Database/Data Layer
 
 ### [Module 5: Models/Schema]
