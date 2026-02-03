@@ -125,6 +125,52 @@ Algorithm name:
 3. etc.
 ```
 
+**Module Exports and Public API** (CRITICAL - what other modules can import):
+```
+Exported Classes:
+- ClassName: Description
+
+Exported Functions:
+- init_service(params) -> Service: Factory function, creates singleton instance
+- get_service() -> Service: Getter function, retrieves initialized instance
+- utility_function(params) -> Result: Helper function for X
+
+Module-level Globals (if any):
+- _service_instance: Optional[Service] = None  # Private singleton
+
+Usage Pattern:
+- At startup: service = init_service(config)
+- In other modules: from .module import get_service
+                    service = get_service()
+```
+
+**Initialization and Lifecycle Patterns** (CRITICAL - how to create instances correctly):
+```
+Constructor Signature:
+- def __init__(self, required_param: Type, optional_param: Type = default)
+- Requires: Exact parameters needed
+- Does NOT accept: Common mistakes to avoid
+- Gets settings from: Where configuration comes from
+
+Factory Pattern (if applicable):
+- init_service(params) function creates and stores singleton
+- get_service() retrieves the singleton
+- Lifecycle: When created (once at startup, per-request, cached)
+
+Initialization Order:
+1. Dependency X must be created first
+2. Then create this service
+3. Then services that depend on this
+
+Correct Usage:
+✅ service = init_service(required_param)
+✅ service = get_service()
+
+Incorrect Usage:
+❌ service = Service()  # Missing required parameter
+❌ service = Service(wrong_param=value)  # Wrong parameter name
+```
+
 **[Code Example]** (ONLY if complex/non-standard):
 ```[language]
 [Full code for complex logic only - not standard CRUD]

@@ -85,7 +85,7 @@ For each batch (1 to num_batches):
 ```
 TaskCreate(
   subject: "Extract patterns from batch {N}/{num_batches}",
-  description: "Read {len(files)} files from batch {N}, extract complete patterns using 15-point extraction rules, write to {scan_dir}/patterns/batch-{N}.md. Files: {file_list}",
+  description: "Read {len(files)} files from batch {N}, extract complete patterns using 17-point extraction rules, write to {scan_dir}/patterns/batch-{N}.md. Files: {file_list}",
   activeForm: "Extracting batch {N}/{num_batches}"
 )
 ```
@@ -111,7 +111,7 @@ For batch N in 1..num_batches:
 1. **Find task**: Use TaskList, filter by subject "Extract patterns from batch {N}/"
 2. **Update status**: TaskUpdate(taskId, status="in_progress")
 3. **Read files**: Read the files specified for this batch from batch-plan.json
-4. **Extract patterns**: Apply Pattern Extraction Rules (15 points) to each file
+4. **Extract patterns**: Apply Pattern Extraction Rules (17 points) to each file
 5. **Write output**: Write patterns to `{scan_dir}/patterns/batch-{N}.md`
 6. **Update plan**: Update batch-plan.json to mark batch N as "completed"
 7. **Update status**: TaskUpdate(taskId, status="completed")
@@ -197,6 +197,8 @@ Next step: Run kb-writer agent to generate KB documentation
 ```
 
 ## Pattern Extraction Rules (Complete Description Approach)
+
+**Updated with 17 points** (added #16: Module Exports, #17: Initialization Patterns) to capture interface contracts and factory patterns that enable correct code generation.
 
 **PHILOSOPHY**: Extract COMPLETE behavioral specifications that allow 1:1 code generation. NO code copying - only rich descriptions.
 
@@ -386,6 +388,86 @@ Next step: Run kb-writer agent to generate KB documentation
       3. Sort by score descending
       4. Return top 3
       ```
+
+16. **Module Exports and Public API**: What this module makes available to other modules
+    - **ALL exported functions/classes** (not just the main class)
+    - Factory functions (init_*, create_*, build_*, setup_*)
+    - Getter functions (get_*, fetch_*, retrieve_*)
+    - Utility functions (helper functions meant for import)
+    - Module-level singletons/globals
+    - If module has `__all__`, include the complete list
+    - Example:
+      ```
+      Module Exports (auth.py):
+
+      1. AuthService class
+         - Main authentication service with JWT and bcrypt
+
+      2. init_auth_service(db_pool) -> AuthService
+         - Factory function to initialize auth service
+         - Creates singleton instance stored in global _auth_service
+         - Must be called once at app startup
+
+      3. get_auth_service() -> AuthService
+         - Getter function to retrieve initialized auth service
+         - Raises RuntimeError if not initialized
+         - Used by routes to access auth functionality
+
+      4. _auth_service: Optional[AuthService] = None
+         - Module-level singleton (private, not for direct import)
+
+      Usage Pattern:
+      - At startup: auth_service = init_auth_service(pool)
+      - In routes: from .services.auth import get_auth_service
+                   auth = get_auth_service()
+      ```
+    - **Critical**: Without this section, generated code will have import errors because consumers try to import functions that don't exist
+
+17. **Initialization and Lifecycle Patterns**: How instances are created and managed
+    - **Constructor signature**: Exact parameters required (types, defaults, required vs optional)
+    - **Factory pattern**: If there's an init_* or create_* function, document it
+    - **Singleton pattern**: If module uses global state, document the pattern
+    - **Lifecycle**: When/where instances are created (once at startup, per-request, cached, etc.)
+    - **Dependencies required**: What must be initialized before this can be created
+    - **Initialization order**: If order matters, specify it
+    - Example:
+      ```
+      Initialization Pattern (AuthService):
+
+      Constructor Signature:
+      - def __init__(self, db_pool)
+      - Requires: psycopg2 connection pool (SimpleConnectionPool or ThreadedConnectionPool)
+      - Does NOT accept: api_key, config, or settings parameters
+      - Gets settings internally via: get_settings()
+
+      Factory Pattern:
+      - Module provides init_auth_service(db_pool) function
+      - This function:
+        1. Creates AuthService instance: _auth_service = AuthService(db_pool)
+        2. Stores in module global
+        3. Returns the instance
+      - Also provides get_auth_service() to retrieve singleton
+
+      Lifecycle:
+      - Created ONCE at application startup
+      - Stored in module-level global variable
+      - Reused for all requests (singleton)
+
+      Initialization Order:
+      1. Create database connection pool first
+      2. Call init_auth_service(pool)
+      3. Then other services can use get_auth_service()
+
+      Incorrect Usage:
+      ❌ auth = AuthService()  # Missing required db_pool
+      ❌ auth = AuthService(api_key="...")  # Wrong parameter
+
+      Correct Usage:
+      ✅ pool = psycopg2.pool.SimpleConnectionPool(...)
+      ✅ auth = init_auth_service(pool)
+      ✅ # Later: auth = get_auth_service()
+      ```
+    - **Critical**: Without this section, generated code will call constructors with wrong parameters or in wrong order
 
 **NO CODE EXAMPLES** (except template strings): Do not include code snippets for logic. Description must be complete enough to generate code without seeing the original.
 
