@@ -2,3 +2,7 @@
 .claude/tmp/
 generated/
 __pycache__/
+
+# Temporary directories
+scratchpad/
+generated/
