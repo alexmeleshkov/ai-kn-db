@@ -138,20 +138,43 @@ For configuration file tasks:
 
 #### Code Phase
 
+**PHILOSOPHY**: Generate ALL code from complete behavioral descriptions. No code copying - only specification-driven generation.
+
 For code generation tasks:
-1. Read modules.md to find code patterns
+1. Read modules.md to find all file entries
 2. For each file in modules.md:
-   - Extract file path and code pattern
-   - Create file at exact path
-   - Write code matching pattern verbatim
+   - Extract file path
+   - Extract complete specification:
+     - **Interface**: ALL methods with signatures
+     - **Complete Flow**: Step-by-step algorithm description
+     - **All Behaviors**: Full capability list with edge cases
+     - **Dependencies**: Libraries with usage context
+     - **Error Handling**: Complete error handling description
+     - **Integration Points**: How it connects to other components
+     - **State Management**: State tracking details (if applicable)
+     - **Performance**: Caching, async patterns, timeouts
+
+   **Generation Process**:
+   1. **Understand Specification**: Read complete behavioral description
+   2. **Select Pattern**: Identify appropriate pattern/framework conventions
+   3. **Generate Implementation**: Create code that fulfills ALL specified behaviors
+   4. **Implement ALL Methods**: Every method in interface, not just main ones
+   5. **Handle ALL Edge Cases**: Implement every edge case mentioned
+   6. **Apply Error Handling**: Implement complete error handling as described
+   7. **Add Integrations**: Connect to other services as specified
+   8. **Optimize**: Apply performance patterns as described
+
 3. If uiDescription.md exists, use it to guide UI implementation
 4. Follow architecture.md structure
 
-**Critical**: Use code patterns verbatim from modules.md:
-- Same imports
-- Same class/function names
-- Same structure
-- Same approach
+**Critical Success Factors**:
+- ✅ Every method from interface implemented
+- ✅ Complete flow logic implemented step-by-step
+- ✅ All edge cases handled as described
+- ✅ Error handling matches specification
+- ✅ Performance patterns applied (caching, async, pooling)
+- ✅ Integration points correctly connected
+- ✅ Code compiles and follows framework conventions
 
 #### Deployment Phase
 
@@ -202,25 +225,461 @@ Provide clear completion report to coordinator:
 Статус: Готово до перевірки
 ```
 
-## Code Generation Patterns
+## Complete Description-Based Generation
 
-### Pattern Extraction from KB
+KB files now use **Complete Behavioral Descriptions** - no code examples, only rich specifications.
 
-When you receive modules.md content with code patterns, extract and use them EXACTLY.
-
-**Example format in modules.md**:
+**KB Format Example**:
 ```markdown
-#### Module: [file-path]
+### Module: services/llm.py
 
-**Purpose**: [description]
+**Purpose**: Claude API streaming with SSE, heartbeat, tool use, extended thinking
 
-**Code Pattern**:
-```[language]
-[code here]
+**Interface** (ALL methods):
+```python
+class LLMService:
+    def __init__(self, api_key: str, enable_extended_thinking: bool = True):
+        """Initialize Claude API client"""
+
+    def process_with_tools_streaming(
+        self,
+        user_question: str,
+        schema,
+        execute_sql_func,
+        conversation_history,
+        sample_data,
+        max_iterations: int = 15,
+        database_id: str,
+        database_type: str
+    ) -> Generator[dict, None, None]:
+        """Stream responses with tool use"""
+
+    def validate_query(self, sql: str, schema) -> tuple[bool, str]:
+        """Validate SQL before execution"""
 ```
+
+**Complete Flow**:
+1. Get few-shot examples from learning_store by similarity matching user_question
+2. Build system prompt with schema + glossary + sample_data + examples
+3. Configure extended thinking (full budget first iteration, 1/4 budget on retry)
+4. Stream with Claude API using anthropic.messages.stream()
+5. For each streaming event:
+   - thinking delta → yield {"type": "thinking", "content": ...}
+   - text delta → yield {"type": "text", "content": ...}
+   - content_block_stop → process final message
+6. Handle tool use (execute_sql, ask_clarification):
+   - Validate query with QueryValidator
+   - Execute in thread pool with timeout
+   - Emit heartbeat every 15s while waiting
+   - On success: save to learning store, yield tool_result
+   - On error: get error context, yield tool_result with suggestions
+7. Loop up to max_iterations if tool use, otherwise yield done event
+
+**All Behaviors**:
+- Streams responses as Server-Sent Events
+- Extended thinking with full budget on first iteration, reduced on retries
+- Heartbeat every 15s to prevent Heroku timeout (55s limit)
+- Thread pool for async SQL execution with timeout handling
+- Auto-learning from successful queries (saves to RDS)
+- Detailed error context for LLM self-correction
+- Clarification tool for asking user questions
+- Query validation before execution
+- Token usage tracking
+
+**Dependencies**:
+- anthropic - Claude API client for streaming
+- concurrent.futures.ThreadPoolExecutor - async SQL execution
+- logging - error and debug logging
+
+**Error Handling**:
+- SQL validation errors → returned to Claude with context
+- SQL execution errors → returned to Claude with suggestions
+- Timeout errors → user-friendly message
+- API errors → logged and re-raised
+- Try/except around entire stream with cleanup
+
+**Integration Points**:
+- Calls: learning_store.get_similar_examples(), validator.validate_query()
+- Called by: api/routes.py stream_chat endpoint
+- Data flow: user question → LLM → SQL → database → results → user
+
+**Performance**:
+- ThreadPoolExecutor with 2 workers for SQL
+- Heartbeat to keep connection alive
+- Streaming to reduce latency
+- Query caching in learning store
 ```
 
-**Your task**: Generate THAT EXACT code. Don't modify, don't "improve", don't refactor.
+### Generation Process
+
+**Given this complete specification, you generate:**
+
+1. **Parse Specification**: Understand complete flow, all behaviors, all edge cases
+2. **Implement Interface**: Generate ALL methods with correct signatures
+3. **Implement Flow**: Convert step-by-step flow into actual code logic
+4. **Fulfill Behaviors**: Ensure every listed behavior is implemented
+5. **Handle Errors**: Implement complete error handling as described
+6. **Add Integrations**: Connect to other services as specified
+7. **Apply Performance**: Implement caching, async, pooling as described
+8. **Verify Completeness**: Check all methods, behaviors, edge cases implemented
+
+**Output**: Complete, working implementation that matches the specification exactly
+
+### Standard Pattern Templates
+
+#### 1. CRUD Service (Python/PostgreSQL)
+
+**When to use**: Service with database operations, connection pool, try/except/rollback
+
+**Template**:
+```python
+class ServiceName:
+    def __init__(self, db_pool):
+        self._db = db_pool
+
+    def _get_connection(self):
+        if hasattr(self._db, 'getconn'):
+            return self._db.getconn()
+        return self._db
+
+    def _put_connection(self, conn):
+        if hasattr(self._db, 'putconn'):
+            self._db.putconn(conn)
+
+    def method_name(self, param: Type) -> ReturnType:
+        """Implement behavior from KB"""
+        conn = self._get_connection()
+        try:
+            cur = conn.cursor()
+            # SQL operation based on behavior
+            cur.execute("SQL query", (params,))
+            result = cur.fetchone()
+            conn.commit()
+            return result
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Error: {e}")
+            return None
+        finally:
+            cur.close()
+            self._put_connection(conn)
+```
+
+**Customize with**:
+- Interface signatures (method names, params, return types)
+- Behaviors (SQL operations: SELECT, INSERT, UPDATE, DELETE)
+- Error handling pattern from KB
+
+#### 2. React Component (TypeScript)
+
+**When to use**: UI component with props, state, event handlers
+
+**Template**:
+```typescript
+interface ComponentNameProps {
+  // Props from interface
+  propName: Type;
+  onEvent?: (param: Type) => void;
+}
+
+export function ComponentName({ propName, onEvent }: ComponentNameProps) {
+  // State for behaviors
+  const [state, setState] = useState<Type>(initialValue);
+
+  // Effect hooks if needed
+  useEffect(() => {
+    // Side effects from behaviors
+  }, [dependencies]);
+
+  // Event handlers from behaviors
+  const handleAction = useCallback(() => {
+    // Implementation
+    onEvent?.(data);
+  }, [dependencies]);
+
+  return (
+    <div className="component-name">
+      {/* JSX structure from uiDescription.md */}
+    </div>
+  );
+}
+```
+
+**Customize with**:
+- Props interface from KB
+- State based on behaviors
+- Event handlers based on behaviors
+- JSX structure from uiDescription.md
+
+#### 3. FastAPI Route
+
+**When to use**: API endpoint with Pydantic models, dependency injection
+
+**Template**:
+```python
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+
+router = APIRouter(prefix="/api", tags=["tag"])
+
+class RequestModel(BaseModel):
+    # Fields from interface
+    field: Type
+
+class ResponseModel(BaseModel):
+    # Fields from interface
+    field: Type
+
+@router.post("/endpoint")
+async def endpoint_name(
+    request: RequestModel,
+    service: ServiceType = Depends(get_service)
+):
+    """Implement behavior from KB"""
+    try:
+        # Business logic based on behaviors
+        result = service.method(request.field)
+        return ResponseModel(field=result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+**Customize with**:
+- Endpoint path and method from KB
+- Request/response models from interface
+- Business logic from behaviors
+- Error handling from KB
+
+#### 4. JWT Authentication Service
+
+**When to use**: Auth with bcrypt, JWT tokens, user management
+
+**Template**:
+```python
+import bcrypt
+import jwt
+from datetime import datetime, timedelta
+
+class AuthService:
+    def __init__(self, db_pool, jwt_secret: str):
+        self._db = db_pool
+        self._jwt_secret = jwt_secret
+
+    def hash_password(self, password: str) -> str:
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+    def verify_password(self, password: str, hash: str) -> bool:
+        return bcrypt.checkpw(password.encode(), hash.encode())
+
+    def create_token(self, user_id: str, email: str) -> str:
+        payload = {
+            'user_id': user_id,
+            'email': email,
+            'exp': datetime.utcnow() + timedelta(days=7)
+        }
+        return jwt.encode(payload, self._jwt_secret, algorithm='HS256')
+
+    def verify_token(self, token: str) -> dict:
+        try:
+            return jwt.decode(token, self._jwt_secret, algorithms=['HS256'])
+        except:
+            return None
+
+    def login(self, email: str, password: str) -> dict:
+        # Implement login behavior from KB
+        conn = self._get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT id, password_hash FROM users WHERE email = %s", (email,))
+            user = cur.fetchone()
+            if not user or not self.verify_password(password, user[1]):
+                return {'error': 'Invalid credentials'}
+            token = self.create_token(user[0], email)
+            return {'user': {'id': user[0], 'email': email}, 'token': token}
+        except Exception as e:
+            return {'error': str(e)}
+        finally:
+            cur.close()
+            self._put_connection(conn)
+```
+
+**Customize with**:
+- Additional methods from interface
+- Specific behaviors (registration, logout, etc.)
+
+#### 5. Custom React Hook
+
+**When to use**: Reusable state logic, API calls, subscriptions
+
+**Template**:
+```typescript
+function useCustomHook(param: Type): ReturnType {
+  // State from behaviors
+  const [state1, setState1] = useState<Type>(initial);
+  const [state2, setState2] = useState<Type>(initial);
+
+  // Effects from behaviors
+  useEffect(() => {
+    // Setup/subscription
+    return () => {
+      // Cleanup
+    };
+  }, [dependencies]);
+
+  // Methods from interface
+  const method = useCallback((arg: Type) => {
+    // Implementation from behaviors
+    setState1(newValue);
+  }, [dependencies]);
+
+  return {
+    // Return shape from interface
+    state1,
+    state2,
+    method
+  };
+}
+```
+
+**Customize with**:
+- Return type from interface
+- State variables from behaviors
+- Methods from interface
+- Side effects from behaviors
+
+### Generation Guidelines
+
+**1. Read All Context**:
+- Interface signatures (exact types, names)
+- Key behaviors (what to implement)
+- Dependencies (what to import)
+- Error handling pattern
+- Tech stack conventions (from tech.md)
+
+**2. Select Template**:
+- Match template to file type and tech stack
+- CRUD service → Template 1
+- React component → Template 2
+- API route → Template 3
+- Auth service → Template 4
+- Custom hook → Template 5
+
+**3. Customize Template**:
+- Replace placeholder names with actual names from interface
+- Implement behaviors using template pattern
+- Add imports from dependencies
+- Apply error handling pattern
+- Follow tech stack conventions
+
+**4. Verify Output**:
+- All interface methods implemented
+- All behaviors fulfilled
+- Correct imports
+- Proper error handling
+- Follows language conventions
+
+### Example Transformation
+
+**KB Input**:
+```markdown
+### backend/services/data.py
+
+**Interface**:
+```python
+class DataService:
+    def get_item(self, id: str) -> Optional[dict]:
+    def create_item(self, data: dict) -> str:
+    def delete_item(self, id: str) -> bool:
+```
+
+**Key Behaviors**:
+- Fetches items from PostgreSQL by ID
+- Creates new items with generated UUID
+- Deletes items and returns success status
+- Returns None if item not found
+
+**Dependencies**: psycopg2, uuid, logging
+**Error Handling**: try/except/rollback pattern
+```
+
+**Generated Code**:
+```python
+import uuid
+from typing import Optional
+import psycopg2
+from ..core.logging import get_logger
+
+logger = get_logger(__name__)
+
+class DataService:
+    def __init__(self, db_pool):
+        self._db = db_pool
+
+    def _get_connection(self):
+        if hasattr(self._db, 'getconn'):
+            return self._db.getconn()
+        return self._db
+
+    def _put_connection(self, conn):
+        if hasattr(self._db, 'putconn'):
+            self._db.putconn(conn)
+
+    def get_item(self, id: str) -> Optional[dict]:
+        """Fetch item from PostgreSQL by ID."""
+        conn = self._get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT id, data FROM items WHERE id = %s",
+                (id,)
+            )
+            row = cur.fetchone()
+            if not row:
+                return None
+            return {'id': str(row[0]), 'data': row[1]}
+        except Exception as e:
+            logger.error(f"Failed to get item: {e}")
+            return None
+        finally:
+            cur.close()
+            self._put_connection(conn)
+
+    def create_item(self, data: dict) -> str:
+        """Create new item with generated UUID."""
+        conn = self._get_connection()
+        try:
+            cur = conn.cursor()
+            item_id = str(uuid.uuid4())
+            cur.execute(
+                "INSERT INTO items (id, data) VALUES (%s, %s)",
+                (item_id, data)
+            )
+            conn.commit()
+            return item_id
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Failed to create item: {e}")
+            return None
+        finally:
+            cur.close()
+            self._put_connection(conn)
+
+    def delete_item(self, id: str) -> bool:
+        """Delete item and return success status."""
+        conn = self._get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM items WHERE id = %s", (id,))
+            conn.commit()
+            return cur.rowcount > 0
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Failed to delete item: {e}")
+            return False
+        finally:
+            cur.close()
+            self._put_connection(conn)
+```
 
 ### Technology Version Matching
 

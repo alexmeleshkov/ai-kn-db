@@ -1,8 +1,8 @@
 # Code Modules & Implementation Patterns
 
-> **CRITICAL**: This file must contain ACTUAL CODE PATTERNS from the reference project.
-> Include real implementation with proper imports, types, and error handling.
-> NO pseudocode - show real, working code that enables 1:1 project generation.
+> **APPROACH**: Interface-first with code examples for complex logic only.
+> This file contains interfaces, behaviors, and patterns - NOT full code dumps.
+> LLMs can generate standard patterns; we store only what's unique or complex.
 
 ## File Structure Overview
 
@@ -22,25 +22,113 @@
 
 ### [Module 1: filename.ext]
 
-**Purpose**: [what this module does]
+**Purpose**: [1-2 sentence description of what this module does]
 
-**Responsibilities**:
-- [responsibility 1]
-- [responsibility 2]
-- [responsibility 3]
-
-**Key Functions/Methods**:
-- `[function_signature]` - [description]
-- `[function_signature]` - [description]
-
-**Code Pattern**:
+**Interface** (ALL methods, not just main ones):
 ```[language]
-[PASTE ACTUAL CODE - 20-60 lines showing real implementation]
+[Class definitions, function signatures, type definitions - include ALL methods]
+class ServiceName:
+    def __init__(self, param: Type):
+        """Initialization logic"""
+
+    def method_name(self, param: Type) -> ReturnType:
+        """Method description"""
+
+    def _private_method(self, param: Type):
+        """Even private methods"""
 ```
 
-**Dependencies**: [list packages]
-**Environment Variables**: [list vars if any]
-**Integration**: [what this calls / what calls this]
+**Complete Flow** (for complex modules):
+1. Step 1: Detailed description
+2. Step 2: Detailed description
+3. For loops/branches:
+   - Condition A: What happens
+   - Condition B: What happens
+4. Step 4: Continue until complete algorithm is described
+
+**All Behaviors** (complete list, not just key ones):
+- Behavior 1: Full description including edge cases
+- Behavior 2: Full description including performance notes
+- Behavior 3: etc.
+- Edge case: How X is handled
+- Edge case: How Y is handled
+- Optimization: Why Z is done this way
+
+**Dependencies** (with WHY):
+- library1 - used for X functionality
+- library2 - used for Y functionality
+
+**Error Handling** (complete description):
+- Error type 1: How it's caught and handled
+- Error type 2: How it's caught and handled
+- Logging: What gets logged where
+- Recovery: How errors are recovered from
+
+**Integration Points**:
+- Calls: What services/modules this calls
+- Called by: What calls this service
+- Data flow: Input/output patterns
+
+**State Management** (if stateful):
+- State tracked: List what state is maintained
+- Initialization: How state is set up
+- Updates: How state changes
+- Persistence: How state is stored (if applicable)
+
+**Performance Considerations** (if applicable):
+- Caching: What is cached and why
+- Async: What runs asynchronously
+- Pooling: Connection/thread pools used
+- Timeouts: Timeout values and handling
+
+**Constants and Configuration** (if any):
+```
+CONSTANT_NAME = value  # explanation with units/meaning
+CONFIG_DEFAULT = value  # why this default
+MAGIC_NUMBER = value  # what it represents
+```
+
+**Template Strings** (if any - INCLUDE FULL TEXT):
+```
+TEMPLATE_NAME = """
+[Complete template text with {placeholders}]
+"""
+```
+
+**Detailed Iteration Logic** (if applicable):
+```
+Loop/Recursion mechanism:
+- Start condition: ...
+- Loop while: ...
+- Each iteration:
+  1. ...
+  2. ...
+- State updates: ...
+- Base case: ...
+- Return: ...
+```
+
+**Advanced Error Patterns** (if applicable):
+```
+Error handling by type:
+- "pattern" in error:
+  → Detection: ...
+  → Response: ...
+  → Recovery: ...
+```
+
+**Algorithm Details** (if complex logic present):
+```
+Algorithm name:
+1. Step with formula/logic
+2. Step with conditions
+3. etc.
+```
+
+**[Code Example]** (ONLY if complex/non-standard):
+```[language]
+[Full code for complex logic only - not standard CRUD]
+```
 
 ---
 
@@ -48,115 +136,134 @@
 
 **Purpose**: [what this module does]
 
-**Responsibilities**:
-- [responsibility 1]
-- [responsibility 2]
-
-**Key Functions/Methods**:
-- `[function_signature]` - [description]
-
-**Code Pattern**:
+**Interface** (ALL methods):
 ```[language]
-[PASTE ACTUAL CODE]
+[All signatures, interfaces, types - include private methods too]
 ```
 
-**Dependencies**: [list packages]
-**Environment Variables**: [list vars if any]
+**Complete Flow** (if complex) / **All Behaviors** (if simpler):
+- [Complete description of algorithm OR full behavior list]
 
----
+**Dependencies** (with WHY):
+- [library] - [purpose]
 
-### [Module 3: filename.ext]
+**Error Handling** (complete):
+- [Error types and handling]
 
-**Purpose**: [what this module does]
+**Integration Points**: [What it calls, what calls it]
 
-**Endpoints** (if API routes):
-- `[METHOD] [/path]` - [description]
-- `[METHOD] [/path]` - [description]
+**Constants and Configuration** (if any): [List with explanations]
 
-**Code Pattern**:
-```[language]
-[PASTE ACTUAL CODE]
-```
+**Template Strings** (if any): [Include full text]
 
-**Dependencies**: [list packages]
-**Integration**: [calls which services]
+**Iteration Logic** (if applicable): [Loop/recursion details]
+
+**Advanced Error Patterns** (if applicable): [Error type mapping]
+
+**Algorithm Details** (if complex): [Pseudocode for algorithms]
 
 ---
 
 ## Frontend Modules
 
-### [Module 4: ComponentName.ext]
+### [Module 3: ComponentName.tsx]
 
 **Purpose**: [what this component does]
 
-**Props/Interface**:
-```[language]
-[PASTE ACTUAL INTERFACE/PROPS TYPE]
+**Interface**:
+```typescript
+interface ComponentProps {
+  propName: Type;
+  onEvent: (param: Type) => void;
+}
+
+export function ComponentName(props: ComponentProps): JSX.Element
 ```
 
-**Code Pattern**:
-```[language]
-[PASTE ACTUAL COMPONENT CODE - 30-60 lines]
-```
+**Complete Flow** (if complex rendering logic):
+1. [Step-by-step description of component lifecycle]
 
-**Dependencies**: [list packages]
-**State Management**: [approach used]
-**Styling**: [approach used]
+**All Behaviors**:
+- Behavior 1: [description]
+- Behavior 2: [description]
+- Keyboard shortcuts: [if applicable]
+- Edge cases: [how handled]
+
+**Dependencies** (with WHY): [list hooks, libraries with purpose]
+
+**State Management**: [approach - useState, custom hook, context]
+
+**Integration Points**: [What it calls, parent components, child components]
+
+**Performance Considerations** (if applicable):
+- Memoization: [what and why]
+- Lazy loading: [if applicable]
+- Debouncing: [if applicable]
+
+**Constants** (if any): [Component-level constants]
+
+**Template Strings** (if any): [UI text templates, format strings]
+
+**[Code Example]** (ONLY if complex):
+```typescript
+[Complex logic only - e.g., keyboard navigation, SSE processing]
+```
 
 ---
 
-### [Module 5: filename.ext]
+### [Module 4: CustomHook.ts]
 
-**Purpose**: [what this module does]
+**Purpose**: [what this hook provides]
 
-**Exported Functions**:
-- `[function_signature]` - [description]
-- `[function_signature]` - [description]
-
-**Code Pattern**:
-```[language]
-[PASTE ACTUAL CODE]
+**Interface**:
+```typescript
+function useCustomHook(param: Type): {
+  state1: Type;
+  state2: Type;
+  method: () => void;
+}
 ```
 
-**Dependencies**: [list packages]
-**Environment Variables**: [list vars if any]
+**Complete Flow**: [Hook lifecycle: initialization → updates → cleanup]
+
+**All Behaviors**:
+- [behavior 1]
+- [behavior 2]
+- [edge cases]
+
+**Dependencies** (with WHY): [list with purpose]
+
+**State Management**: [How state is tracked and updated]
+
+**Performance Considerations** (if applicable):
+- Dependency arrays: [optimization strategy]
+- Cleanup: [cleanup logic]
+
+**[Code Example]** (if non-standard pattern):
+```typescript
+[Complex hook logic if needed]
+```
 
 ---
 
 ## Database/Data Layer
 
-### [Module 6: filename.ext]
+### [Module 5: Models/Schema]
 
-**Purpose**: [what this module does]
+**Purpose**: [database models/schema definition]
 
-**Schema/Fields**:
-- [field]: [type] - [description]
-- [field]: [type] - [description]
-
-**Code Pattern**:
+**Interface**:
 ```[language]
-[PASTE ACTUAL CODE showing model/schema definition]
+[Schema definition, table structure, relationships]
 ```
 
-**Database**: [database type and ORM]
-**Migrations**: [migration tool and location]
+**Key Entities**:
+- Entity1: [fields and purpose]
+- Entity2: [fields and purpose]
 
----
+**Relationships**: [how entities relate]
 
-## Utility Modules
-
-### [Module 7: filename.ext]
-
-**Purpose**: [what this module provides]
-
-**Exported Functions**:
-- `[function_signature]` - [description]
-- `[function_signature]` - [description]
-
-**Code Pattern**:
-```[language]
-[PASTE ACTUAL UTILITY FUNCTIONS]
-```
+**Migrations**: [tool and location]
 
 ---
 
@@ -166,54 +273,102 @@
 
 | Capability | Backend Implementation | Frontend Implementation |
 |------------|----------------------|------------------------|
-| [capability_1] | [file:function] | [file:component] |
-| [capability_2] | [file:function] | [file:component] |
-| [capability_3] | [file:function] | [file:component] |
+| [capability_1] | [file.py:ClassName.method] | [Component.tsx] |
+| [capability_2] | [file.py:function] | [Hook.ts:useHook] |
+| [capability_3] | [file.py:ClassName] | [Component.tsx] |
+
+---
+
+## Error Handling Patterns
+
+**Backend Pattern**:
+```python
+# Standard error handling across services
+try:
+    # Operation
+    conn.commit()
+except Exception as e:
+    conn.rollback()
+    logger.error(f"Error: {e}")
+    return {'error': str(e)}
+finally:
+    # Cleanup
+```
+
+**Frontend Pattern**:
+```typescript
+// Standard error handling in components
+try {
+  await apiCall();
+} catch (error) {
+  setError(error.message);
+  toast.error(error.message);
+}
+```
+
+---
+
+## Security Patterns
+
+**Backend**:
+- Authentication: [JWT, session, OAuth - describe pattern]
+- Authorization: [Role-based, claims - describe pattern]
+- Input Validation: [Approach used]
+- SQL Injection Prevention: [Parameterized queries, ORM]
+- Password Security: [Hashing algorithm, salt]
+
+**Frontend**:
+- Token Storage: [localStorage, httpOnly cookie]
+- XSS Prevention: [Sanitization approach]
+- CSRF Protection: [Token approach]
+
+**Code Example** (if complex auth flow):
+```[language]
+[Show complex security implementation if non-standard]
+```
 
 ---
 
 ## Integration Points
 
 **Backend → Database**:
-- Connection: [approach]
-- ORM: [tool]
+- Connection: [pool, direct]
+- ORM: [tool if used]
 - Migrations: [tool and location]
 
 **Frontend → Backend**:
-- Protocol: [protocol]
-- Auth: [auth approach]
-- Real-time: [approach if any]
+- Protocol: [REST, GraphQL, WebSocket]
+- Auth: [Bearer token, session cookie]
+- Real-time: [SSE, WebSocket, polling]
 
 **Backend → External Services**:
-- [Service]: [integration details]
-- [Service]: [integration details]
-
----
-
-## Error Handling Patterns
-
-**Backend**:
-```[language]
-[PASTE ACTUAL ERROR HANDLING CODE]
-```
-
-**Frontend**:
-```[language]
-[PASTE ACTUAL ERROR HANDLING CODE]
-```
+- [Service]: [integration pattern]
+- [Service]: [integration pattern]
 
 ---
 
 ## Testing Patterns (if applicable)
 
-**Backend Tests** (location):
-```[language]
-[PASTE TEST EXAMPLE if critical]
-```
+**Backend Tests** (location: [path]):
+- Unit tests: [framework and approach]
+- Integration tests: [approach]
 
-**Frontend Tests** (location):
-```[language]
-[PASTE TEST EXAMPLE if critical]
-```
+**Frontend Tests** (location: [path]):
+- Component tests: [framework]
+- Hook tests: [approach]
 
 ---
+
+**NOTES**:
+- **Interface signatures should list ALL methods** (including private ones), not just main methods
+- **Complete Flow section**: Use for complex modules - describe step-by-step algorithm
+- **All Behaviors**: Complete list including edge cases, not just "key" behaviors
+- **Constants**: Include module-level constants with explanations and units
+- **Template Strings**: Include FULL TEXT of large strings (prompts, templates, etc.) - exception to "no code" rule
+- **Iteration Logic**: For loops/recursion, describe conditions, state updates, base cases
+- **Advanced Error Patterns**: Map error types to detection/response/recovery
+- **Algorithm Details**: Pseudocode for complex, non-obvious algorithms
+- Keep actual names from codebase (no placeholders like "MyService")
+- Standard patterns (CRUD, basic React, JWT auth) = descriptions only
+- Complex patterns (streaming, custom algorithms, integrations) = full code if needed
+- **Mark sections as "N/A" or omit if not applicable** (e.g., simple utility functions don't need iteration logic)

@@ -78,8 +78,3 @@ build:
   commands:
     - [Build command 1]  # e.g., "npm run build"
     - [Build command 2]  # e.g., "docker build -t project:latest ."
-
-# Smoke test - critical for validating generated projects
-smoke_test:
-  command: [smoke test command]  # e.g., "npm run smoke" or "./scripts/smoke-test.sh"
-  description: [what it verifies]  # e.g., "Verifies backend starts, frontend builds, API responds"

@@ -40,10 +40,10 @@ Example:
 ```
 
 This command:
-1. Runs universal scanner with 8 specialized extractors
-2. Generates structured YAML documentation
-3. Creates markdown files (business.md, architecture.md)
-4. Validates KB entry completeness
+1. Uses task-based workflow to break scan into manageable steps
+2. Runs file discovery to classify files by importance (tier1/tier2/tier3)
+3. Extracts code patterns in small batches (8 files at a time)
+4. Generates 7 KB files (meta.yaml, README.md, modules.md, tech.md, architecture.md, deployment.md, uiDescription.md)
 5. Outputs to `docs/kb/projects/<project-id>/`
 
 ### Direct Script Usage
@@ -74,12 +74,11 @@ The project uses a pure 1:1 generation approach from KB documentation:
 
 ### Key Components
 
-- `scripts/kb/scan_repo_universal.py` - Universal KB scanner with 8 specialized extractors
-- `scripts/kb/extract_*.py` - 8 specialized extractors for KB documentation
-- `scripts/kb/validate_kb.py` - KB validation script
+- `scripts/kb/file_discovery.py` - Classifies repository files into tier1/tier2/tier3 by importance
 - `scripts/kb/generate_from_kb.py` - Legacy generator (DEPRECATED - use agent workflow instead)
 - `scripts/new-project` - Bash wrapper (DEPRECATED - use /create skill instead)
 - `docs/kb/projects/*/meta.yaml` - KB project metadata
+- `docs/kb/projects/_template/` - Templates for KB documentation files
 
 ### Agents & Skills
 
@@ -90,8 +89,11 @@ The project uses a pure 1:1 generation approach from KB documentation:
 
 **Scanning Workflow**:
 - `.claude/skills/scan/SKILL.md` - Entry point for `/scan` command
-- `.claude/agents/kb-repo-scanner.md` - Scans repositories and creates KB entries
-- `.claude/agents/kb-project-writer.md` - Writes KB documentation
+- `.claude/agents/kb-repo-scanner.md` - Scans repositories using task-based workflow:
+  - Creates structured task list for each scan step
+  - Executes tasks sequentially (file discovery → KB file generation → verification)
+  - Extracts code patterns in small batches to avoid memory issues
+  - Generates all 7 KB documentation files
 
 **Infrastructure**:
 - `.claude/agents/generator-engineer.md` - Implements generator pipeline features (you are here)

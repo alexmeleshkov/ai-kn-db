@@ -5,7 +5,7 @@ argument-hint: "<project description>"
 allowed-tools: Task, Read, Bash, TaskCreate, TaskUpdate
 ---
 
-You are the `/create` skill orchestrator. You coordinate between kb-generation-coordinator (planning) and kb-code-generator (execution) to generate a complete project.
+You are the `/create` skill orchestrator. You coordinate between kb-generation-coordinator (planning), specialized code generators (backend-code-generator, frontend-code-generator), and code-validator to generate a complete project.
 
 ## Input
 
@@ -46,7 +46,7 @@ Return the following:
 Read .claude/tmp/generation-tasks.yaml
 ```
 
-### Phase 2: Execution (Generator + Validator Working in Pair)
+### Phase 2: Execution (Specialized Generators + Validator Working in Pair)
 
 For each task in the task plan (typically 5-7 tasks depending on Task 3 splitting):
 
@@ -55,11 +55,12 @@ For each task in the task plan (typically 5-7 tasks depending on Task 3 splittin
 TaskUpdate(taskId: N, status: "in_progress")
 ```
 
-**Step 4**: Spawn kb-code-generator to execute the task:
+**Step 4**: Spawn appropriate code generator based on task phase:
 
+**For backend code tasks** (phase: "code", backend files):
 ```
 Task(
-  subagent_type: "kb-code-generator",
+  subagent_type: "backend-code-generator",
   description: "Execute task N: <task name>",
   prompt: "Execute this task from the generation plan:
 
@@ -73,54 +74,117 @@ WORKING DIRECTORY:
 [Output directory from coordinator]
 
 Instructions:
-1. Read full KB files as needed (paths provided in task)
-2. Generate all files specified in task outputs
-3. Follow KB patterns exactly (1:1 fidelity)
+1. Read tech.md to understand backend stack (Python/FastAPI, Node/Express, Go/Gin, etc.)
+2. Read modules.md for complete specifications (interfaces, flows, behaviors)
+3. Generate all backend files specified in task outputs
+4. Follow KB patterns exactly (1:1 fidelity)
+5. Apply framework conventions (FastAPI, Express, Django, etc.)
+6. Write files to WORKING_DIRECTORY
+7. Report completion with list of files created"
+)
+```
+
+**For frontend code tasks** (phase: "code", frontend files):
+```
+Task(
+  subagent_type: "frontend-code-generator",
+  description: "Execute task N: <task name>",
+  prompt: "Execute this task from the generation plan:
+
+TASK SPECIFICATION:
+[Copy full task YAML from plan]
+
+KB PROJECT PATH:
+[KB base path from coordinator]
+
+WORKING DIRECTORY:
+[Output directory from coordinator]
+
+Instructions:
+1. Read tech.md to understand frontend stack (React, Vue, Angular, Svelte, etc.)
+2. Read modules.md and uiDescription.md for component specifications
+3. Generate all frontend files specified in task outputs
+4. Follow KB patterns exactly (1:1 fidelity)
+5. Apply framework conventions (React hooks, Vue composables, etc.)
+6. Write files to WORKING_DIRECTORY
+7. Report completion with list of files created"
+)
+```
+
+**For structure/config/deployment/documentation tasks**:
+```
+Task(
+  subagent_type: "backend-code-generator",
+  description: "Execute task N: <task name>",
+  prompt: "Execute this task from the generation plan:
+
+TASK SPECIFICATION:
+[Copy full task YAML from plan]
+
+KB PROJECT PATH:
+[KB base path from coordinator]
+
+WORKING DIRECTORY:
+[Output directory from coordinator]
+
+Instructions:
+1. Read relevant KB files (tech.md, deployment.md, meta.yaml)
+2. Generate files as specified (directories, configs, docker files, README)
+3. Follow KB specifications exactly
 4. Write files to WORKING_DIRECTORY
 5. Report completion with list of files created"
 )
 ```
 
-**Step 5**: After generator completes, spawn coordinator to validate:
+**Step 5**: After generator completes, spawn code-validator to validate:
 
 ```
 Task(
-  subagent_type: "kb-generation-coordinator",
+  subagent_type: "code-validator",
   description: "Validate task N output",
   prompt: "Validate that task N was completed correctly:
 
 TASK SPECIFICATION:
 [Copy full task YAML from plan]
 
+GENERATED FILES:
+[List of files generator reported creating]
+
 KB PROJECT PATH:
-[KB base path]
+[KB base path from coordinator]
 
-OUTPUT DIRECTORY:
-[Output directory]
+WORKING DIRECTORY:
+[Output directory from coordinator]
 
-GENERATOR REPORTED:
-[What generator said it created]
+Validation steps:
+1. FILE EXISTENCE: Check all expected files exist
+2. SYNTAX CHECK: Run language-specific syntax checkers (python -m py_compile, tsc --noEmit, etc.)
+3. INTERFACE COMPLETENESS: Verify all methods from KB specs are implemented (use grep)
+4. DEPENDENCIES: Check all imports present
+5. ERROR HANDLING: Verify error handling patterns present
+6. INTEGRATION POINTS: Check service connections
+7. PATTERN COMPLIANCE: Verify framework conventions followed
+8. PLACEHOLDER CHECK: Ensure no TODO/FIXME/NotImplementedError
+9. FILE SIZE CHECK: Verify files aren't suspiciously small
 
-Your validation job:
-1. Check that ALL files in task outputs exist
-2. Verify files are not empty
-3. For code tasks: Check imports/syntax are reasonable
-4. Compare against acceptance criteria
-5. Report: PASS or FAIL with specific issues
-
-Return one of:
-- VALIDATION PASSED: All acceptance criteria met
-- VALIDATION FAILED: [Specific issues found]"
+Return detailed validation report with:
+- VALIDATION REPORT: <Domain> <Task Name>
+- Each check: ✅ PASS | ❌ FAIL | ⚠️ PARTIAL
+- OVERALL: ✅ PASS | ❌ FAIL
+- If FAIL: Specific issues with file:line references
+- If FAIL: Recommended actions for fixing"
 )
 ```
 
 **Step 6**: Based on validation result, update task status:
 ```
-If validation says "PASSED":
+If validator returns "OVERALL: ✅ PASS":
   TaskUpdate(taskId: N, status: "completed")
-Else:
+Else if validator returns "OVERALL: ❌ FAIL":
   TaskUpdate(taskId: N, status: "failed")
-  Report failure to user and stop (or retry if possible)
+  Report validation failures to user
+  Option 1: Stop and let user decide
+  Option 2: Retry task with fixes (if issues are clear)
 ```
 
 **Step 7**: Repeat steps 3-6 for all tasks in dependency order
@@ -149,16 +213,30 @@ Quick Start:
 - DO NOT execute tasks ❌
 - DO NOT generate code ❌
 
-**Generator's Role**:
-- Execute ONE task at a time ✅
-- Generate code following KB patterns ✅
-- Report completion ✅
+**Backend-Code-Generator's Role**:
+- Generate backend code (Python, Node, Go, Rust, Java, C#, Ruby, PHP) ✅
+- Adapt to framework (FastAPI, Express, Django, Gin, etc.) ✅
+- Follow KB patterns exactly (1:1 fidelity) ✅
+- Execute structure/config/deployment tasks ✅
+
+**Frontend-Code-Generator's Role**:
+- Generate frontend code (React, Vue, Angular, Svelte, Solid, etc.) ✅
+- Adapt to framework conventions (hooks, composables, etc.) ✅
+- Follow KB UI specifications ✅
+
+**Code-Validator's Role**:
+- Validate all generated files ✅
+- Run syntax checks (compile checks) ✅
+- Verify interface completeness ✅
+- Check dependencies, error handling, patterns ✅
+- Report PASS/FAIL with specific issues ✅
 
 **Your Role (Skill)**:
 - Spawn coordinator for planning
 - Read task plan
-- Spawn generator for each task (sequential)
-- Coordinate task status updates
+- Spawn appropriate generator for each task based on task type
+- Spawn validator after each generation
+- Update task status based on validation
 - Report final results
 
 ## Error Handling
@@ -171,6 +249,12 @@ If generator fails on a task:
 - Mark task as failed
 - Report which task failed and why
 - Suggest manual completion or retry
+
+If validator fails on a task:
+- Report specific validation failures (file missing, syntax errors, etc.)
+- Option 1: Stop and show user the issues
+- Option 2: Create fix task for generator to address issues
+- Option 3: Ask user if they want to continue despite failures
 
 ## Example Flow
 
@@ -187,18 +271,38 @@ Skill:
   2. Skill reads task plan
 
   3. For task 1 (Create directories):
-     → Skill spawns generator with task 1 spec
+     → Skill spawns backend-code-generator with task 1 spec
      → Generator creates directory structure
-     → Generator returns
+     → Skill spawns code-validator
+     → Validator checks directories exist
+     → Validator returns PASS
      → Skill marks task 1 completed
 
   4. For task 2 (Generate configs):
-     → Skill spawns generator with task 2 spec
+     → Skill spawns backend-code-generator with task 2 spec
      → Generator creates requirements.txt, package.json, etc.
-     → Generator returns
+     → Skill spawns code-validator
+     → Validator checks files exist, syntax valid
+     → Validator returns PASS
      → Skill marks task 2 completed
 
-  5. ... continues for all 7 tasks
+  5. For task 3 (Generate backend code):
+     → Skill spawns backend-code-generator with task 3 spec
+     → Generator creates 8 Python files with FastAPI patterns
+     → Skill spawns code-validator
+     → Validator runs py_compile, checks interfaces, checks imports
+     → Validator returns PASS
+     → Skill marks task 3 completed
+
+  6. For task 4 (Generate frontend code):
+     → Skill spawns frontend-code-generator with task 4 spec
+     → Generator creates React 18 + TypeScript components
+     → Skill spawns code-validator
+     → Validator runs tsc --noEmit, checks hooks, checks types
+     → Validator returns PASS
+     → Skill marks task 4 completed
+
+  7. ... continues for remaining tasks
 
   6. Skill reports success with project location
 ```
@@ -207,12 +311,34 @@ Skill:
 
 ```
 User → /create skill (YOU - the orchestrator)
-         ├─→ kb-generation-coordinator (planning phase only)
-         │   └─→ Returns task plan
          │
-         └─→ For each task:
-             └─→ kb-code-generator (execution)
-                 └─→ Returns with files created
+         ├─→ Phase 1: Planning
+         │   └─→ kb-generation-coordinator
+         │       └─→ Returns: task plan, output directory, matched KB
+         │
+         └─→ Phase 2: Execution (for each task)
+             │
+             ├─→ Step A: Generate Code
+             │   ├─→ backend-code-generator (for backend tasks)
+             │   │   └─→ Returns: files created (Python/FastAPI, Node/Express, etc.)
+             │   │
+             │   ├─→ frontend-code-generator (for frontend tasks)
+             │   │   └─→ Returns: files created (React, Vue, Angular, etc.)
+             │   │
+             │   └─→ backend-code-generator (for config/deployment/docs tasks)
+             │       └─→ Returns: files created
+             │
+             └─→ Step B: Validate Code
+                 └─→ code-validator
+                     └─→ Returns: PASS/FAIL with validation report
 ```
 
-This matches how tech-lead and generator-engineer work together - the main session coordinates between specialized agents.
+**Workflow Summary**:
+1. Coordinator plans (matches KB, creates tasks)
+2. For each task:
+   - Specialized generator creates files
+   - Validator checks completeness and correctness
+   - Task marked completed or failed
+3. Final report to user
+
+This matches how tech-lead and specialized engineers work together - the main session coordinates between domain experts.
