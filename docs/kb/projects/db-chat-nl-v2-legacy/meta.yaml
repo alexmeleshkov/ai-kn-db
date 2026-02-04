@@ -1,0 +1,103 @@
+# KB Project Metadata
+# Used by: generator matching and validation
+
+# ============================================================================
+# IDENTIFICATION
+# ============================================================================
+
+id: db-chat-nl-v2
+# Unique identifier (lowercase, hyphens only)
+
+name: Database Chat with Natural Language (v2)
+# Human-readable name
+
+description: Chat interface for querying databases using natural language with AI-powered SQL generation, multi-database support, and learning system
+# Brief summary, max 200 chars
+
+status: reference
+# Options: draft | stable | deprecated | reference
+
+# ============================================================================
+# TECHNOLOGY STACK
+# ============================================================================
+
+# Major technologies (top 5-8) - used for matching user requirements
+technologies:
+  - React 18
+  - TypeScript
+  - FastAPI
+  - PostgreSQL
+  - Anthropic Claude API
+  - DuckDB
+  - Azure SQL
+  - JWT Authentication
+  - Docker
+
+# ============================================================================
+# CAPABILITIES (What the project does)
+# ============================================================================
+
+# Core capabilities - used for matching user requirements to KB entries
+# Each capability should have implementation details in modules.md
+capabilities:
+  - user_authentication  # JWT-based auth with bcrypt password hashing
+  - nl_to_sql_generation  # Claude LLM with Tool Use for agentic SQL generation
+  - real_time_data_streaming  # Server-Sent Events for streaming responses
+  - data_visualization  # Chart visualization with Recharts (bar, line, pie)
+  - database_schema_introspection  # Dynamic schema discovery for PostgreSQL, Azure SQL, DuckDB
+  - multi_database_support  # PostgreSQL, Azure SQL, DuckDB with S3 integration
+  - conversation_management  # Full CRUD with PostgreSQL persistence
+  - query_learning_system  # Learned query patterns with usage tracking and LRU eviction
+  - admin_dashboard  # Cross-user conversation and user management
+  - file_upload  # JSON file upload and loading into DuckDB
+  - s3_integration  # S3 file storage and loading
+  - markdown_rendering  # Message rendering with markdown support
+  - autocomplete_suggestions  # Input autocomplete for tables, columns, templates
+
+# ============================================================================
+# ARCHITECTURE
+# ============================================================================
+
+# Architecture pattern (from architecture.md)
+architecture_pattern: layered
+# Options: layered | microservices | mvc | modular_monolith | event_driven | hexagonal
+
+# ============================================================================
+# OPERATIONAL INFO (Run & Build)
+# ============================================================================
+
+# Prerequisites for running locally
+run:
+  prerequisites:
+    - Node.js >= 18.0.0
+    - Python >= 3.11
+    - PostgreSQL >= 14 (for app data and RDS queries)
+    - Docker >= 24.0 (optional)
+
+  env_vars:
+    - DATABASE_URL  # PostgreSQL connection for app data
+    - JWT_SECRET  # Secret for JWT token signing
+    - ANTHROPIC_API_KEY  # Claude API key for LLM
+    - CORS_ORIGINS  # Allowed CORS origins
+    - S3_BUCKET  # Optional S3 bucket for file storage
+    - S3_REGION  # Optional S3 region
+    - S3_ACCESS_KEY  # Optional S3 access key
+    - S3_SECRET_KEY  # Optional S3 secret key
+    - AZURE_SQL_HOST  # Optional Azure SQL host
+    - AZURE_SQL_DATABASE  # Optional Azure SQL database
+    - AZURE_SQL_USERNAME  # Optional Azure SQL username
+    - AZURE_SQL_PASSWORD  # Optional Azure SQL password
+    - SOCKS_PROXY  # Optional SOCKS proxy for Azure SQL
+
+  commands:
+    - cd frontend && npm install
+    - cd backend && pip install -r requirements.txt
+    - docker-compose up -d postgres  # Start PostgreSQL for app data
+    - cd backend && python -m app.main  # Start backend
+    - cd frontend && npm run dev  # Start frontend
+
+# Build commands (if different from run)
+build:
+  commands:
+    - cd frontend && npm run build
+    - docker build -t db-chat-nl-v2:latest .
