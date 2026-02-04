@@ -85,12 +85,22 @@ These optimizations prevent memory spikes and provide immediate user feedback.
 3. **Store KB Paths**: Save file paths for lazy loading (DO NOT read full files yet)
    - `kb_base_path`: `docs/kb/projects/[project-id]/`
    - `meta.yaml` - Already read during matching
-   - `modules.md` - Will read during task planning (Phase 2)
-   - `tech.md` - Will pass path to generator
+   - **NEW 3-TIER STRUCTURE**:
+     - `features.md` - Links to feature documentation (read during planning)
+     - `tech.md` - Links to technology documentation (read during planning)
+     - `custom-modules.md` - Project-specific CUSTOM patterns (read during planning)
+     - `docs/kb/features/*.md` - Feature implementation patterns (referenced from features.md)
+     - `docs/kb/technologies/*.md` - Technology usage patterns (referenced from tech.md)
    - `architecture.md` - Will pass path to generator
    - `deployment.md` - Will pass path to generator
    - `README.md` - Will pass path to generator
    - `uiDescription.md` - Will pass path to generator
+
+   **IMPORTANT**: The new structure separates patterns into:
+   - **Lightweight project files**: features.md and tech.md contain links only
+   - **Heavyweight feature files**: docs/kb/features/*.md contain complete FEATURE patterns
+   - **Heavyweight technology files**: docs/kb/technologies/*.md contain complete TECH patterns
+   - **Custom modules**: custom-modules.md contains project-specific CUSTOM patterns
 
 ### Phase 1.5: Create Output Directory
 
@@ -116,105 +126,118 @@ After matching KB project, create output directory for generated code:
    - All delegation messages must include this path
    - Generator agent receives this as WORKING_DIRECTORY
 
-### Phase 1.6: Feature Resolution (NEW - Feature-Based KB)
+### Phase 1.6: Feature Resolution
 
-**Purpose**: Check if project uses new feature-based KB structure and resolve feature links.
-
-**Check for new structure**:
-```bash
-# Check if features.md exists in project KB
-if [ -f "docs/kb/projects/[project-id]/features.md" ]; then
-  USE_FEATURES=true
-else
-  USE_FEATURES=false  # Fall back to modules.md
-fi
-```
-
-**If USE_FEATURES=true**:
+**Purpose**: Resolve feature and technology links from the 3-tier KB structure.
 
 1. **Read features.md**: Extract all feature links
    ```bash
-   grep -oP '\[.*?\]\(\.\./\.\./features/.*?\.md\)' docs/kb/projects/[project-id]/features.md
+   grep -oP '\[.*?\]\(\.\./\.\./features/[^)]+\.md\)' docs/kb/projects/[project-id]/features.md
    ```
    Example output:
    ```
-   [JWT Auth](../../features/authentication/jwt-bcrypt.md)
-   [SSE Chat](../../features/chat/sse-streaming.md)
+   [jwt-authentication.md](../../features/jwt-authentication.md)
+   [natural-language-sql.md](../../features/natural-language-sql.md)
+   [conversation-crud.md](../../features/conversation-crud.md)
    ```
 
-2. **Resolve feature paths**: Convert relative links to absolute paths
+2. **Read tech.md**: Extract all technology links
+   ```bash
+   grep -oP '\[.*?\]\(\.\./\.\./technologies/[^)]+\.md\)' docs/kb/projects/[project-id]/tech.md
    ```
-   ../../features/authentication/jwt-bcrypt.md → docs/kb/features/authentication/jwt-bcrypt.md
+   Example output:
+   ```
+   [fastapi.md](../../technologies/fastapi.md)
+   [postgresql.md](../../technologies/postgresql.md)
+   [react-hooks.md](../../technologies/react-hooks.md)
    ```
 
-3. **Store feature list**: Save for task planning
+3. **Resolve paths**: Convert relative links to absolute paths
+   ```
+   ../../features/jwt-authentication.md → docs/kb/features/jwt-authentication.md
+   ../../technologies/fastapi.md → docs/kb/technologies/fastapi.md
+   ```
+
+4. **Store feature and technology lists**: Save for task planning
    ```yaml
    kb_features:
-     - name: "JWT Auth"
-       path: "docs/kb/features/authentication/jwt-bcrypt.md"
-     - name: "SSE Chat"
-       path: "docs/kb/features/chat/sse-streaming.md"
+     - name: "JWT Authentication"
+       path: "docs/kb/features/jwt-authentication.md"
+     - name: "Natural Language SQL"
+       path: "docs/kb/features/natural-language-sql.md"
+   kb_technologies:
+     - name: "FastAPI"
+       path: "docs/kb/technologies/fastapi.md"
+     - name: "PostgreSQL"
+       path: "docs/kb/technologies/postgresql.md"
    ```
 
-4. **Also check for custom-modules.md**:
+5. **Also check for custom-modules.md**:
    - If exists: Project-specific code is in custom-modules.md
-   - If not exists: All code is in features (no custom code)
+   - If not exists: All code is in features/technologies (no custom code)
 
 **Store in task plan metadata**:
 ```yaml
 metadata:
-  kb_structure: features  # or "monolithic" for old structure
+  kb_structure: 3-tier
   kb_features: [list of feature paths]
+  kb_technologies: [list of technology paths]
   kb_custom_modules: "docs/kb/projects/[project-id]/custom-modules.md"  # or null
 ```
 
-**Backward Compatibility**:
-- If USE_FEATURES=false: Use old workflow (read modules.md)
-- Both structures work during migration period
-- Generators receive same context format regardless of source
-
 **Delegation to Generators**:
 
-When delegating to kb-code-generator (or backend/frontend-code-generator), include feature info in prompt:
+When delegating to kb-code-generator (or backend/frontend-code-generator), include KB structure info in prompt:
 
-**If USE_FEATURES=true**:
 ```
-KB STRUCTURE: features
+KB STRUCTURE: 3-tier (features + technologies + custom)
 KB BASE PATH: docs/kb/projects/[project-id]
 FEATURES FILE: docs/kb/projects/[project-id]/features.md
+TECH FILE: docs/kb/projects/[project-id]/tech.md
 CUSTOM MODULES: docs/kb/projects/[project-id]/custom-modules.md (if exists)
+FEATURE DOCS: docs/kb/features/ (linked from features.md)
+TECH DOCS: docs/kb/technologies/ (linked from tech.md)
 
 Instructions:
-1. Read features.md and extract feature links
-2. Load each linked feature from docs/kb/features/
-3. Load custom-modules.md (project-specific code)
-4. Merge features + custom into unified context
-5. Generate code from merged context
+1. Read features.md and extract feature links (../../features/*.md)
+2. Read tech.md and extract technology links (../../technologies/*.md)
+3. For each feature link, load the complete feature documentation from docs/kb/features/
+4. For each technology link, load the complete usage patterns from docs/kb/technologies/
+5. Load custom-modules.md for project-specific CUSTOM patterns (if exists)
+6. Merge features + technologies + custom into unified context
+7. Generate code from merged context (all patterns combined)
+
+IMPORTANT:
+- features.md and tech.md contain ONLY links, not implementation details
+- Actual patterns are in docs/kb/features/*.md and docs/kb/technologies/*.md
+- You MUST follow the links and load the heavyweight documentation files
+- If custom-modules.md doesn't exist, all code comes from features/technologies
 ```
 
-**If USE_FEATURES=false** (legacy):
-```
-KB STRUCTURE: monolithic
-KB BASE PATH: docs/kb/projects/[project-id]
-MODULES FILE: docs/kb/projects/[project-id]/modules.md
-
-Instructions:
-1. Read modules.md for all patterns
-2. Generate code from modules.md
-```
-
-**Result**: Generators handle feature resolution, coordinator just detects structure type
+**Result**: Generators handle feature resolution, coordinator just passes paths and structure info
 
 ### Phase 2: Create Task Plan (Incremental Reading)
 
 **IMPORTANT**: Read ONLY what's needed for planning, not full KB content.
 
 1. **Count Modules** (lightweight operation):
+
    ```bash
-   # Count modules without reading full file
-   grep -c "^### \|^\*\*Location\*\*:" docs/kb/projects/[project-id]/modules.md
+   # Count feature links
+   FEATURE_COUNT=$(grep -c '\.md](../../features/' docs/kb/projects/[project-id]/features.md)
+   # Count technology links
+   TECH_COUNT=$(grep -c '\.md](../../technologies/' docs/kb/projects/[project-id]/tech.md)
+   # Count custom modules (if exists)
+   if [ -f docs/kb/projects/[project-id]/custom-modules.md ]; then
+     CUSTOM_COUNT=$(grep -c "^## " docs/kb/projects/[project-id]/custom-modules.md)
+   else
+     CUSTOM_COUNT=0
+   fi
+   # Total module count (for splitting logic)
+   MODULE_COUNT=$((FEATURE_COUNT + TECH_COUNT + CUSTOM_COUNT))
    ```
-   Use module count to determine if Task 3 needs splitting (see "Task 3 Auto-Splitting Logic" section).
+
+   Use module count to determine if Task 3 needs splitting (see "Task 3 Logical Splitting Strategy" section).
 
 2. **Create Sub-Tasks IMMEDIATELY** (before any generation):
    Use TaskCreate to create all 7-9 generation tasks upfront so user sees full plan.
@@ -237,17 +260,18 @@ metadata:
 tasks:
   - id: 1
     name: "Create project directory structure"
-    description: "Extract all file paths from modules.md and create directory tree"
+    description: "Extract file paths from custom-modules.md and infer structure from features/tech"
     phase: structure
     kb_refs:
-      - "modules.md"
+      - "custom-modules.md"  # Contains project-specific file paths
+      - "features.md"  # Feature links (infer backend/frontend structure)
       - "architecture.md"
     inputs: []
     outputs:
-      - "Complete directory structure matching modules.md file paths"
+      - "Complete directory structure matching project architecture"
     acceptance_criteria:
-      - "All directories from modules.md created"
-      - "Directory structure matches KB exactly"
+      - "All directories from custom-modules.md created"
+      - "Directory structure matches architecture.md"
     status: pending
 
   - id: 2
@@ -269,25 +293,27 @@ tasks:
 
   - id: 3
     name: "Generate all code files"
-    description: "Create all code files using patterns from KB (modules.md OR features.md + custom-modules.md)"
+    description: "Create all code files using patterns from 3-tier KB structure"
     phase: code
     kb_refs:
-      - "modules.md"  # Legacy monolithic structure
-      - "features.md"  # NEW: Feature-based structure (links to features/)
-      - "custom-modules.md"  # NEW: Project-specific code patterns
-      - "features/**/*.md"  # NEW: Resolved feature documents
+      - "features.md"  # Links to feature patterns
+      - "tech.md"  # Links to technology patterns
+      - "custom-modules.md"  # Project-specific CUSTOM patterns
+      - "docs/kb/features/**/*.md"  # Heavyweight feature patterns
+      - "docs/kb/technologies/**/*.md"  # Heavyweight technology patterns
       - "architecture.md"
       - "uiDescription.md"
     inputs:
       - "Project structure"
       - "Configuration files"
     outputs:
-      - "All code files from modules.md created"
+      - "All code files from KB created"
       - "Code matches KB patterns verbatim"
     acceptance_criteria:
-      - "Every file listed in modules.md exists"
-      - "Code patterns match modules.md exactly"
+      - "Every file from custom-modules.md exists"
+      - "Code patterns match feature/tech docs exactly (1:1 fidelity)"
       - "UI matches uiDescription.md (if present)"
+      - "Architecture matches architecture.md boundaries"
     depends_on: [1, 2]
     status: pending
 
@@ -354,12 +380,20 @@ tasks:
 **Splitting Process**:
 
 1. **Analyze Project Structure** in Phase 2:
+
    ```bash
-   # Extract all file paths from modules.md
-   grep -oP "(?<=\*\*Location\*\*: ).*" modules.md > /tmp/file_list.txt
-   # OR
-   grep "^### " modules.md | cut -d' ' -f2 > /tmp/file_list.txt
+   # Extract file paths from custom-modules.md (CUSTOM patterns have file paths)
+   grep -oP "(?<=\*\*File\*\*: ).*" docs/kb/projects/[project-id]/custom-modules.md > /tmp/file_list.txt
+
+   # Infer backend/frontend split from feature names in features.md
+   grep -oP '(?<=features/)[^.]+' docs/kb/projects/[project-id]/features.md
+
+   # Infer technology stack from tech.md
+   grep -oP '(?<=technologies/)[^.]+' docs/kb/projects/[project-id]/tech.md
    ```
+
+   Note: Features and technologies are reusable patterns without specific file paths.
+   Project structure comes from custom-modules.md + inferred from architecture.
 
 2. **Identify Logical Boundaries** by examining file paths:
 
@@ -391,7 +425,12 @@ tasks:
    - id: 3a
      name: "Generate backend services"
      description: "Create backend API routes, services, and data models"
-     kb_refs: ["modules.md:backend-section"]
+     kb_refs:
+       - "features.md (links to backend features)"
+       - "docs/kb/features/*.md (jwt-authentication, conversation-crud, etc)"
+       - "tech.md (links to backend tech)"
+       - "docs/kb/technologies/*.md (fastapi, postgresql, etc)"
+       - "custom-modules.md:backend-section"
      module_paths:
        - "backend/app/api/"
        - "backend/app/services/"
@@ -401,7 +440,10 @@ tasks:
    - id: 3b
      name: "Generate frontend components"
      description: "Create React components and hooks"
-     kb_refs: ["modules.md:frontend-section"]
+     kb_refs:
+       - "tech.md (links to frontend tech)"
+       - "docs/kb/technologies/*.md (react-hooks, css, etc)"
+       - "custom-modules.md:frontend-section"
      module_paths:
        - "frontend/src/components/"
        - "frontend/src/hooks/"
@@ -410,7 +452,10 @@ tasks:
    - id: 3c
      name: "Generate frontend services"
      description: "Create API client and state management"
-     kb_refs: ["modules.md:frontend-services"]
+     kb_refs:
+       - "features.md (links to frontend features)"
+       - "docs/kb/features/*.md (real-time-chat, data-streaming, etc)"
+       - "custom-modules.md:frontend-services"
      module_paths:
        - "frontend/src/services/"
        - "frontend/src/store/"
@@ -473,22 +518,22 @@ tasks:
 
 **Decision Tree**:
 ```
-Analyze modules.md file paths:
+Analyze custom-modules.md file paths and features.md:
 
-Has backend/ AND frontend/?
+Has backend/ AND frontend/ in custom-modules.md?
   YES → Split: 3a=backend, 3b=frontend components, 3c=frontend services
 
-Has only backend/?
+Has only backend/ in custom-modules.md?
   YES → Split: 3a=API routes, 3b=services, 3c=models
 
-Has only frontend/?
+Has only frontend/ in custom-modules.md?
   YES → Split: 3a=pages/layouts, 3b=components, 3c=hooks/store
 
-Has mobile (ios/android/)?
+Has mobile (ios/android/) in custom-modules.md?
   YES → Split: 3a=shared, 3b=ios, 3c=android
 
-None of above?
-  → Split by directory depth or keep as single Task 3
+None of above (no custom-modules.md)?
+  → All code from features/technologies, split by logical groups
 ```
 
 **Benefits of Logical Splitting**:
@@ -500,44 +545,51 @@ None of above?
    ```yaml
    - id: 3a
      name: "Generate backend modules"
-     description: "Create backend code files (X modules)"
-     kb_refs: ["modules.md:backend-section"]
+     description: "Create backend code files (X features + Y custom)"
+     kb_refs:
+       - "features.md (backend feature links)"
+       - "docs/kb/features/*.md"
+       - "custom-modules.md:backend-section"
      depends_on: [2]
 
    - id: 3b
      name: "Generate frontend modules"
-     description: "Create frontend code files (Y modules)"
-     kb_refs: ["modules.md:frontend-section"]
+     description: "Create frontend code files (A technologies + B custom)"
+     kb_refs:
+       - "tech.md (frontend tech links)"
+       - "docs/kb/technologies/*.md"
+       - "custom-modules.md:frontend-section"
      depends_on: [2]
 
    - id: 3c
      name: "Generate shared modules"
-     description: "Create shared/utility code (Z modules)"
-     kb_refs: ["modules.md:shared-section"]
+     description: "Create shared/utility code (Z custom)"
+     kb_refs:
+       - "custom-modules.md:shared-section"
      depends_on: [2]
    ```
 
-4. **If > 50 modules OR any category > 20**: Count-based chunking
-   - Split modules into chunks of 15-20
+4. **If > 50 total modules OR any category > 20**: Count-based chunking
+   - Split into chunks of 15-20 features/technologies
    - Sequential execution (each depends on previous)
    ```yaml
    - id: 3a
      name: "Generate code files (Part 1/4)"
-     description: "Create modules 1-15"
-     kb_refs: ["modules.md:lines 1-200"]
+     description: "Create first 15 features/custom modules"
+     kb_refs:
+       - "features.md (first 10 links)"
+       - "docs/kb/features/*.md (first 10)"
+       - "custom-modules.md (first 5 sections)"
      depends_on: [2]
 
    - id: 3b
      name: "Generate code files (Part 2/4)"
-     description: "Create modules 16-30"
-     kb_refs: ["modules.md:lines 201-400"]
+     description: "Create next 15 features/custom modules"
+     kb_refs:
+       - "features.md (next 10 links)"
+       - "docs/kb/features/*.md (next 10)"
+       - "custom-modules.md (next 5 sections)"
      depends_on: [3a]
-
-   - id: 3c
-     name: "Generate code files (Part 3/4)"
-     description: "Create modules 31-45"
-     kb_refs: ["modules.md:lines 401-600"]
-     depends_on: [3b]
    ```
 
 **Task Numbering After Split**:
@@ -547,10 +599,11 @@ None of above?
 - Update dependencies: Task 4 now depends on [3a, 3b, 3c] instead of [3]
 
 **Context Extraction for Sub-Tasks**:
-- Each sub-task receives ONLY its relevant modules from modules.md
-- Use grep/sed to extract specific sections
+- Each sub-task receives ONLY its relevant feature/tech/custom patterns
+- Use grep/sed to extract specific sections from custom-modules.md
+- Provide feature/technology links relevant to the sub-task
 - Include 10-20 lines of context before/after for imports/dependencies
-- Generator still has access to full modules.md via file path
+- Generator has access to full KB files via file paths
 
 **Progress Reporting**:
 - Update task count dynamically: [1/7] or [1/9] depending on split
@@ -700,9 +753,10 @@ For each task (in dependency order):
 When delegating tasks, use **streaming extraction** to avoid loading large files:
 
 **For Task 1 (Structure)**:
-- Command: `grep "^### \|^\*\*Location\*\*:" modules.md | head -100`
-- Extract: File paths only (not code patterns)
+- Command: `grep "^\*\*File\*\*:" custom-modules.md | head -100`
+- Extract: File paths from CUSTOM patterns only
 - Result: 50-100 lines maximum
+- Note: Features/tech patterns don't contain file paths (reusable)
 
 **For Task 2 (Config)**:
 - Command: `sed -n '/^## Dependencies/,/^## /p' tech.md | head -80`
@@ -711,31 +765,33 @@ When delegating tasks, use **streaming extraction** to avoid loading large files
 - Result: 50-80 lines maximum
 
 **For Task 3 (Code - AUTO-SPLIT WITH STREAMING)**:
-- **Task splitting happens in Phase 2** using "Task 3 Auto-Splitting Logic"
+- **Task splitting happens in Phase 2** using "Task 3 Logical Splitting Strategy"
 - **Streaming commands for extraction**:
   ```bash
-  # Extract specific module range (example for backend modules)
-  sed -n '/^### backend/,/^### frontend/p' modules.md | head -200
+  # Extract backend custom patterns
+  sed -n '/^## Backend/,/^## Frontend/p' custom-modules.md | head -200
 
-  # Extract by line ranges for count-based split
-  sed -n '1,200p' modules.md  # Part 1
-  sed -n '201,400p' modules.md  # Part 2
+  # Extract frontend custom patterns
+  sed -n '/^## Frontend/,/^## Shared/p' custom-modules.md | head -200
 
-  # Extract specific module by name
-  sed -n '/^### backend\/main.py/,/^### /p' modules.md | head -50
+  # Extract feature links for backend
+  grep -E 'features/(jwt-authentication|conversation-crud|natural-language-sql)' features.md
+
+  # Extract technology links for frontend
+  grep -E 'technologies/(react-hooks|css|sse)' tech.md
   ```
-- **If NOT split (< 15 modules)**: Extract all module headers + first pattern of each
-  - Command: `grep -A 10 "^### " modules.md`
-  - Result: 150-200 lines max
-- **If semantically split (15-50 modules)**: Stream category-specific sections
-  - Task 3a (backend): `sed -n '/^### backend/,/^### frontend/p' modules.md`
-  - Task 3b (frontend): `sed -n '/^### frontend/,/^### lib/p' modules.md`
-  - Task 3c (shared): `sed -n '/^### lib/,/^### END/p' modules.md`
+- **If NOT split (< 15 total)**: Extract all links and custom patterns
+  - Command: `cat features.md tech.md custom-modules.md | head -300`
+  - Result: 200-300 lines max
+- **If semantically split (15-50 total)**: Stream category-specific sections
+  - Task 3a (backend): Backend feature links + backend custom patterns
+  - Task 3b (frontend): Frontend tech links + frontend custom patterns
+  - Task 3c (shared): Shared custom patterns
   - Result: 150-200 lines per sub-task
-- **If count-split (> 50 modules)**: Use line ranges
-  - Task 3a: `sed -n '1,250p' modules.md`
-  - Task 3b: `sed -n '251,500p' modules.md`
-  - Result: 200-250 lines per sub-task
+- **If count-split (> 50 total)**: Split by feature/tech/custom groups
+  - Task 3a: First 15 feature links + docs/kb/features/ files
+  - Task 3b: Next 15 feature links + docs/kb/features/ files
+  - Result: Feature links + generator loads heavyweight docs
 
 **For Task 4 (Deployment)**:
 - Command: `head -150 deployment.md` (usually small file)
@@ -746,26 +802,32 @@ When delegating tasks, use **streaming extraction** to avoid loading large files
 - Result: Full README from KB for generation
 
 **General Rules for Streaming**:
-1. **NEVER use Read tool** on modules.md (1351 lines) - use bash streaming
+1. **NEVER use Read tool** on large KB files (custom-modules.md, feature docs) - use bash streaming
 2. **Use sed/grep/head** to extract 50-200 line chunks maximum
-3. **Always cite line ranges**: "modules.md:lines 150-300 (extracted via sed)"
+3. **Always cite sources**: "custom-modules.md:Backend section" or "features.md:10 links"
 4. **Pass full file paths** so generator can read full context if needed
 5. **Coordinator stays lightweight**: < 200 lines per KB file extraction
 6. **Generator has full access**: Can read full files with Read tool
 
 **Example Streaming Commands**:
 ```bash
-# Count modules (no content)
-grep -c "^### " modules.md
+# Count features (no content)
+grep -c '\.md](../../features/' features.md
 
-# Get file paths only (no patterns)
-grep "^\*\*Location\*\*:" modules.md | head -50
+# Count technologies (no content)
+grep -c '\.md](../../technologies/' tech.md
+
+# Count custom modules (no content)
+grep -c "^## " custom-modules.md
+
+# Get file paths only (from custom patterns)
+grep "^\*\*File\*\*:" custom-modules.md | head -50
 
 # Extract specific section
-sed -n '/^## Architecture/,/^## /p' architecture.md | head -100
+sed -n '/^## Backend/,/^## Frontend/p' custom-modules.md | head -100
 
-# Extract line range
-sed -n '100,200p' modules.md
+# Extract architecture section
+sed -n '/^## Architecture/,/^## /p' architecture.md | head -100
 ```
 
 ### Phase 4: Review & Validation
@@ -804,11 +866,14 @@ TASK SPECIFICATION:
 
 KB FILE PATHS (generator can read these):
 - C:/work/ai-knowledge-db/docs/kb/projects/[project-id]/meta.yaml
-- C:/work/ai-knowledge-db/docs/kb/projects/[project-id]/modules.md
+- C:/work/ai-knowledge-db/docs/kb/projects/[project-id]/features.md
 - C:/work/ai-knowledge-db/docs/kb/projects/[project-id]/tech.md
+- C:/work/ai-knowledge-db/docs/kb/projects/[project-id]/custom-modules.md
 - C:/work/ai-knowledge-db/docs/kb/projects/[project-id]/architecture.md
 - C:/work/ai-knowledge-db/docs/kb/projects/[project-id]/deployment.md
 - C:/work/ai-knowledge-db/docs/kb/projects/[project-id]/uiDescription.md
+- C:/work/ai-knowledge-db/docs/kb/features/*.md (heavyweight feature patterns)
+- C:/work/ai-knowledge-db/docs/kb/technologies/*.md (heavyweight tech patterns)
 
 RELEVANT EXCERPTS (for quick reference):
 [Extracted sections for this specific task - 200-300 lines max]
@@ -816,14 +881,17 @@ RELEVANT EXCERPTS (for quick reference):
 From meta.yaml:
 [relevant sections if needed]
 
-From modules.md:
-[relevant module patterns and code]
+From features.md:
+[relevant feature links for this task]
+
+From tech.md:
+[relevant technology links for this task]
+
+From custom-modules.md:
+[relevant project-specific patterns for this task]
 
 From architecture.md:
 [relevant architecture details if needed]
-
-From tech.md:
-[relevant technology specifications]
 
 From deployment.md:
 [relevant deployment info if needed]
@@ -859,14 +927,17 @@ Generate the code/files for this task following the KB patterns exactly."
 - Generator reads full files if needed, but coordinator stays lightweight
 - **Example extraction commands**:
   ```bash
-  # Extract specific module from modules.md (streaming)
-  sed -n '/^### backend\/main.py/,/^### /p' modules.md | head -50
+  # Extract backend custom patterns
+  sed -n '/^## Backend/,/^## Frontend/p' custom-modules.md | head -50
+
+  # Extract feature links
+  grep -E 'features/(jwt-authentication|conversation-crud)' features.md
 
   # Extract dependencies section from tech.md
   sed -n '/^## Dependencies/,/^## /p' tech.md
 
-  # Count modules without reading full file
-  grep -c "^### " modules.md
+  # Count features without reading full file
+  grep -c '\.md](../../features/' features.md
   ```
 - This prevents coordinator from loading 1000+ line files into memory
 
@@ -875,18 +946,18 @@ Generate the code/files for this task following the KB patterns exactly."
 When validating generated code:
 
 **Backend Code**:
-- [ ] Module structure matches modules.md hierarchy
-- [ ] Code patterns match modules.md examples verbatim
-- [ ] API endpoints match documented endpoints
-- [ ] Dependencies match tech.md backend_stack
-- [ ] Error handling follows KB patterns
-- [ ] Logging follows KB patterns
+- [ ] File structure matches custom-modules.md (if exists)
+- [ ] Code patterns match feature docs exactly (1:1 fidelity)
+- [ ] API endpoints match feature documentation
+- [ ] Technology usage matches tech.md links (fastapi, postgresql, etc)
+- [ ] Error handling follows feature patterns
+- [ ] Logging follows feature patterns
 
 **Frontend Code**:
 - [ ] Component structure matches uiDescription.md
 - [ ] UI layout matches uiDescription.md descriptions
 - [ ] State management matches architecture.md
-- [ ] API integration matches modules.md frontend patterns
+- [ ] Technology usage matches tech.md links (react-hooks, css, etc)
 - [ ] Dependencies match tech.md frontend_stack
 - [ ] Styling approach matches uiDescription.md
 
@@ -1003,17 +1074,17 @@ Project generation is successful when:
    - Matches to best KB project (reads only meta.yaml files)
    - Creates output directory: generated/[slug]-[timestamp]/
    - Creates TaskCreate for main progress task
-   - Counts modules using: grep -c "^### " modules.md
+   - Counts modules: features + technologies + custom
    - Creates 5-task plan (or 7 if Task 3 split) in .claude/tmp/generation-tasks.yaml
 
 3. Coordinator → Generator (Task 1):
-   - "Create directory structure from modules.md"
+   - "Create directory structure from custom-modules.md and inferred from features"
    - Passes KB file paths + small excerpt (50-100 lines extracted via grep/sed)
    - Generator creates all directories
 
 4. Coordinator validates Task 1:
    - Checks directories exist
-   - Verifies structure matches modules.md
+   - Verifies structure matches architecture.md
    - Marks complete
 
 5. Coordinator → Generator (Task 2):
@@ -1026,25 +1097,25 @@ Project generation is successful when:
    - Checks versions correct
    - Marks complete
 
-7. Coordinator analyzes modules.md:
-   - Detects 36 modules in modules.md
-   - Applies semantic split: backend (18), frontend (12), shared (6)
+7. Coordinator analyzes KB structure:
+   - Detects 10 features + 10 technologies + 5 custom modules (25 total)
+   - Applies semantic split: backend features (6), frontend tech (4), custom (5)
    - Creates Task 3a, 3b, 3c instead of single Task 3
-   - Updates total task count: 7 → 9 tasks
+   - Updates total task count: 5 → 7 tasks
 
 8. Coordinator → Generator (Task 3a - Backend):
-   - "Generate backend modules (18 files)"
-   - Provides backend section of modules.md (lines 50-450)
-   - Generator creates backend files
+   - "Generate backend modules"
+   - Provides backend feature links + backend custom patterns
+   - Generator loads feature docs from docs/kb/features/ and creates backend files
 
 9. Coordinator → Generator (Task 3b - Frontend):
-   - "Generate frontend modules (12 files)"
-   - Provides frontend section of modules.md (lines 451-750)
-   - Generator creates frontend files
+   - "Generate frontend modules"
+   - Provides frontend tech links + frontend custom patterns
+   - Generator loads tech docs from docs/kb/technologies/ and creates frontend files
 
 10. Coordinator → Generator (Task 3c - Shared):
-    - "Generate shared modules (6 files)"
-    - Provides shared section of modules.md (lines 751-900)
+    - "Generate shared modules"
+    - Provides shared custom patterns (if any)
     - Generator creates utility files
 
 11. Coordinator → Generator (Task 4):

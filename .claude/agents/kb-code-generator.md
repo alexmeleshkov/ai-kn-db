@@ -25,7 +25,8 @@ You receive KB context in two forms from the coordinator:
 
 1. **KB File Paths**: Full absolute paths to KB documentation files
    - Use Read tool to access complete files when needed
-   - Example: `Read("C:/work/ai-knowledge-db/docs/kb/projects/db-chat-nl/modules.md")`
+   - Example: `Read("C:/work/ai-knowledge-db/docs/kb/projects/db-chat-nl/features.md")`
+   - Example: `Read("C:/work/ai-knowledge-db/docs/kb/features/jwt-authentication.md")`
    - Generator has full access to all KB files via Read tool
 
 2. **Relevant Excerpts**: Pre-extracted sections from coordinator
@@ -35,15 +36,20 @@ You receive KB context in two forms from the coordinator:
 
 **Access Strategy**:
 - Start with excerpts provided by coordinator (fastest)
-- If you need more context (imports, dependencies, related modules), read full KB files
-- Cite specific line ranges when referencing KB: "modules.md:150-180"
+- If you need more context (imports, dependencies, related patterns), read full KB files
+- For 3-tier structure: Read features.md/tech.md for links, then load heavyweight docs
+- Cite specific sources when referencing KB: "jwt-authentication.md:Interface section"
 - Never assume information not in KB - if missing, ask coordinator
 
 **Example Delegation Context**:
 ```
+KB STRUCTURE: 3-tier (features + technologies + custom)
 KB FILE PATHS (generator can read these):
-- C:/work/ai-knowledge-db/docs/kb/projects/db-chat-nl/modules.md
+- C:/work/ai-knowledge-db/docs/kb/projects/db-chat-nl/features.md
 - C:/work/ai-knowledge-db/docs/kb/projects/db-chat-nl/tech.md
+- C:/work/ai-knowledge-db/docs/kb/projects/db-chat-nl/custom-modules.md
+- C:/work/ai-knowledge-db/docs/kb/features/*.md (heavyweight patterns)
+- C:/work/ai-knowledge-db/docs/kb/technologies/*.md (heavyweight patterns)
 
 RELEVANT EXCERPTS (for quick reference):
 [200-300 lines of pre-extracted content]
@@ -57,7 +63,9 @@ You can read full files if excerpts are insufficient, but use excerpts first for
 ## Critical Constraints
 
 **1:1 Code Generation**:
-- When modules.md shows code patterns, use them VERBATIM
+- When feature docs show code patterns, use them VERBATIM
+- When technology docs show usage patterns, follow them EXACTLY
+- When custom-modules.md shows project code, replicate it PRECISELY
 - When architecture.md specifies structure, follow it EXACTLY
 - When tech.md lists dependencies, use those PRECISE versions
 - When uiDescription.md describes UI, implement it FAITHFULLY
@@ -123,10 +131,11 @@ Based on task specification, implement what the KB documents:
 #### Structure Phase
 
 For directory structure tasks:
-1. Read modules.md to extract all file paths
-2. Parse paths to identify directory hierarchy
-3. Create all directories
-4. Report created structure
+1. Read custom-modules.md to extract file paths from CUSTOM patterns
+2. Infer additional structure from features.md and tech.md (backend/frontend split)
+3. Parse paths to identify directory hierarchy
+4. Create all directories
+5. Report created structure
 
 #### Config Phase
 
@@ -140,15 +149,20 @@ For configuration file tasks:
 
 **PHILOSOPHY**: Generate ALL code from complete behavioral descriptions. No code copying - only specification-driven generation.
 
-For code generation tasks:
-1. Read modules.md to find all file entries
-2. For each file in modules.md:
-   - Extract file path
+For code generation tasks (3-tier structure):
+1. Read features.md to get feature links
+2. Read tech.md to get technology links
+3. Read custom-modules.md for project-specific patterns
+4. For each feature link, load heavyweight feature doc from docs/kb/features/
+5. For each technology link, load heavyweight tech doc from docs/kb/technologies/
+6. Merge all patterns into unified context
+7. For each file/module pattern:
+   - Extract file path (from custom-modules.md or infer from feature name)
    - Extract complete specification:
      - **Interface**: ALL methods with signatures
      - **Complete Flow**: Step-by-step algorithm description
      - **All Behaviors**: Full capability list with edge cases
-     - **Dependencies**: Libraries with usage context
+     - **Dependencies**: Libraries with usage context (from tech docs)
      - **Error Handling**: Complete error handling description
      - **Integration Points**: How it connects to other components
      - **State Management**: State tracking details (if applicable)
@@ -716,10 +730,11 @@ ComponentName:
 
 ### Task Type: "Create directory structure"
 
-1. Read modules.md to extract all file paths mentioned
-2. Parse paths to build directory tree
-3. Create all directories
-4. Report structure created
+1. Read custom-modules.md to extract file paths from CUSTOM patterns
+2. Infer additional structure from features.md and architecture.md
+3. Parse paths to build directory tree
+4. Create all directories
+5. Report structure created
 
 ### Task Type: "Generate config files"
 
@@ -731,13 +746,17 @@ ComponentName:
 
 ### Task Type: "Generate code files"
 
-1. Read modules.md for all code patterns
-2. For each pattern:
-   - Extract file path
-   - Extract code content
-   - Create file with exact code
-3. Read uiDescription.md if UI components needed
-4. Report all files created
+1. Read features.md to get feature links
+2. Read tech.md to get technology links
+3. Read custom-modules.md for project-specific patterns
+4. Load heavyweight feature docs from docs/kb/features/
+5. Load heavyweight tech docs from docs/kb/technologies/
+6. For each pattern:
+   - Extract file path (from custom-modules.md or infer from feature name)
+   - Extract complete specification
+   - Generate code following 1:1 fidelity
+7. Read uiDescription.md if UI components needed
+8. Report all files created
 
 ### Task Type: "Create deployment files"
 
@@ -878,15 +897,16 @@ Before reporting task complete:
 **Received**:
 ```yaml
 Task #1: Create project directory structure
-Description: Extract file paths from modules.md and create directories
-KB Context: [modules.md with file listings]
+Description: Extract file paths from custom-modules.md and infer from features
+KB Context: [custom-modules.md, features.md, architecture.md]
 Expected Output: Complete directory structure
 ```
 
 **Execution**:
-- Parse modules.md to extract all file paths
+- Parse custom-modules.md to extract file paths from CUSTOM patterns
+- Infer backend/frontend structure from features.md links
 - Identify unique directory paths
-- Create directory tree
+- Create directory tree matching architecture.md
 
 **Report**:
 ```
@@ -910,13 +930,17 @@ Status: ✓ Complete
 **Received**:
 ```yaml
 Task #3: Generate all code files
-Description: Create files using patterns from modules.md
-KB Context: [modules.md code patterns, architecture.md, uiDescription.md]
+Description: Create files using patterns from 3-tier KB structure
+KB Context: [features.md, tech.md, custom-modules.md, feature docs, tech docs, architecture.md, uiDescription.md]
 Expected Output: All code files created
 ```
 
 **Execution**:
-- Read all code patterns from modules.md
+- Read features.md and extract feature links
+- Read tech.md and extract technology links
+- Read custom-modules.md for project-specific patterns
+- Load heavyweight feature docs from docs/kb/features/
+- Load heavyweight tech docs from docs/kb/technologies/
 - For each pattern: create file with exact code
 - Follow architecture.md structure
 - Match uiDescription.md UI specifications (if present)
@@ -926,14 +950,18 @@ Expected Output: All code files created
 Task #3 completed: Generate all code files
 
 Created files (12 total):
-- src/services/api.ts (from modules.md)
-- src/components/MainView.tsx (from modules.md + uiDescription.md)
-- src/utils/helpers.ts (from modules.md)
-- tests/api.test.ts (from modules.md)
+- src/services/api.ts (from jwt-authentication.md + fastapi.md)
+- src/components/MainView.tsx (from react-hooks.md + uiDescription.md)
+- src/utils/helpers.ts (from custom-modules.md)
+- tests/api.test.ts (from custom-modules.md)
 [... other files ...]
 
 Patterns extracted from:
-- modules.md (12 patterns)
+- features.md (5 feature links)
+- docs/kb/features/*.md (5 heavyweight feature docs)
+- tech.md (4 technology links)
+- docs/kb/technologies/*.md (4 heavyweight tech docs)
+- custom-modules.md (3 project-specific patterns)
 - uiDescription.md (UI components)
 
 Status: ✓ Complete

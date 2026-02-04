@@ -20,6 +20,53 @@
 
 ---
 
+## Project Structure
+
+### Directory Tree
+
+```
+[project-root]/
+├── [folder1]/               # [purpose]
+│   ├── [subfolder1]/        # [purpose]
+│   │   ├── [file1.ext]
+│   │   └── [file2.ext]
+│   └── [subfolder2]/        # [purpose]
+│       └── [file3.ext]
+├── [folder2]/               # [purpose]
+│   ├── [subfolder1]/        # [purpose]
+│   └── [subfolder2]/        # [purpose]
+├── [folder3]/               # [purpose]
+└── [config-file]            # [purpose]
+```
+
+### Folder Organization
+
+**[Folder1]** (`path/to/folder1`):
+- **Purpose**: [what this folder contains and why]
+- **Key subdirectories**: [list major subdirectories]
+- **File patterns**: [naming conventions, e.g., "*.service.ts", "use*.tsx"]
+
+**[Folder2]** (`path/to/folder2`):
+- **Purpose**: [what this folder contains and why]
+- **Key subdirectories**: [list major subdirectories]
+- **File patterns**: [naming conventions]
+
+**[Folder3]** (`path/to/folder3`):
+- **Purpose**: [what this folder contains and why]
+- **Organization**: [how files are organized within]
+
+### File Naming Conventions
+
+- **[Pattern 1]**: `[example-name].[ext]` - [purpose and when to use]
+- **[Pattern 2]**: `[example-name].[ext]` - [purpose and when to use]
+- **[Pattern 3]**: `[example-name].[ext]` - [purpose and when to use]
+
+**Special files**:
+- `[special-file-1]`: [purpose]
+- `[special-file-2]`: [purpose]
+
+---
+
 ## System Components
 
 ### High-Level Diagram
