@@ -1,0 +1,26 @@
+# Test Project: Authentication Pilot
+# Purpose: Test feature-based generation with authentication feature only
+
+name: "Auth Pilot Test"
+slug: "test-auth-pilot"
+description: "Minimal test project with JWT authentication only"
+
+capabilities:
+  - user_authentication
+
+technologies:
+  - Python 3.11+
+  - FastAPI 0.100+
+  - PostgreSQL 14+
+  - PyJWT
+  - bcrypt
+
+run_commands:
+  install:
+    - "pip install -r backend/requirements.txt"
+  run:
+    - "python backend/app/main.py"
+
+prerequisites:
+  - Python 3.11+
+  - PostgreSQL 14+
