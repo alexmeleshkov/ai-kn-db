@@ -116,6 +116,95 @@ After matching KB project, create output directory for generated code:
    - All delegation messages must include this path
    - Generator agent receives this as WORKING_DIRECTORY
 
+### Phase 1.6: Feature Resolution (NEW - Feature-Based KB)
+
+**Purpose**: Check if project uses new feature-based KB structure and resolve feature links.
+
+**Check for new structure**:
+```bash
+# Check if features.md exists in project KB
+if [ -f "docs/kb/projects/[project-id]/features.md" ]; then
+  USE_FEATURES=true
+else
+  USE_FEATURES=false  # Fall back to modules.md
+fi
+```
+
+**If USE_FEATURES=true**:
+
+1. **Read features.md**: Extract all feature links
+   ```bash
+   grep -oP '\[.*?\]\(\.\./\.\./features/.*?\.md\)' docs/kb/projects/[project-id]/features.md
+   ```
+   Example output:
+   ```
+   [JWT Auth](../../features/authentication/jwt-bcrypt.md)
+   [SSE Chat](../../features/chat/sse-streaming.md)
+   ```
+
+2. **Resolve feature paths**: Convert relative links to absolute paths
+   ```
+   ../../features/authentication/jwt-bcrypt.md → docs/kb/features/authentication/jwt-bcrypt.md
+   ```
+
+3. **Store feature list**: Save for task planning
+   ```yaml
+   kb_features:
+     - name: "JWT Auth"
+       path: "docs/kb/features/authentication/jwt-bcrypt.md"
+     - name: "SSE Chat"
+       path: "docs/kb/features/chat/sse-streaming.md"
+   ```
+
+4. **Also check for custom-modules.md**:
+   - If exists: Project-specific code is in custom-modules.md
+   - If not exists: All code is in features (no custom code)
+
+**Store in task plan metadata**:
+```yaml
+metadata:
+  kb_structure: features  # or "monolithic" for old structure
+  kb_features: [list of feature paths]
+  kb_custom_modules: "docs/kb/projects/[project-id]/custom-modules.md"  # or null
+```
+
+**Backward Compatibility**:
+- If USE_FEATURES=false: Use old workflow (read modules.md)
+- Both structures work during migration period
+- Generators receive same context format regardless of source
+
+**Delegation to Generators**:
+
+When delegating to kb-code-generator (or backend/frontend-code-generator), include feature info in prompt:
+
+**If USE_FEATURES=true**:
+```
+KB STRUCTURE: features
+KB BASE PATH: docs/kb/projects/[project-id]
+FEATURES FILE: docs/kb/projects/[project-id]/features.md
+CUSTOM MODULES: docs/kb/projects/[project-id]/custom-modules.md (if exists)
+
+Instructions:
+1. Read features.md and extract feature links
+2. Load each linked feature from docs/kb/features/
+3. Load custom-modules.md (project-specific code)
+4. Merge features + custom into unified context
+5. Generate code from merged context
+```
+
+**If USE_FEATURES=false** (legacy):
+```
+KB STRUCTURE: monolithic
+KB BASE PATH: docs/kb/projects/[project-id]
+MODULES FILE: docs/kb/projects/[project-id]/modules.md
+
+Instructions:
+1. Read modules.md for all patterns
+2. Generate code from modules.md
+```
+
+**Result**: Generators handle feature resolution, coordinator just detects structure type
+
 ### Phase 2: Create Task Plan (Incremental Reading)
 
 **IMPORTANT**: Read ONLY what's needed for planning, not full KB content.
@@ -180,10 +269,13 @@ tasks:
 
   - id: 3
     name: "Generate all code files"
-    description: "Create all code files using patterns from modules.md"
+    description: "Create all code files using patterns from KB (modules.md OR features.md + custom-modules.md)"
     phase: code
     kb_refs:
-      - "modules.md"
+      - "modules.md"  # Legacy monolithic structure
+      - "features.md"  # NEW: Feature-based structure (links to features/)
+      - "custom-modules.md"  # NEW: Project-specific code patterns
+      - "features/**/*.md"  # NEW: Resolved feature documents
       - "architecture.md"
       - "uiDescription.md"
     inputs:

@@ -96,6 +96,67 @@ ACCEPTANCE CRITERIA:
 ✓ Files compile without syntax errors
 ```
 
+## Feature Resolution (NEW - Feature-Based KB)
+
+**Purpose**: Detect and resolve feature-based KB structure before generation.
+
+### Check KB Structure Type
+
+The coordinator may pass either:
+1. **Monolithic**: Single modules.md with all patterns (legacy)
+2. **Features**: features.md linking to reusable features + custom-modules.md (new)
+
+**Detection**:
+```
+If KB CONTEXT includes "KB STRUCTURE: features":
+  Use feature resolution workflow
+Else:
+  Use legacy workflow (read modules.md)
+```
+
+### Feature Resolution Workflow
+
+**If KB STRUCTURE is "features"**:
+
+1. **Read features.md**: Extract feature links
+   ```bash
+   grep -oP '\[.*?\]\(\.\./\.\./features/.*?\.md\)' {KB_BASE_PATH}/features.md
+   ```
+
+2. **Resolve and load each feature**:
+   - Convert relative path: `../../features/auth/jwt-bcrypt.md` → `docs/kb/features/auth/jwt-bcrypt.md`
+   - Use Read tool to load feature document
+   - Store in memory for later reference
+
+3. **Load custom modules** (if exists):
+   - Read {KB_BASE_PATH}/custom-modules.md
+   - Contains project-specific code not in features
+
+4. **Merge context**:
+   ```
+   MERGED_CONTEXT = {
+     features: [feature1_content, feature2_content, ...],
+     custom: custom_modules_content,
+     architecture: architecture.md,
+     tech: tech.md,
+     deployment: deployment.md
+   }
+   ```
+
+5. **Generate from merged context**:
+   - When generating a file, check if patterns exist in features first
+   - Fall back to custom modules for project-specific code
+   - Follow same generation process as legacy workflow
+
+### Backward Compatibility
+
+**If KB STRUCTURE is "monolithic"** (or not specified):
+- Read modules.md as before
+- No feature resolution needed
+- Original workflow unchanged
+
+**Result**: Same generation quality regardless of KB structure
+
 ## Generation Workflow
 
 ### Step 1: Understand Tech Stack
