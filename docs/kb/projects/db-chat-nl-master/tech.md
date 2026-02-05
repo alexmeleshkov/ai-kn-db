@@ -8,7 +8,8 @@
 - **FastAPI**: [fastapi.md](../../technologies/fastapi.md) - ASGI web framework with async support and automatic API documentation
 - **PostgreSQL**: [postgresql.md](../../technologies/postgresql.md) - Relational database for conversation and user data persistence
 - **Anthropic Claude**: [anthropic-claude.md](../../technologies/anthropic-claude.md) - LLM API for natural language to SQL conversion with Tool Use
-- **JWT + bcrypt**: [jwt-bcrypt.md](../../technologies/jwt-bcrypt.md) - Authentication with JWT tokens and bcrypt password hashing
+- **JWT**: [jwt.md](../../technologies/jwt.md) - JSON Web Tokens for stateless authentication
+- **bcrypt**: [bcrypt.md](../../technologies/bcrypt.md) - Password hashing with automatic salt generation
 - **SQLAlchemy**: [sqlalchemy.md](../../technologies/sqlalchemy.md) - ORM for database schema representation
 
 ## Frontend

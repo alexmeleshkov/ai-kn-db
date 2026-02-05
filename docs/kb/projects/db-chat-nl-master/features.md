@@ -5,10 +5,10 @@
 
 This project implements the following capabilities:
 
-## JWT Authentication
-Complete implementation patterns: [jwt-authentication.md](../../features/jwt-authentication.md)
+## Authentication
+Complete implementation patterns: [authentication.md](../../features/authentication.md)
 
-User authentication with JWT tokens and bcrypt password hashing.
+User authentication with session/token management and role-based access control.
 
 ## Conversation CRUD
 Complete implementation patterns: [conversation-crud.md](../../features/conversation-crud.md)
