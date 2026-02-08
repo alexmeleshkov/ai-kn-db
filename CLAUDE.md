@@ -20,6 +20,7 @@ Business Goal → Projects → Features + Technologies
 
 **Entity Types**:
 - **features/** - Abstract, code-agnostic capabilities (authentication, data-streaming)
+  - **features/ui/** - Visual layouts and UI patterns (chat-interface, sidebar-navigation)
 - **technologies/** - Specific implementations (jwt, fastapi, postgresql)
 - **languages/** - Programming languages (python, typescript, css) with code snippets
 - **projects/** - Reference implementations demonstrating features + technologies
@@ -95,11 +96,16 @@ docs/kb/
 │   └── <project-id>/      # Individual projects
 │       ├── meta.yaml      # Metadata, capabilities, technologies
 │       ├── architecture.md # Directory tree, architecture decisions, WHY
-│       ├── features.md    # Links to abstract feature documentation
+│       ├── features.md    # Links to backend feature documentation
+│       ├── ui-features.md # Links to UI feature documentation
 │       └── tech.md        # Links to technology documentation
 ├── features/              # Abstract, code-agnostic capabilities
-│   ├── authentication.md
+│   ├── authentication.md  # Backend features (system capabilities)
 │   ├── data-streaming.md
+│   ├── ui/                # UI features (visual layouts)
+│   │   ├── chat-interface.md
+│   │   ├── sidebar-navigation.md
+│   │   └── ...
 │   └── ...
 ├── technologies/          # Specific implementations
 │   ├── jwt.md
