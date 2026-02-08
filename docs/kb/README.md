@@ -7,7 +7,8 @@ This is a knowledge graph of software development patterns, organized for the Ex
 ```
 docs/kb/
 ├── projects/           # Reference projects with implementation examples
-├── features/           # Abstract, code-agnostic capabilities
+├── features/           # Abstract, code-agnostic capabilities (backend/system)
+├── ui-features/        # UI layouts, visual components, user interfaces
 ├── technologies/       # Specific implementations (libraries, frameworks, platforms)
 ├── languages/          # Programming and styling languages
 ├── business-goals/     # Business objectives and requirements
@@ -36,11 +37,22 @@ docs/kb/
 ### Features
 **Location**: `features/<feature-name>.md`
 
-**Abstract, code-agnostic capabilities** (e.g., authentication, data-streaming, real-time-chat).
+**Abstract, code-agnostic capabilities** for backend/system functionality (e.g., authentication, data-streaming, natural-language-sql).
 
 **Key principle**: Features describe **WHAT** (user-facing capability), not **HOW** (implementation).
 
 **Example**: `authentication.md` describes auth patterns generically, not JWT specifically.
+
+---
+
+### UI Features
+**Location**: `ui-features/<ui-feature-name>.md`
+
+**Visual interface patterns and layouts** (e.g., chat-interface, sidebar-navigation, admin-panel).
+
+**Key principle**: UI Features describe **WHAT USERS SEE** (layout, appearance, interaction), not code implementation.
+
+**Example**: `chat-interface.md` describes chat layout, message display, input positioning - NOT React component code.
 
 ---
 
