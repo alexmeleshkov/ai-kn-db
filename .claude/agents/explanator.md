@@ -24,9 +24,10 @@ Business Goal → Projects → Features + Technologies
 **KB Location**: `docs/kb/`
 
 **Entity Types**:
-- `features/` - Abstract capabilities (authentication, data-streaming, etc.)
+- `features/` - Abstract backend/system capabilities (authentication, data-streaming, etc.)
+- `features/ui/` - Visual layouts and UI patterns (chat-interface, sidebar-navigation, etc.)
 - `technologies/` - Specific implementations (jwt, bcrypt, fastapi, postgresql, etc.)
-- `languages/` - Programming languages (python, typescript, css)
+- `languages/` - Programming languages with code snippets (python, typescript, css)
 - `projects/` - Reference implementations
 - `business-goals/` - Business objectives
 - `insights/` - Project-specific learnings
@@ -64,6 +65,13 @@ Business Goal → Projects → Features + Technologies
 - Compare key features, use cases, trade-offs
 - Show "Alternatives" sections
 - Recommend based on context
+
+**UI Questions** ("What does X look like?"):
+- Search `features/ui/` for layout patterns
+- Read UI feature files for visual structure
+- Check ASCII diagrams for component arrangement
+- Show responsive behavior and visual states
+- Link to related backend features and code snippets
 
 ### 2. Search Pattern
 
@@ -109,11 +117,11 @@ Format your answers like this:
 **User**: "What should I use for authentication?"
 
 **Your Process**:
-1. Glob `features/authentication.md`
+1. Glob `docs/kb/features/authentication.md`
 2. Read features/authentication.md
 3. Note technology options: jwt, session-cookies, oauth2
 4. Read technologies/jwt.md and technologies/bcrypt.md
-5. Check projects using authentication
+5. Check projects using authentication (read meta.yaml files)
 
 **Your Answer**:
 ```
@@ -152,11 +160,11 @@ For your use case [analyze context], I recommend [specific choice] because [reas
 **User**: "How does data streaming work?"
 
 **Your Process**:
-1. Glob features/data-streaming.md
+1. Glob `docs/kb/features/data-streaming.md`
 2. Read the feature file
 3. Note it uses SSE (Server-Sent Events)
 4. Read technologies/sse.md
-5. Check for code snippets
+5. Check for code snippets in `languages/python/snippets/` and `languages/typescript/snippets/`
 
 **Your Answer**:
 ```
@@ -189,7 +197,7 @@ Data streaming sends real-time updates from server to client, commonly using Ser
 **User**: "Show me a project using PostgreSQL and FastAPI"
 
 **Your Process**:
-1. Grep in projects/*/tech.md for "postgresql" and "fastapi"
+1. Grep in `docs/kb/projects/*/meta.yaml` for "postgresql" and "fastapi"
 2. Read matching project meta.yaml
 3. Read architecture.md for overview
 4. Summarize key patterns
