@@ -4,11 +4,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an AI knowledge database repository with a KB-driven project generator. The system stores project templates, patterns, and best practices, then generates new projects based on user descriptions.
+This is an AI knowledge database repository structured as a **knowledge graph**. The system stores project documentation, patterns, and best practices organized by relationships between features, technologies, languages, and projects.
 
-## Development Commands
+**Current Focus**: Knowledge graph navigation and querying via the Explanator Agent.
 
-### Generate a New Project
+**Future Goal**: KB-driven project generation (not currently implemented).
+
+## Knowledge Graph Structure
+
+```
+Business Goal → Projects → Features + Technologies
+                             ↓
+                   Language × Technology = Code Snippets
+```
+
+**Entity Types**:
+- **features/** - Abstract, code-agnostic capabilities (authentication, data-streaming)
+- **technologies/** - Specific implementations (jwt, fastapi, postgresql)
+- **languages/** - Programming languages (python, typescript, css) with code snippets
+- **projects/** - Reference implementations demonstrating features + technologies
+- **business-goals/** - Business objectives and requirements
+- **insights/** - Project-specific learnings and decisions
+- **people/** - Team expertise profiles
+
+## Using the Knowledge Base
+
+### Query the KB
+
+The **Explanator Agent** helps navigate the knowledge graph and answer questions:
+
+**Examples**:
+- "What technologies should I use for authentication?"
+- "Show me a project using PostgreSQL and FastAPI"
+- "How does data streaming work?"
+- "What's the difference between JWT and session-based auth?"
+
+Claude will automatically invoke the Explanator Agent when you ask questions about technologies, features, or projects.
+
+### Generate a New Project (Future)
 
 Use the `/create` skill to generate a new project from the knowledge base:
 
@@ -16,88 +49,40 @@ Use the `/create` skill to generate a new project from the knowledge base:
 /create <project description>
 ```
 
-Example:
-```
-/create A chat app where users can query SQL databases in natural language
-```
-
-This command:
-1. Matches your description to the best KB project template
-2. Scaffolds the project using the appropriate technology stack
-3. Creates a runnable project in `generated/<slug>-<timestamp>/`
-
-### Scan an Existing Project
-
-Use the `/scan` skill to scan a repository and create a KB entry:
-
-```
-/scan <repo-path> [project-id]
-```
-
-Example:
-```
-/scan /c/work/db-chat-nl-master db-chat-nl
-```
-
-This command:
-1. Uses task-based workflow to break scan into manageable steps
-2. Runs file discovery to classify files by importance (tier1/tier2/tier3)
-3. Extracts code patterns in small batches (8 files at a time)
-4. Generates 7 KB files (meta.yaml, README.md, modules.md, tech.md, architecture.md, deployment.md, uiDescription.md)
-5. Outputs to `docs/kb/projects/<project-id>/`
-
-### Direct Script Usage
-
-You can also call the generator script directly:
-
-```bash
-./scripts/new-project "Your project description"
-```
-
-Or with environment variable:
-```bash
-PROJECT_PROMPT="Your project description" ./scripts/new-project
-```
+**Note**: Code generation is not the current focus. The KB is optimized for navigation and understanding.
 
 ## Architecture
 
-### KB-Driven Generator Pipeline
+### Knowledge Graph Design
 
-The project uses a pure 1:1 generation approach from KB documentation:
+**Principles**:
+1. **Features** describe WHAT (user capabilities) - code-agnostic
+2. **Technologies** describe HOW (specific implementations)
+3. **Languages** contain code snippets (Language × Technology)
+4. **Projects** demonstrate features + technologies working together
 
-1. **KB (Knowledge Base)**: Stores complete project documentation in `docs/kb/projects/`
-2. **Match**: Token-based matching selects the best KB entry for user requirements
-3. **Generate**: Direct 1:1 generation from 7 KB files (modules.md, architecture.md, tech.md, etc.)
-4. **Output**: Generated project ready to run
-
-**Approach**: Pure KB-to-code generation. No generic scaffolding. Everything comes from KB documentation.
+**Example Flow**:
+1. User asks: "How to implement authentication?"
+2. Explanator reads `features/authentication.md` (abstract patterns)
+3. Shows technology options: JWT (stateless) vs Session cookies (stateful)
+4. Links to `technologies/jwt.md` and `technologies/bcrypt.md`
+5. Shows reference project: `projects/db-chat-nl-master`
+6. Points to code snippets: `languages/python/snippets/fastapi-jwt-auth.md`
 
 ### Key Components
 
-- `scripts/kb/file_discovery.py` - Classifies repository files into tier1/tier2/tier3 by importance
-- `scripts/kb/generate_from_kb.py` - Legacy generator (DEPRECATED - use agent workflow instead)
-- `scripts/new-project` - Bash wrapper (DEPRECATED - use /create skill instead)
-- `docs/kb/projects/*/meta.yaml` - KB project metadata
-- `docs/kb/projects/_template/` - Templates for KB documentation files
+**KB Documentation**:
+- `docs/kb/` - Complete knowledge graph
+- `docs/kb/README.md` - KB structure documentation
+- `docs/kb/projects/*/meta.yaml` - Project metadata, technologies, capabilities
+- `docs/kb/features/*.md` - Abstract feature documentation
+- `docs/kb/technologies/*.md` - Technology-specific implementation guides
+- `docs/kb/languages/*/snippets/*.md` - Code examples (Language × Technology)
 
-### Agents & Skills
+### Agents
 
-**Generation Workflow**:
-- `.claude/skills/create/SKILL.md` - Entry point for `/create` command
-- `.claude/agents/kb-generation-coordinator.md` - Orchestrates generation, plans tasks, validates outputs
-- `.claude/agents/kb-code-generator.md` - Executes code generation tasks from KB patterns
-
-**Scanning Workflow**:
-- `.claude/skills/scan/SKILL.md` - Entry point for `/scan` command
-- `.claude/agents/kb-repo-scanner.md` - Scans repositories using task-based workflow:
-  - Creates structured task list for each scan step
-  - Executes tasks sequentially (file discovery → KB file generation → verification)
-  - Extracts code patterns in small batches to avoid memory issues
-  - Generates all 7 KB documentation files
-
-**Infrastructure**:
-- `.claude/agents/generator-engineer.md` - Implements generator pipeline features (you are here)
-- `.claude/agents/tech-lead.md` - Coordinates architecture and planning
+**Knowledge Navigation**:
+- `.claude/agents/explanator.md` - Navigates KB to answer questions about features, technologies, and projects
 
 ## Key Conventions
 
@@ -105,33 +90,56 @@ The project uses a pure 1:1 generation approach from KB documentation:
 
 ```
 docs/kb/
-└── projects/           # Reference projects with rich documentation
-    ├── _template/      # Template for new KB entries
-    └── <project-id>/   # Individual projects
-        ├── meta.yaml   # Project metadata, capabilities, technologies
-        ├── README.md   # Project overview
-        ├── business.md # Business context and requirements
-        ├── architecture.md  # Architecture patterns, layers, boundaries
-        ├── modules.md  # Module structure and code patterns (MOST IMPORTANT)
-        ├── tech.md     # Technology stack, versions, dependencies
-        ├── deployment.md    # Deployment configuration (docker, k8s, etc.)
-        ├── features.md      # Feature descriptions
-        └── uiDescription.md # UI structure and components
+├── projects/              # Reference projects
+│   ├── _template/         # Template for new KB entries
+│   └── <project-id>/      # Individual projects
+│       ├── meta.yaml      # Metadata, capabilities, technologies
+│       ├── architecture.md # Directory tree, architecture decisions, WHY
+│       ├── features.md    # Links to abstract feature documentation
+│       └── tech.md        # Links to technology documentation
+├── features/              # Abstract, code-agnostic capabilities
+│   ├── authentication.md
+│   ├── data-streaming.md
+│   └── ...
+├── technologies/          # Specific implementations
+│   ├── jwt.md
+│   ├── fastapi.md
+│   ├── postgresql.md
+│   └── ...
+├── languages/             # Programming languages with code snippets
+│   ├── python/
+│   │   ├── snippets/      # Python code examples (Language × Technology)
+│   │   └── python.md
+│   ├── typescript/
+│   │   ├── snippets/      # TypeScript code examples
+│   │   └── typescript.md
+│   └── ...
+├── business-goals/        # Business objectives and requirements
+├── insights/              # Project-specific learnings
+│   └── <project-id>/
+│       └── *.md           # Architecture decisions, performance insights
+└── people/                # Team expertise profiles
 ```
 
-### Generated Projects
+### KB Project Documentation
 
-Generated projects are created in `generated/<slug>-<timestamp>/` with:
-- Full scaffolded application structure
-- README with run instructions
-- Docker Compose setup (for applicable stacks)
+Each project in the KB contains:
+- **meta.yaml** - Metadata, technologies used, capabilities implemented
+- **architecture.md** - Directory tree, architecture decisions, WHY choices were made
+- **features.md** - Links to abstract feature documentation
+- **tech.md** - Links to technology-specific documentation
 
-### Evidence-Driven Development
+Code patterns are stored separately in:
+- **languages/\*/snippets/** - Reusable code examples organized by Language × Technology
 
-When documenting or analyzing reference repositories:
-- Every non-trivial claim must cite: `filename:lineStart-lineEnd`
-- If evidence cannot be found, mark it under "Unknowns"
-- Never make assumptions about implementation details
+### Documentation Principles
+
+When creating or updating KB documentation:
+- **Features** are code-agnostic (describe WHAT, not HOW)
+- **Technologies** are implementation-specific (describe HOW)
+- **Code snippets** live in languages/, not in project or technology docs
+- **Architecture** documents WHY decisions were made, not just what exists
+- All documentation must be in English
 
 ## Language rule
 
