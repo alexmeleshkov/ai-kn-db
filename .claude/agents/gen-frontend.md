@@ -1,11 +1,11 @@
 ---
-name: frontend-code-generator
+name: gen-frontend
 description: Frontend code generation specialist - adapts to any frontend stack
 tools: Read, Write, Bash
 model: sonnet
 ---
 
-# Frontend Code Generator Agent
+# Frontend Generator Agent
 
 Generate frontend code from complete behavioral specifications. Stack-agnostic specialist that adapts to the project's technology stack.
 
@@ -68,7 +68,7 @@ Generate frontend code from complete behavioral specifications. Stack-agnostic s
 
 ## Input Parameters
 
-You receive a task from kb-generation-coordinator:
+You receive a task from gen-coordinator:
 
 ```yaml
 TASK: Generate Frontend Batch {N}/{M}
@@ -863,4 +863,4 @@ Batch generation succeeds when:
 ✅ No placeholder code
 ✅ Completion report provided
 
-The code-validator agent will verify these criteria.
+The gen-validator agent will verify these criteria.

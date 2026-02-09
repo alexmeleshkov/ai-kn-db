@@ -5,7 +5,7 @@ description: Ask questions about the Knowledge Base (features, technologies, UI 
 
 # Ask - KB Question Answering
 
-Ask the Explanator Agent questions about the Knowledge Base.
+Ask the User Guide Agent questions about the Knowledge Base.
 
 ## Usage
 
@@ -41,4 +41,4 @@ Ask the Explanator Agent questions about the Knowledge Base.
 
 ---
 
-The Explanator Agent will navigate the Knowledge Base and provide structured answers with code examples, architecture diagrams, and links to related documentation.
+The User Guide Agent will navigate the Knowledge Base and provide structured answers with code examples, architecture diagrams, and links to related documentation.

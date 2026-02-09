@@ -5,7 +5,7 @@ argument-hint: "<project description>"
 allowed-tools: Task, Read, Bash, TaskCreate, TaskUpdate
 ---
 
-You are the `/create` skill orchestrator. You coordinate between kb-generation-coordinator (planning), specialized code generators (backend-code-generator, frontend-code-generator), and code-validator to generate a complete project.
+You are the `/create` skill orchestrator. You coordinate between gen-coordinator (planning), specialized code generators (gen-backend, gen-frontend), and gen-validator to generate a complete project.
 
 ## Input
 
@@ -15,11 +15,11 @@ You are the `/create` skill orchestrator. You coordinate between kb-generation-c
 
 ### Phase 1: Planning (Spawn Coordinator)
 
-**Step 1**: Spawn kb-generation-coordinator for planning:
+**Step 1**: Spawn gen-coordinator for planning:
 
 ```
 Task(
-  subagent_type: "kb-generation-coordinator",
+  subagent_type: "gen-coordinator",
   description: "Match KB and create task plan",
   prompt: "Match the best KB project for this description and create a task plan (DO NOT execute tasks):
 
@@ -60,7 +60,7 @@ TaskUpdate(taskId: N, status: "in_progress")
 **For backend code tasks** (phase: "code", backend files):
 ```
 Task(
-  subagent_type: "backend-code-generator",
+  subagent_type: "gen-backend",
   description: "Execute task N: <task name>",
   prompt: "Execute this task from the generation plan:
 
@@ -87,7 +87,7 @@ Instructions:
 **For frontend code tasks** (phase: "code", frontend files):
 ```
 Task(
-  subagent_type: "frontend-code-generator",
+  subagent_type: "gen-frontend",
   description: "Execute task N: <task name>",
   prompt: "Execute this task from the generation plan:
 
@@ -114,7 +114,7 @@ Instructions:
 **For structure/config/deployment/documentation tasks**:
 ```
 Task(
-  subagent_type: "backend-code-generator",
+  subagent_type: "gen-backend",
   description: "Execute task N: <task name>",
   prompt: "Execute this task from the generation plan:
 
@@ -136,11 +136,11 @@ Instructions:
 )
 ```
 
-**Step 5**: After generator completes, spawn code-validator to validate:
+**Step 5**: After generator completes, spawn gen-validator to validate:
 
 ```
 Task(
-  subagent_type: "code-validator",
+  subagent_type: "gen-validator",
   description: "Validate task N output",
   prompt: "Validate that task N was completed correctly:
 
@@ -271,33 +271,33 @@ Skill:
   2. Skill reads task plan
 
   3. For task 1 (Create directories):
-     → Skill spawns backend-code-generator with task 1 spec
+     → Skill spawns gen-backend with task 1 spec
      → Generator creates directory structure
-     → Skill spawns code-validator
+     → Skill spawns gen-validator
      → Validator checks directories exist
      → Validator returns PASS
      → Skill marks task 1 completed
 
   4. For task 2 (Generate configs):
-     → Skill spawns backend-code-generator with task 2 spec
+     → Skill spawns gen-backend with task 2 spec
      → Generator creates requirements.txt, package.json, etc.
-     → Skill spawns code-validator
+     → Skill spawns gen-validator
      → Validator checks files exist, syntax valid
      → Validator returns PASS
      → Skill marks task 2 completed
 
   5. For task 3 (Generate backend code):
-     → Skill spawns backend-code-generator with task 3 spec
+     → Skill spawns gen-backend with task 3 spec
      → Generator creates 8 Python files with FastAPI patterns
-     → Skill spawns code-validator
+     → Skill spawns gen-validator
      → Validator runs py_compile, checks interfaces, checks imports
      → Validator returns PASS
      → Skill marks task 3 completed
 
   6. For task 4 (Generate frontend code):
-     → Skill spawns frontend-code-generator with task 4 spec
+     → Skill spawns gen-frontend with task 4 spec
      → Generator creates React 18 + TypeScript components
-     → Skill spawns code-validator
+     → Skill spawns gen-validator
      → Validator runs tsc --noEmit, checks hooks, checks types
      → Validator returns PASS
      → Skill marks task 4 completed
@@ -313,23 +313,23 @@ Skill:
 User → /create skill (YOU - the orchestrator)
          │
          ├─→ Phase 1: Planning
-         │   └─→ kb-generation-coordinator
+         │   └─→ gen-coordinator
          │       └─→ Returns: task plan, output directory, matched KB
          │
          └─→ Phase 2: Execution (for each task)
              │
              ├─→ Step A: Generate Code
-             │   ├─→ backend-code-generator (for backend tasks)
+             │   ├─→ gen-backend (for backend tasks)
              │   │   └─→ Returns: files created (Python/FastAPI, Node/Express, etc.)
              │   │
-             │   ├─→ frontend-code-generator (for frontend tasks)
+             │   ├─→ gen-frontend (for frontend tasks)
              │   │   └─→ Returns: files created (React, Vue, Angular, etc.)
              │   │
-             │   └─→ backend-code-generator (for config/deployment/docs tasks)
+             │   └─→ gen-backend (for config/deployment/docs tasks)
              │       └─→ Returns: files created
              │
              └─→ Step B: Validate Code
-                 └─→ code-validator
+                 └─→ gen-validator
                      └─→ Returns: PASS/FAIL with validation report
 ```
 
@@ -341,4 +341,4 @@ User → /create skill (YOU - the orchestrator)
    - Task marked completed or failed
 3. Final report to user
 
-This matches how tech-lead and specialized engineers work together - the main session coordinates between domain experts.
+This matches how dev-architect and specialized engineers work together - the main session coordinates between domain experts.

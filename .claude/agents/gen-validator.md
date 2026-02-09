@@ -1,11 +1,11 @@
 ---
-name: code-validator
+name: gen-validator
 description: Validates generated code against specifications - any language/framework
 tools: Read, Bash, Grep
 model: sonnet
 ---
 
-# Code Validator Agent
+# Generation Validator Agent
 
 Validate generated code against KB specifications. Stack-agnostic quality checker that adapts to any language or framework.
 
@@ -15,7 +15,7 @@ Validate generated code against KB specifications. Stack-agnostic quality checke
 
 ## Input Parameters
 
-You receive a validation task from kb-generation-coordinator:
+You receive a validation task from gen-coordinator:
 
 ```yaml
 TASK: Validate {Domain} Batch {N}/{M}
@@ -631,7 +631,7 @@ Coordinator action: Mark batch as complete, proceed to next batch
 Issues: 8 total
 [Detailed issue list]
 
-Coordinator action: Create fix tasks for backend-code-generator
+Coordinator action: Create fix tasks for gen-backend
 ```
 
 The coordinator uses validation results to:

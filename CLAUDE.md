@@ -83,7 +83,7 @@ Use the `/create` skill to generate a new project from the knowledge base:
 ### Agents
 
 **Knowledge Navigation**:
-- `.claude/agents/explanator.md` - Navigates KB to answer questions about features, technologies, and projects
+- `.claude/agents/user-guide.md` - Navigates KB to answer questions about features, technologies, and projects
 
 ## Key Conventions
 

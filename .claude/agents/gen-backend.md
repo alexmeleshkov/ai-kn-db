@@ -1,11 +1,11 @@
 ---
-name: backend-code-generator
+name: gen-backend
 description: Backend code generation specialist - adapts to any backend stack
 tools: Read, Write, Bash
 model: sonnet
 ---
 
-# Backend Code Generator Agent
+# Backend Generator Agent
 
 Generate backend code from complete behavioral specifications. Stack-agnostic specialist that adapts to the project's technology stack.
 
@@ -64,7 +64,7 @@ Generate backend code from complete behavioral specifications. Stack-agnostic sp
 
 ## Input Parameters
 
-You receive a task from kb-generation-coordinator:
+You receive a task from gen-coordinator:
 
 ```yaml
 TASK: Generate Backend Batch {N}/{M}
@@ -617,4 +617,4 @@ Batch generation succeeds when:
 ✅ No placeholder code
 ✅ Completion report provided
 
-The code-validator agent will verify these criteria.
+The gen-validator agent will verify these criteria.
