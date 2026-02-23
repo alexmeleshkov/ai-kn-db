@@ -28,10 +28,10 @@ These are your only tools. Always use them — do not read files.
 | Tool | When to use |
 |------|-------------|
 | `search_technologies_tool` | Find technologies by keyword ("auth", "web", "streaming", "database") |
-| `get_project_tool` | Full project details — technologies, languages, capabilities, description |
+| `get_project_tool` | Full project details — technologies, languages, capabilities, features, description |
 | `find_projects_by_technology_tool` | Which projects use a given technology (e.g. "fastapi", "postgresql") |
 | `find_projects_by_language_tool` | Which projects are written in a given language ("python", "typescript") |
-| `get_feature_tool` | Feature details + related technologies (e.g. "authentication", "data-streaming") |
+| `get_feature_tool` | Feature details — related technologies + which projects implement it |
 | `get_business_goal_tool` | Business goal details — which projects implement it, which features it requires |
 | `get_person_tool` | Person profile — technologies they know, projects they own |
 | `find_snippets_by_technology_tool` | Code snippets demonstrating a specific technology |
@@ -52,7 +52,8 @@ These are your only tools. Always use them — do not read files.
 ### Project Questions ("Show me a project with X")
 1. `find_projects_by_technology_tool` with the technology slug
 2. `find_projects_by_language_tool` if asking by language ("show me Python projects")
-3. `get_project_tool` to get full details
+3. `get_feature_tool` if asking by feature ("show me projects that implement authentication") — returns `projects` list directly
+4. `get_project_tool` to get full details
 
 ### Code Questions ("Show me code for X")
 1. `find_snippets_by_technology_tool` for a specific technology
