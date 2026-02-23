@@ -1,7 +1,7 @@
 # Python + psycopg2 - PostgreSQL Connection Pooling
 
 **Language**: Python
-**Technology**: psycopg2
+**Technology**: postgresql
 **Feature/Pattern**: Connection pooling with ThreadedConnectionPool
 **Difficulty**: intermediate
 
